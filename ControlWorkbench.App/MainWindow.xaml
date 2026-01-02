@@ -83,19 +83,19 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock>
-                    <Run Text="Rx: "/>
-                    <Run Text="{Binding Connection.BytesPerSecond, StringFormat='{}{0:F0} B/s'}"/>
-                    <Run Text=" | "/>
-                    <Run Text="{Binding Connection.PacketsPerSecond, StringFormat='{}{0:F1} pkt/s'}"/>
-                </TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Rx: "/>
+                    <TextBlock Text="{Binding Connection.BytesPerSecond, StringFormat='{}{0:F0} B/s'}"/>
+                    <TextBlock Text=" | "/>
+                    <TextBlock Text="{Binding Connection.PacketsPerSecond, StringFormat='{}{0:F1} pkt/s'}"/>
+                </StackPanel>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock>
-                    <Run Text="Uptime: "/>
-                    <Run Text="{Binding TelemetryDashboard.UptimeFormatted}"/>
-                </TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Uptime: "/>
+                    <TextBlock Text="{Binding TelemetryDashboard.UptimeFormatted}"/>
+                </StackPanel>
             </StatusBarItem>
         </StatusBar>
     </Grid>

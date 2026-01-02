@@ -6,6 +6,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1200">
     
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
+    
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="350"/>
@@ -155,8 +159,4 @@
             </TabItem>
         </TabControl>
     </Grid>
-    
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-    </UserControl.Resources>
 </UserControl>

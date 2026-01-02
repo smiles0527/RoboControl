@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "ControlWorkbench.App": {
+      "commandName": "Project"
+    }
+  }
+}
