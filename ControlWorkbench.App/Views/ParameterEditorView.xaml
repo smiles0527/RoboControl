@@ -1,0 +1,97 @@
+<UserControl x:Class="ControlWorkbench.App.Views.ParameterEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header and Actions -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Refresh" Command="{Binding RefreshParametersCommand}"/>
+            <Button Content="Write All Changed" Command="{Binding WriteAllChangedCommand}"/>
+            <Button Content="Revert All" Command="{Binding RevertAllCommand}"/>
+            <Separator Margin="10,0"/>
+            <TextBlock VerticalAlignment="Center">
+                <Run Text="Modified: "/>
+                <Run Text="{Binding ModifiedCount, Mode=OneWay}" FontWeight="Bold"/>
+            </TextBlock>
+        </StackPanel>
+        
+        <!-- Parameter Grid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Parameters}" 
+                  SelectedItem="{Binding SelectedParameter}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  GridLinesVisibility="Horizontal"
+                  AlternatingRowBackground="#F8F8F8">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Parameter Name" Binding="{Binding Name}" Width="200" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Current Value" Binding="{Binding CurrentValue, StringFormat='{}{0:F6}'}" Width="120" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Desired Value" Binding="{Binding DesiredValue, StringFormat='{}{0:F6}'}" Width="120"/>
+                <DataGridTextColumn Header="Last Received" Binding="{Binding LastReceivedTime, StringFormat='{}{0:HH:mm:ss}'}" Width="100" IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Modified" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="?" HorizontalAlignment="Center" FontSize="14">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                                <Setter Property="Foreground" Value="Orange"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Actions" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Write" Command="{Binding DataContext.WriteSelectedCommand, 
+                                        RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}" Padding="5,2" Margin="2"/>
+                                <Button Content="Revert" Command="{Binding DataContext.RevertSelectedCommand, 
+                                        RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}" Padding="5,2" Margin="2"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsModified}" Value="True">
+                            <Setter Property="Background" Value="#FFF8E0"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+        
+        <!-- Add New Parameter -->
+        <GroupBox Grid.Row="2" Header="Add New Parameter" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Name:" VerticalAlignment="Center" Margin="5"/>
+                <TextBox Text="{Binding NewParameterName, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                <TextBlock Text="Value:" VerticalAlignment="Center" Margin="15,5,5,5"/>
+                <TextBox Text="{Binding NewParameterValue}" Width="100"/>
+                <Button Content="Add" Command="{Binding AddParameterCommand}" Margin="10,0,0,0"/>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</UserControl>

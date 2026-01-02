@@ -1,0 +1,128 @@
+<UserControl x:Class="ControlWorkbench.App.Views.LogsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left: Controls -->
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Logs and Step Response Metrics" Style="{StaticResource HeaderTextStyle}"/>
+            
+            <!-- File Operations -->
+            <GroupBox Header="Log File">
+                <StackPanel>
+                    <Button Content="Open Log File..." Command="{Binding OpenLogCommand}" 
+                            HorizontalAlignment="Left"/>
+                    <TextBlock Text="{Binding LogFilePath}" TextWrapping="Wrap" Margin="5" 
+                               FontSize="10" Foreground="Gray"/>
+                    <Button Content="Generate Sample Data" Command="{Binding GenerateSampleDataCommand}" 
+                            HorizontalAlignment="Left" Background="LightBlue"/>
+                </StackPanel>
+            </GroupBox>
+            
+            <!-- Signal Selection -->
+            <GroupBox Header="Signal Selection">
+                <StackPanel>
+                    <TextBlock Text="Select Signal:" Margin="3"/>
+                    <ComboBox ItemsSource="{Binding AvailableSignals}" 
+                              SelectedItem="{Binding SelectedSignal}" Margin="3"/>
+                </StackPanel>
+            </GroupBox>
+            
+            <!-- Step Response Parameters -->
+            <GroupBox Header="Step Response Analysis">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="Step Target:" VerticalAlignment="Center" Margin="3"/>
+                    <TextBox Grid.Column="1" Text="{Binding StepTarget}" Margin="3"/>
+                    
+                    <TextBlock Grid.Row="1" Text="Initial Value:" VerticalAlignment="Center" Margin="3"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InitialValue}" Margin="3"/>
+                </Grid>
+            </GroupBox>
+            
+            <StackPanel Orientation="Horizontal" Margin="5,10">
+                <Button Content="Compute Metrics" Command="{Binding ComputeMetricsCommand}"/>
+                <Button Content="Export Metrics" Command="{Binding ExportMetricsCommand}"/>
+            </StackPanel>
+            
+            <!-- Instructions -->
+            <GroupBox Header="Instructions">
+                <TextBlock TextWrapping="Wrap" FontSize="11" Margin="5">
+                    <Run FontWeight="Bold">Step Response Metrics:</Run>
+                    <LineBreak/>
+                    1. Click Generate Sample Data to create test data
+                    <LineBreak/>
+                    2. Set the Step Target (final value)
+                    <LineBreak/>
+                    3. Set the Initial Value (starting value)
+                    <LineBreak/>
+                    4. Click Compute Metrics
+                    <LineBreak/><LineBreak/>
+                    <Run FontWeight="Bold">Computed metrics:</Run>
+                    <LineBreak/>
+                    - Rise Time (10-90%)
+                    <LineBreak/>
+                    - Overshoot %
+                    <LineBreak/>
+                    - Settling Time (2% band)
+                    <LineBreak/>
+                    - Steady-State Error
+                    <LineBreak/>
+                    - Peak Value and Time
+                </TextBlock>
+            </GroupBox>
+        </StackPanel>
+        
+        <!-- Right: Results -->
+        <Grid Grid.Column="1" Margin="10,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Log Info -->
+            <GroupBox Header="Log Content" Grid.Row="0">
+                <TextBox Text="{Binding LogContent, Mode=OneWay}" 
+                         Height="100" IsReadOnly="True"
+                         Style="{StaticResource MonospaceTextBox}"/>
+            </GroupBox>
+            
+            <!-- Metrics Results -->
+            <GroupBox Header="Step Response Metrics" Grid.Row="1">
+                <TextBox Text="{Binding MetricsResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </GroupBox>
+            
+            <!-- Plot Placeholder -->
+            <GroupBox Header="Step Response Plot" Grid.Row="2">
+                <Border Background="#F5F5F5" BorderBrush="Gray" BorderThickness="1">
+                    <Grid>
+                        <TextBlock Text="[ScottPlot integration required for step response plot]" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                        <TextBlock Text="Data is available in ring buffers for plotting" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                                   Foreground="Gray" Margin="10" FontSize="10"/>
+                    </Grid>
+                </Border>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

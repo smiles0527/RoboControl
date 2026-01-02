@@ -1,0 +1,294 @@
+<UserControl x:Class="ControlWorkbench.App.Views.TelemetryDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1200">
+    
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Panel: Numeric Values -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Attitude -->
+                <GroupBox Header="Attitude">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Roll:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding RollDeg, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Column="2" Text="deg" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="Pitch:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PitchDeg, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="deg" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Yaw:" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding YawDeg, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="deg" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- Rates -->
+                <GroupBox Header="Angular Rates">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="P:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding RollRateDegPerSec, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Column="2" Text="deg/s" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="Q:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PitchRateDegPerSec, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="deg/s" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="R:" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding YawRateDegPerSec, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="deg/s" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- IMU -->
+                <GroupBox Header="IMU">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="|Accel|:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding AccelMagnitude, StringFormat='{}{0:F3}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Column="2" Text="m/s2" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="Temp:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Temperature, StringFormat='{}{0:F1}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="C" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- GPS -->
+                <GroupBox Header="GPS">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Lat:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Latitude, StringFormat='{}{0:F7}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Column="2" Text="deg" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="Lon:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Longitude, StringFormat='{}{0:F7}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="deg" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Alt:" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Altitude, StringFormat='{}{0:F1}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="m" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="3" Text="Speed:" Margin="3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding GpsSpeed, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="m/s" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="4" Text="H.Acc:" Margin="3"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding HorizontalAccuracy, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" Text="m" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- State Estimate -->
+                <GroupBox Header="State Estimate (2D)">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="X:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding StateX, StringFormat='{}{0:F3}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Column="2" Text="m" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="Y:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StateY, StringFormat='{}{0:F3}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="m" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Yaw:" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding StateYawDeg, StringFormat='{}{0:F2}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="deg" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="3" Text="Cov Tr:" Margin="3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CovarianceTrace, StringFormat='{}{0:F4}'}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <!-- Heartbeat -->
+                <GroupBox Header="System Status">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Uptime:" Margin="3"/>
+                        <TextBlock Grid.Column="1" Text="{Binding UptimeFormatted}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="State:" Margin="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SystemState}" 
+                                   Style="{StaticResource ValueTextStyle}" HorizontalAlignment="Right" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Armed:" Margin="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Margin="3">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource ValueTextStyle}">
+                                    <Setter Property="Text" Value="No"/>
+                                    <Setter Property="Foreground" Value="Gray"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsArmed}" Value="True">
+                                            <Setter Property="Text" Value="ARMED"/>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Right Panel: Plots Placeholder -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Gyro Plot Placeholder -->
+            <Border Grid.Row="0" Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="5">
+                <Grid Background="#F5F5F5">
+                    <TextBlock Text="Gyroscope (deg/s)" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+                    <TextBlock Text="[ScottPlot integration required for live plots]" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
+                        <TextBlock Text="{Binding GyroX, StringFormat='X: {0:F2} deg/s'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding GyroY, StringFormat='Y: {0:F2} deg/s'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding GyroZ, StringFormat='Z: {0:F2} deg/s'}" Style="{StaticResource ValueTextStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Accel Plot Placeholder -->
+            <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5">
+                <Grid Background="#F5F5F5">
+                    <TextBlock Text="Accelerometer (m/s2)" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+                    <TextBlock Text="[ScottPlot integration required for live plots]" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
+                        <TextBlock Text="{Binding AccelX, StringFormat='X: {0:F2} m/s2'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding AccelY, StringFormat='Y: {0:F2} m/s2'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding AccelZ, StringFormat='Z: {0:F2} m/s2'}" Style="{StaticResource ValueTextStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Attitude Plot Placeholder -->
+            <Border Grid.Row="1" Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="5">
+                <Grid Background="#F5F5F5">
+                    <TextBlock Text="Attitude (deg)" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+                    <TextBlock Text="[ScottPlot integration required for live plots]" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
+                        <TextBlock Text="{Binding RollDeg, StringFormat='Roll: {0:F2} deg'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding PitchDeg, StringFormat='Pitch: {0:F2} deg'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding YawDeg, StringFormat='Yaw: {0:F2} deg'}" Style="{StaticResource ValueTextStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- GPS Speed Plot Placeholder -->
+            <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5">
+                <Grid Background="#F5F5F5">
+                    <TextBlock Text="GPS Speed (m/s)" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+                    <TextBlock Text="[ScottPlot integration required for live plots]" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
+                        <TextBlock Text="{Binding GpsSpeed, StringFormat='Speed: {0:F2} m/s'}" Style="{StaticResource ValueTextStyle}" FontSize="16"/>
+                        <TextBlock Text="{Binding StateVx, StringFormat='Vx: {0:F2} m/s'}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding StateVy, StringFormat='Vy: {0:F2} m/s'}" Style="{StaticResource ValueTextStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

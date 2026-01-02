@@ -1,0 +1,174 @@
+<UserControl x:Class="ControlWorkbench.App.Views.ControlDesignView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200">
+    
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="380"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left: Input Panel -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Control Design" Style="{StaticResource HeaderTextStyle}"/>
+                
+                <!-- PID Configuration -->
+                <GroupBox Header="PID Controller">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Kp:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Column="1" Text="{Binding PidKp}" Margin="3"/>
+                            <TextBlock Grid.Column="2" Text="Ki:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Column="3" Text="{Binding PidKi}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="1" Text="Kd:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PidKd}" Margin="3"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Tf (s):" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding PidDerivativeFilterTf}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="2" Text="Out Lim:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PidOutputLimit}" Margin="3"/>
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="Int Lim:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding PidIntegratorLimit}" Margin="3"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <Button Content="Compute PID" Command="{Binding ComputePidCommand}"/>
+                            <Button Content="Export Code" Command="{Binding ExportPidCodeCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Cascaded PID Design -->
+                <GroupBox Header="Cascaded PID Design">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Inner Loop Type:" VerticalAlignment="Center" Margin="3"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding CascadeLoopTypes}" 
+                                      SelectedItem="{Binding InnerLoopType}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="1" Text="Outer Loop Type:" VerticalAlignment="Center" Margin="3"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding CascadeLoopTypes}" 
+                                      SelectedItem="{Binding OuterLoopType}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="2" Text="Inner BW (rad/s):" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding InnerLoopBandwidth}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="3" Text="Outer/Inner Ratio:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding OuterLoopBandwidthRatio}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="4" Text="Sample Time (s):" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CascadeSampleTime}" Margin="3"/>
+                        </Grid>
+                        <Button Content="Design Cascade" Command="{Binding DesignCascadeCommand}" 
+                                HorizontalAlignment="Left" Margin="3"/>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- LQR Design -->
+                <GroupBox Header="LQR Design">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="A matrix:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Column="1" Text="{Binding LqrAMatrix}" Margin="3" 
+                                     Height="40" AcceptsReturn="True"/>
+                            
+                            <TextBlock Grid.Row="1" Text="B matrix:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LqrBMatrix}" Margin="3"
+                                     Height="40" AcceptsReturn="True"/>
+                            
+                            <TextBlock Grid.Row="2" Text="Q diagonal:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LqrQDiagonal}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="3" Text="R diagonal:" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding LqrRDiagonal}" Margin="3"/>
+                            
+                            <CheckBox Grid.Row="4" Content="Continuous Time (CARE)" 
+                                      IsChecked="{Binding UseContinuousTime}" Margin="3"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="(unchecked = Discrete DARE)" 
+                                       FontSize="10" Foreground="Gray" VerticalAlignment="Center"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <Button Content="Solve LQR" Command="{Binding SolveLqrCommand}"/>
+                            <Button Content="Simulate Step" Command="{Binding SimulateLqrStepResponseCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Help Text -->
+                <GroupBox Header="Matrix Format Help">
+                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="DarkGray" Margin="3">
+                        <Run FontWeight="Bold">Vectors:</Run> comma-separated (e.g., "1, 2, 3")
+                        <LineBreak/>
+                        <Run FontWeight="Bold">Matrices:</Run> rows separated by semicolon
+                        <LineBreak/>
+                        Example: "0, 1; -1, -0.5" = 2x2 matrix
+                        <LineBreak/>
+                        <Run FontWeight="Bold">Diagonal:</Run> just the diagonal values
+                    </TextBlock>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Right: Results Panel -->
+        <TabControl Grid.Column="1" Margin="5,0,0,0">
+            <TabItem Header="PID">
+                <TextBox Text="{Binding PidResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="Cascade Design">
+                <TextBox Text="{Binding CascadeResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="LQR">
+                <TextBox Text="{Binding LqrResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="Step Response">
+                <TextBox Text="{Binding StepResponseResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

@@ -1,0 +1,102 @@
+﻿<Window x:Class="ControlWorkbench.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:ControlWorkbench.App.ViewModels"
+        xmlns:views="clr-namespace:ControlWorkbench.App.Views"
+        mc:Ignorable="d"
+        Title="ControlWorkbench - Robotics Engineering Tool" 
+        Height="800" Width="1400"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2D2D30" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="ControlWorkbench" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text=" - Robotics &amp; Drone Engineering Tool" FontSize="14" Foreground="#AAAAAA" VerticalAlignment="Bottom" Margin="5,0,0,2"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Main Content - Tab Control -->
+        <TabControl Grid.Row="1" Margin="5">
+            <!-- Connection Tab -->
+            <TabItem Header="Connection">
+                <views:ConnectionView DataContext="{Binding Connection}"/>
+            </TabItem>
+            
+            <!-- Telemetry Dashboard Tab -->
+            <TabItem Header="Telemetry Dashboard">
+                <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
+            </TabItem>
+            
+            <!-- Parameter Editor Tab -->
+            <TabItem Header="Parameter Editor">
+                <views:ParameterEditorView DataContext="{Binding ParameterEditor}"/>
+            </TabItem>
+            
+            <!-- Math Workbench Tab -->
+            <TabItem Header="Math Workbench (EKF)">
+                <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
+            </TabItem>
+            
+            <!-- Control Design Tab -->
+            <TabItem Header="Control Design (PID/LQR)">
+                <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
+            </TabItem>
+            
+            <!-- Logs Tab -->
+            <TabItem Header="Logs &amp; Metrics">
+                <views:LogsView DataContext="{Binding Logs}"/>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="10" Height="10" Margin="0,0,5,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="Gray"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Connection.IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="LimeGreen"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding Connection.StatusMessage}"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Rx: "/>
+                    <Run Text="{Binding Connection.BytesPerSecond, StringFormat='{}{0:F0} B/s'}"/>
+                    <Run Text=" | "/>
+                    <Run Text="{Binding Connection.PacketsPerSecond, StringFormat='{}{0:F1} pkt/s'}"/>
+                </TextBlock>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Uptime: "/>
+                    <Run Text="{Binding TelemetryDashboard.UptimeFormatted}"/>
+                </TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

@@ -1,0 +1,194 @@
+<UserControl x:Class="ControlWorkbench.App.Views.ConnectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Column: Connection Settings -->
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Connection Settings" Style="{StaticResource HeaderTextStyle}"/>
+            
+            <!-- Connection Type Selection -->
+            <GroupBox Header="Connection Type">
+                <StackPanel>
+                    <RadioButton Content="Serial Port" IsChecked="{Binding IsSerialSelected}" Margin="5"/>
+                    <RadioButton Content="UDP" IsChecked="{Binding IsUdpSelected}" Margin="5"/>
+                    <RadioButton Content="Mock Telemetry Source" IsChecked="{Binding IsMockSelected}" Margin="5" 
+                                 FontWeight="Bold" Foreground="DarkGreen"/>
+                </StackPanel>
+            </GroupBox>
+            
+            <!-- Serial Settings -->
+            <GroupBox Header="Serial Port Settings" IsEnabled="{Binding IsSerialSelected}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="COM Port:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding AvailableComPorts}" 
+                              SelectedItem="{Binding SelectedComPort}"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="Refresh" Command="{Binding RefreshPortsCommand}"/>
+                    
+                    <TextBlock Text="Baud Rate:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding BaudRates}" 
+                              SelectedItem="{Binding SelectedBaudRate}"/>
+                </Grid>
+            </GroupBox>
+            
+            <!-- UDP Settings -->
+            <GroupBox Header="UDP Settings" IsEnabled="{Binding IsUdpSelected}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="Local Port:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LocalPort}"/>
+                    
+                    <TextBlock Text="Remote Host:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RemoteHost}"/>
+                    
+                    <TextBlock Text="Remote Port:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RemotePort}"/>
+                </Grid>
+            </GroupBox>
+            
+            <!-- Mock Settings -->
+            <GroupBox Header="Mock Telemetry Settings" IsEnabled="{Binding IsMockSelected}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Update Rate (Hz):" VerticalAlignment="Center" Margin="5"/>
+                    <TextBox Grid.Column="1" Text="{Binding MockUpdateRateHz}"/>
+                </Grid>
+            </GroupBox>
+            
+            <!-- Connect/Disconnect Buttons -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <Button Content="Connect" Command="{Binding ConnectCommand}" Width="100" 
+                        Background="LimeGreen" FontWeight="Bold"/>
+                <Button Content="Disconnect" Command="{Binding DisconnectCommand}" Width="100"
+                        Background="Salmon"/>
+            </StackPanel>
+        </StackPanel>
+        
+        <!-- Right Column: Statistics -->
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="Connection Statistics" Style="{StaticResource HeaderTextStyle}"/>
+            
+            <GroupBox Header="Status">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="State:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ConnectionState}" FontWeight="Bold" Margin="5"/>
+                    
+                    <TextBlock Text="Message:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StatusMessage}" Margin="5"/>
+                </Grid>
+            </GroupBox>
+            
+            <GroupBox Header="Receive Statistics">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="Bytes Received:" Margin="5"/>
+                    <TextBlock Grid.Column="1" Text="{Binding BytesReceived, StringFormat='{}{0:N0}'}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                    
+                    <TextBlock Grid.Row="1" Text="Packets Received:" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PacketsReceived, StringFormat='{}{0:N0}'}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                    
+                    <TextBlock Grid.Row="2" Text="Bytes/sec:" Margin="5"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BytesPerSecond, StringFormat='{}{0:F1}'}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                    
+                    <TextBlock Grid.Row="3" Text="Packets/sec:" Margin="5"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PacketsPerSecond, StringFormat='{}{0:F1}'}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                </Grid>
+            </GroupBox>
+            
+            <GroupBox Header="Errors">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="CRC Errors:" Margin="5"/>
+                    <TextBlock Grid.Column="1" Text="{Binding CrcErrors}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                    
+                    <TextBlock Grid.Row="1" Text="Framing Errors:" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FramingErrors}" 
+                               Style="{StaticResource ValueTextStyle}" Margin="5"/>
+                </Grid>
+            </GroupBox>
+            
+            <!-- Instructions -->
+            <GroupBox Header="Instructions">
+                <TextBlock TextWrapping="Wrap" Margin="5">
+                    <Run FontWeight="Bold">Mock Telemetry Source:</Run>
+                    <LineBreak/>
+                    Select "Mock Telemetry Source" and click Connect to generate 
+                    simulated telemetry data for testing. This allows the dashboard 
+                    and logging features to work without actual hardware.
+                    <LineBreak/><LineBreak/>
+                    <Run FontWeight="Bold">Serial:</Run>
+                    <LineBreak/>
+                    Connect to a device via serial port. Select the COM port and baud rate.
+                    <LineBreak/><LineBreak/>
+                    <Run FontWeight="Bold">UDP:</Run>
+                    <LineBreak/>
+                    Listen for UDP packets on the specified local port.
+                </TextBlock>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

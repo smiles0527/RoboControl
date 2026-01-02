@@ -1,0 +1,162 @@
+<UserControl x:Class="ControlWorkbench.App.Views.MathWorkbenchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200">
+    
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left: Input Panel -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="EKF Math Workbench" Style="{StaticResource HeaderTextStyle}"/>
+                
+                <!-- Motion Model Selection -->
+                <GroupBox Header="Motion Model">
+                    <StackPanel>
+                        <ComboBox ItemsSource="{Binding MotionModelTypes}" 
+                                  SelectedItem="{Binding SelectedMotionModelType}" Margin="3"/>
+                        <TextBlock Text="{Binding MotionModelDescription}" TextWrapping="Wrap" 
+                                   FontFamily="Consolas" FontSize="10" Margin="5" Foreground="DarkBlue"/>
+                        <TextBlock Text="{Binding StateNames, StringFormat='States: {0}'}" FontSize="10" Margin="5,0"/>
+                        <TextBlock Text="{Binding InputNames, StringFormat='Inputs: {0}'}" FontSize="10" Margin="5,0"/>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Prediction Parameters -->
+                <GroupBox Header="Prediction Parameters">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="dt (s):" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Column="1" Text="{Binding Dt}" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="State x:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding StateInput}" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Covariance P:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CovarianceInput}" Margin="3" 
+                                 Height="50" AcceptsReturn="True" TextWrapping="Wrap"/>
+                        
+                        <TextBlock Grid.Row="3" Text="Q diagonal:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ProcessNoiseInput}" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="4" Text="Input u:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding InputVectorInput}" Margin="3"/>
+                    </Grid>
+                </GroupBox>
+                
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Content="Predict" Command="{Binding ComputePredictionCommand}"/>
+                    <Button Content="Validate Jacobians" Command="{Binding ValidateJacobiansCommand}"/>
+                    <Button Content="Reset" Command="{Binding ResetToDefaultsCommand}"/>
+                </StackPanel>
+                
+                <!-- Measurement Model Selection -->
+                <GroupBox Header="Measurement Model">
+                    <StackPanel>
+                        <ComboBox ItemsSource="{Binding MeasurementModelTypes}" 
+                                  SelectedItem="{Binding SelectedMeasurementModelType}" Margin="3"/>
+                        <TextBlock Text="{Binding MeasurementModelDescription}" TextWrapping="Wrap" 
+                                   FontFamily="Consolas" FontSize="10" Margin="5" Foreground="DarkGreen"/>
+                    </StackPanel>
+                </GroupBox>
+                
+                <!-- Measurement Update Parameters -->
+                <GroupBox Header="Measurement Update">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Measurement z:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Column="1" Text="{Binding MeasurementInput}" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="1" Text="R diagonal:" VerticalAlignment="Center" Margin="3"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MeasurementNoiseInput}" Margin="3"/>
+                        
+                        <TextBlock Grid.Row="2" Text="Beacon (x,y):" VerticalAlignment="Center" Margin="3"
+                                   Visibility="{Binding ShowBeaconPosition, Converter={StaticResource BoolToVisibility}}"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BeaconPositionInput}" Margin="3"
+                                 Visibility="{Binding ShowBeaconPosition, Converter={StaticResource BoolToVisibility}}"/>
+                    </Grid>
+                </GroupBox>
+                
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Content="Update" Command="{Binding ComputeUpdateCommand}"/>
+                    <Button Content="Export" Command="{Binding ExportResultsCommand}"/>
+                </StackPanel>
+                
+                <!-- Complementary Filter Design -->
+                <GroupBox Header="Complementary Filter Design">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Sample Time (s):" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Column="1" Text="{Binding CfSampleTime}" Margin="3"/>
+                            
+                            <TextBlock Grid.Row="1" Text="Cutoff Freq (Hz):" VerticalAlignment="Center" Margin="3"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CfCutoffFrequency}" Margin="3"/>
+                        </Grid>
+                        <Button Content="Design Filter" Command="{Binding DesignComplementaryFilterCommand}" 
+                                HorizontalAlignment="Left" Margin="3"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Right: Results Panel -->
+        <TabControl Grid.Column="1" Margin="5,0,0,0">
+            <TabItem Header="Prediction">
+                <TextBox Text="{Binding PredictionResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="Update">
+                <TextBox Text="{Binding UpdateResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="Jacobian Validation">
+                <TextBox Text="{Binding JacobianValidationResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+            <TabItem Header="Complementary Filter">
+                <TextBox Text="{Binding CfResult, Mode=OneWay}" 
+                         Style="{StaticResource MonospaceTextBox}" IsReadOnly="True"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
+</UserControl>
