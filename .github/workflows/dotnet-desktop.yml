@@ -1,0 +1,46 @@
+name: .NET Desktop
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore ControlWorkbench.sln
+
+    - name: Build
+      run: dotnet build ControlWorkbench.sln --configuration ${{ matrix.configuration }} --no-restore
+
+    - name: Test
+      run: dotnet test ControlWorkbench.sln --configuration ${{ matrix.configuration }} --no-build --verbosity normal
+
+    - name: Publish
+      if: matrix.configuration == 'Release'
+      run: dotnet publish ControlWorkbench.App/ControlWorkbench.App.csproj --configuration Release --output ./publish
+
+    - name: Upload build artifacts
+      if: matrix.configuration == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ControlWorkbench-Release
+        path: ./publish
