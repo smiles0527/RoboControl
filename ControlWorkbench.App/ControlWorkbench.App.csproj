@@ -7,9 +7,31 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
+    
+    <!-- Protection: Publish as single file with native compilation -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    
+    <!-- Trim unused code -->
+    <PublishTrimmed>false</PublishTrimmed>
+    
+    <!-- Obfuscation: Only in Release mode -->
+    <Obfuscate Condition="'$(Configuration)' == 'Release'">true</Obfuscate>
+    <ObfuscateOutputDir>$(OutputPath)Obfuscated</ObfuscateOutputDir>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="ConfuserEx.crproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confuser.MSBuild" Version="1.6.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="ScottPlot.WPF" Version="5.0.39" />
   </ItemGroup>
 

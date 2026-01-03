@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputDir=".\Confused" baseDir="." xmlns="http://confuser.codeplex.com">
+  <!-- Protect all assemblies -->
+  <rule pattern="true" inherit="false">
+    <!-- Anti-debugging protection -->
+    <protection id="anti debug" />
+    
+    <!-- Anti-tamper protection -->
+    <protection id="anti tamper" />
+    
+    <!-- Constants encryption -->
+    <protection id="constants" />
+    
+    <!-- Control flow obfuscation -->
+    <protection id="ctrl flow" />
+    
+    <!-- Invalid metadata protection -->
+    <protection id="invalid metadata" />
+    
+    <!-- Reference proxy -->
+    <protection id="ref proxy" />
+    
+    <!-- Resource encryption -->
+    <protection id="resources" />
+    
+    <!-- Symbol renaming (most important) -->
+    <protection id="rename">
+      <argument name="mode" value="unicode" />
+      <argument name="renPublic" value="true" />
+    </protection>
+  </rule>
+  
+  <!-- Main executable -->
+  <module path="ControlWorkbench.App.dll" />
+  <module path="ControlWorkbench.Core.dll" />
+  <module path="ControlWorkbench.Math.dll" />
+  <module path="ControlWorkbench.Protocol.dll" />
+  <module path="ControlWorkbench.Transport.dll" />
+</project>
