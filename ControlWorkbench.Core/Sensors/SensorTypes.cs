@@ -161,12 +161,11 @@ public record MotorData
     public double Velocity { get; init; } // rad/s or m/s
     public double Current { get; init; } // A
     public double Temperature { get; init; } // °C
-    public double TargetPosition { get; init; }
+    public double TacrgetPosition { get; init; }
     public double TargetVelocity { get; init; }
     public MotorMode Mode { get; init; }
     public MotorStatus Status { get; init; }
 }
-
 public enum MotorMode
 {
     Off,

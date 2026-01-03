@@ -6,6 +6,7 @@
         xmlns:vm="clr-namespace:ControlWorkbench.App.ViewModels"
         xmlns:views="clr-namespace:ControlWorkbench.App.Views"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
         Title="ControlWorkbench - Robotics Engineering Tool" 
         Height="800" Width="1400"
         WindowStartupLocation="CenterScreen">
