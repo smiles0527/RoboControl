@@ -1,0 +1,274 @@
+<UserControl x:Class="ControlWorkbench.App.Views.VexPathPlannerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200"
+             Background="#1E1E1E">
+    
+    <UserControl.Resources>
+        <Style TargetType="Button" x:Key="ToolButton">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,5,0,2"/>
+        </Style>
+        
+        <Style TargetType="TextBox" x:Key="InputStyle">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Panel - Path List & Tools -->
+        <Border Grid.Column="0" Background="#2D2D30" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10">
+                    <TextBlock Text="VEX Path Planner" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                    
+                    <!-- Game Selection -->
+                    <TextBlock Text="VRC Game" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox x:Name="GameCombo" SelectedIndex="0" Margin="0,0,0,10">
+                        <ComboBoxItem Content="High Stakes (2024-25)"/>
+                        <ComboBoxItem Content="Over Under (2023-24)"/>
+                        <ComboBoxItem Content="Spin Up (2022-23)"/>
+                    </ComboBox>
+                    
+                    <!-- Alliance Selection -->
+                    <TextBlock Text="Alliance" Style="{StaticResource LabelStyle}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton Content="Red" Foreground="#FF6B6B" IsChecked="True" Margin="0,0,20,0"/>
+                        <RadioButton Content="Blue" Foreground="#6B9FFF"/>
+                    </StackPanel>
+                    
+                    <!-- Starting Position -->
+                    <TextBlock Text="Starting Position" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox x:Name="StartPosCombo" SelectedIndex="0" Margin="0,0,0,15">
+                        <ComboBoxItem Content="Positive Corner"/>
+                        <ComboBoxItem Content="Negative Corner"/>
+                        <ComboBoxItem Content="Skills Start"/>
+                    </ComboBox>
+                    
+                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    
+                    <!-- Paths List -->
+                    <TextBlock Text="Paths" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                    <ListBox x:Name="PathsList" Background="#3E3E42" Foreground="White" Height="150" Margin="0,0,0,10">
+                        <ListBoxItem Content="?? Red Positive Auton"/>
+                        <ListBoxItem Content="?? Red Negative Auton"/>
+                        <ListBoxItem Content="?? Blue Positive Auton"/>
+                        <ListBoxItem Content="? Skills Run"/>
+                    </ListBox>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="? New" Style="{StaticResource ToolButton}" Width="70"/>
+                        <Button Content="?? Copy" Style="{StaticResource ToolButton}" Width="70"/>
+                        <Button Content="??? Delete" Style="{StaticResource ToolButton}" Width="70"/>
+                    </StackPanel>
+                    
+                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    
+                    <!-- Drawing Tools -->
+                    <TextBlock Text="Tools" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                    <WrapPanel Margin="0,5,0,0">
+                        <Button Content="??" ToolTip="Add Waypoint" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Add Turn" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Add Wait" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Grab Mogo" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Score Ring" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Pneumatic" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Undo" Style="{StaticResource ToolButton}"/>
+                        <Button Content="??" ToolTip="Redo" Style="{StaticResource ToolButton}"/>
+                    </WrapPanel>
+                    
+                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    
+                    <!-- Path Settings -->
+                    <TextBlock Text="Path Settings" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                    
+                    <TextBlock Text="Max Velocity (in/s)" Style="{StaticResource LabelStyle}"/>
+                    <Slider x:Name="MaxVelSlider" Minimum="20" Maximum="100" Value="60"/>
+                    <TextBlock Text="{Binding Value, ElementName=MaxVelSlider, StringFormat='{}{0:F0} in/s'}" Foreground="#888888" FontSize="10"/>
+                    
+                    <TextBlock Text="Lookahead Distance (in)" Style="{StaticResource LabelStyle}"/>
+                    <Slider x:Name="LookaheadSlider" Minimum="6" Maximum="24" Value="12"/>
+                    <TextBlock Text="{Binding Value, ElementName=LookaheadSlider, StringFormat='{}{0:F0} in'}" Foreground="#888888" FontSize="10"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Center - Field Canvas -->
+        <Border Grid.Column="1" Background="#252526" Margin="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Toolbar -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#2D2D30" Height="40">
+                    <Button Content="?? Simulate" Width="100" Margin="5" Background="#4CAF50" Foreground="White"/>
+                    <Button Content="?? Stop" Width="80" Margin="5"/>
+                    <Separator Width="1" Background="#555555" Margin="5"/>
+                    <Button Content="??+" Width="40" Margin="2"/>
+                    <Button Content="??-" Width="40" Margin="2"/>
+                    <Button Content="?? Reset View" Width="100" Margin="5"/>
+                    <Separator Width="1" Background="#555555" Margin="5"/>
+                    <CheckBox Content="Show Grid" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                    <CheckBox Content="Show Curvature" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                    <CheckBox Content="Show Velocity" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                </StackPanel>
+                
+                <!-- Field Canvas -->
+                <Canvas x:Name="FieldCanvas" Grid.Row="1" Background="#333333" ClipToBounds="True">
+                    <!-- Field will be drawn here -->
+                    <!-- This is a placeholder - actual field image and elements rendered in code-behind -->
+                    
+                    <Canvas.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Add Waypoint Here"/>
+                            <MenuItem Header="Add Turn Point"/>
+                            <Separator/>
+                            <MenuItem Header="Add Action">
+                                <MenuItem Header="Score on Stake"/>
+                                <MenuItem Header="Grab Mobile Goal"/>
+                                <MenuItem Header="Release Mobile Goal"/>
+                                <MenuItem Header="Toggle Intake"/>
+                                <MenuItem Header="Wait (ms)..."/>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Delete Point"/>
+                        </ContextMenu>
+                    </Canvas.ContextMenu>
+                </Canvas>
+                
+                <!-- Timeline -->
+                <Border Grid.Row="2" Background="#2D2D30" Height="60">
+                    <Grid Margin="10,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Timeline: " Foreground="#888888"/>
+                            <TextBlock x:Name="TimelineText" Text="0.0s / 15.0s" Foreground="White"/>
+                            <TextBlock Text="  |  Distance: " Foreground="#888888" Margin="20,0,0,0"/>
+                            <TextBlock x:Name="DistanceText" Text="0.0 / 48.5 in" Foreground="White"/>
+                        </StackPanel>
+                        
+                        <Slider Grid.Row="1" x:Name="TimelineSlider" Minimum="0" Maximum="100" Value="0" Margin="0,5,0,0"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Right Panel - Waypoint Details & Code -->
+        <Border Grid.Column="2" Background="#2D2D30" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10">
+                    <!-- Selected Waypoint -->
+                    <TextBlock Text="Selected Waypoint" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    
+                    <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X (in):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WaypointX" Text="24.0" Style="{StaticResource InputStyle}"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y (in):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="WaypointY" Text="36.0" Style="{StaticResource InputStyle}"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Heading (deg):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="WaypointHeading" Text="90" Style="{StaticResource InputStyle}"/>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Velocity:" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="WaypointVel" Text="60" Style="{StaticResource InputStyle}"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Actions at Waypoint -->
+                    <TextBlock Text="Actions at Waypoint" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                    <ListBox x:Name="ActionsList" Background="#3E3E42" Foreground="White" Height="100" Margin="0,5,0,10">
+                        <ListBoxItem Content="?? Wait 200ms"/>
+                        <ListBoxItem Content="?? Grab Mobile Goal"/>
+                    </ListBox>
+                    <Button Content="+ Add Action" Background="#3E3E42" Foreground="White" Margin="0,0,0,15"/>
+                    
+                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    
+                    <!-- Path Statistics -->
+                    <TextBlock Text="Path Statistics" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Total Distance: 48.5 in" Foreground="#AAAAAA"/>
+                            <TextBlock Text="Estimated Time: 3.2s" Foreground="#AAAAAA"/>
+                            <TextBlock Text="Waypoints: 5" Foreground="#AAAAAA"/>
+                            <TextBlock Text="Max Curvature: 0.08 /in" Foreground="#AAAAAA"/>
+                            <TextBlock Text="Avg Velocity: 52 in/s" Foreground="#AAAAAA"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    
+                    <!-- Export Options -->
+                    <TextBlock Text="Export" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    
+                    <Button Content="?? Copy LemLib Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
+                    <Button Content="?? Copy Pure Pursuit Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
+                    <Button Content="?? Save Path File (.json)" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
+                    <Button Content="?? Load Path File" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,15"/>
+                    
+                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    
+                    <!-- Quick Code Preview -->
+                    <TextBlock Text="Code Preview" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    <Border Background="#1E1E1E" Padding="10" CornerRadius="5">
+                        <TextBox x:Name="CodePreview" 
+                                 FontFamily="Consolas" 
+                                 FontSize="11" 
+                                 Foreground="#9CDCFE"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 IsReadOnly="True"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 Height="150"
+                                 Text="// LemLib path&#x0a;ASSET(red_positive_txt) = {&#x0a;    24, 36, 90,&#x0a;    48, 48, 45,&#x0a;    72, 36, 0,&#x0a;};&#x0a;&#x0a;void red_positive() {&#x0a;    chassis.follow(&#x0a;        red_positive_txt,&#x0a;        12, 4000);&#x0a;}"/>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

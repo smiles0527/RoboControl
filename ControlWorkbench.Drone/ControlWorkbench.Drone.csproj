@@ -9,12 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ControlWorkbench.Core\ControlWorkbench.Core.csproj" />
-    <ProjectReference Include="..\ControlWorkbench.Protocol\ControlWorkbench.Protocol.csproj" />
+    <ProjectReference Include="..\ControlWorkbench.Math\ControlWorkbench.Math.csproj" />
   </ItemGroup>
 
 </Project>

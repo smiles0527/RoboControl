@@ -125,40 +125,63 @@ public class VexMessageCodec
 }
 
 /// <summary>
-/// Represents a parsed VEX message.
+/// Parsed VEX message.
 /// </summary>
-public readonly struct VexMessage
+public struct VexMessage
 {
     public VexMessageType Type { get; }
     public byte[] Payload { get; }
-    public DateTime Timestamp { get; }
+    public DateTime ReceivedAt { get; }
 
     public VexMessage(VexMessageType type, byte[] payload)
     {
         Type = type;
         Payload = payload;
-        Timestamp = DateTime.UtcNow;
+        ReceivedAt = DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Get the port number from the first byte of payload.
+    /// </summary>
+    public int Port => Payload.Length > 0 ? Payload[0] : 0;
+
+    /// <summary>
+    /// Get payload without the port byte.
+    /// </summary>
+    public ReadOnlySpan<byte> Data => Payload.Length > 1 ? Payload.AsSpan(1) : ReadOnlySpan<byte>.Empty;
 }
 
 /// <summary>
-/// Telemetry data structures for VEX V5.
+/// VEX telemetry data structures for parsing.
 /// </summary>
 public static class VexTelemetry
 {
     /// <summary>
-    /// Odometry data from the robot.
+    /// Odometry data from robot.
     /// </summary>
     public readonly record struct OdometryData(
-        double X,           // inches
-        double Y,           // inches
-        double Theta,       // radians
-        double VelocityX,   // inches/sec
-        double VelocityY,   // inches/sec
-        double AngularVelocity, // rad/sec
-        uint Timestamp      // ms since start
+        double X,
+        double Y,
+        double Theta,
+        double VelocityX,
+        double VelocityY,
+        double AngularVelocity,
+        uint Timestamp
     )
     {
+        public byte[] ToBytes()
+        {
+            var bytes = new byte[52];
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(0), X);
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(8), Y);
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(16), Theta);
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(24), VelocityX);
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(32), VelocityY);
+            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(40), AngularVelocity);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(48), Timestamp);
+            return bytes;
+        }
+
         public static OdometryData Parse(ReadOnlySpan<byte> data)
         {
             return new OdometryData(
@@ -171,34 +194,21 @@ public static class VexTelemetry
                 BinaryPrimitives.ReadUInt32LittleEndian(data[48..])
             );
         }
-
-        public byte[] ToBytes()
-        {
-            var data = new byte[52];
-            BinaryPrimitives.WriteDoubleLittleEndian(data, X);
-            BinaryPrimitives.WriteDoubleLittleEndian(data.AsSpan(8), Y);
-            BinaryPrimitives.WriteDoubleLittleEndian(data.AsSpan(16), Theta);
-            BinaryPrimitives.WriteDoubleLittleEndian(data.AsSpan(24), VelocityX);
-            BinaryPrimitives.WriteDoubleLittleEndian(data.AsSpan(32), VelocityY);
-            BinaryPrimitives.WriteDoubleLittleEndian(data.AsSpan(40), AngularVelocity);
-            BinaryPrimitives.WriteUInt32LittleEndian(data.AsSpan(48), Timestamp);
-            return data;
-        }
     }
 
     /// <summary>
-    /// IMU/Inertial sensor data.
+    /// IMU sensor data.
     /// </summary>
     public readonly record struct ImuData(
-        double Heading,     // degrees
-        double Pitch,       // degrees
-        double Roll,        // degrees
-        double GyroX,       // deg/sec
-        double GyroY,       // deg/sec
-        double GyroZ,       // deg/sec
-        double AccelX,      // g
-        double AccelY,      // g
-        double AccelZ       // g
+        double Heading,
+        double Pitch,
+        double Roll,
+        double GyroX,
+        double GyroY,
+        double GyroZ,
+        double AccelX,
+        double AccelY,
+        double AccelZ
     )
     {
         public static ImuData Parse(ReadOnlySpan<byte> data)
@@ -222,19 +232,13 @@ public static class VexTelemetry
     /// </summary>
     public readonly record struct MotorData(
         byte Port,
-        double Position,        // degrees
-        double Velocity,        // RPM
-        double Current,         // mA
-        double Voltage,         // mV
-        double Temperature,     // Celsius
-        double Power,           // Watts
-        double Torque,          // Nm
-        int TargetPosition,     // encoder ticks
-        int TargetVelocity,     // RPM
-        MotorBrakeMode BrakeMode,
-        bool IsReversed,
-        bool IsOverTemp,
-        bool IsOverCurrent
+        double Position,
+        double Velocity,
+        double Current,
+        double Voltage,
+        double Temperature,
+        double Power,
+        double Torque
     )
     {
         public static MotorData Parse(ReadOnlySpan<byte> data)
@@ -247,67 +251,30 @@ public static class VexTelemetry
                 BinaryPrimitives.ReadDoubleLittleEndian(data[25..]),
                 BinaryPrimitives.ReadDoubleLittleEndian(data[33..]),
                 BinaryPrimitives.ReadDoubleLittleEndian(data[41..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[49..]),
-                BinaryPrimitives.ReadInt32LittleEndian(data[57..]),
-                BinaryPrimitives.ReadInt32LittleEndian(data[61..]),
-                (MotorBrakeMode)data[65],
-                (data[66] & 0x01) != 0,
-                (data[66] & 0x02) != 0,
-                (data[66] & 0x04) != 0
+                BinaryPrimitives.ReadDoubleLittleEndian(data[49..])
             );
         }
     }
 
     /// <summary>
-    /// PID controller state for debugging.
+    /// Optical sensor (color) data.
     /// </summary>
-    public readonly record struct PidStateData(
-        byte ControllerId,
-        double Setpoint,
-        double Measurement,
-        double Error,
-        double Integral,
-        double Derivative,
-        double Output,
-        double Kp,
-        double Ki,
-        double Kd
+    public readonly record struct OpticalData(
+        byte Port,
+        double Hue,
+        double Saturation,
+        double Brightness,
+        byte Proximity
     )
     {
-        public static PidStateData Parse(ReadOnlySpan<byte> data)
+        public static OpticalData Parse(ReadOnlySpan<byte> data)
         {
-            return new PidStateData(
+            return new OpticalData(
                 data[0],
                 BinaryPrimitives.ReadDoubleLittleEndian(data[1..]),
                 BinaryPrimitives.ReadDoubleLittleEndian(data[9..]),
                 BinaryPrimitives.ReadDoubleLittleEndian(data[17..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[25..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[33..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[41..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[49..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[57..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[65..])
-            );
-        }
-    }
-
-    /// <summary>
-    /// Battery status data.
-    /// </summary>
-    public readonly record struct BatteryData(
-        double Voltage,     // V
-        double Current,     // A
-        double Capacity,    // % remaining
-        double Temperature  // Celsius
-    )
-    {
-        public static BatteryData Parse(ReadOnlySpan<byte> data)
-        {
-            return new BatteryData(
-                BinaryPrimitives.ReadDoubleLittleEndian(data),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[8..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[16..]),
-                BinaryPrimitives.ReadDoubleLittleEndian(data[24..])
+                data[25]
             );
         }
     }
@@ -321,8 +288,8 @@ public static class VexTelemetry
         sbyte RightStickX,
         sbyte RightStickY,
         ControllerButtons Buttons,
-        ControllerButtons ButtonsPressed,  // Just pressed this frame
-        ControllerButtons ButtonsReleased  // Just released this frame
+        ControllerButtons ButtonsPressed,
+        ControllerButtons ButtonsReleased
     )
     {
         public static ControllerData Parse(ReadOnlySpan<byte> data)
@@ -344,9 +311,9 @@ public static class VexTelemetry
     /// </summary>
     public readonly record struct RotationData(
         byte Port,
-        double Position,    // degrees
-        double Velocity,    // deg/sec
-        int RawPosition     // centidegrees
+        double Position,
+        double Velocity,
+        int RawPosition
     )
     {
         public static RotationData Parse(ReadOnlySpan<byte> data)
@@ -365,10 +332,10 @@ public static class VexTelemetry
     /// </summary>
     public readonly record struct DistanceData(
         byte Port,
-        double Distance,    // mm
-        double Velocity,    // mm/sec (object approach rate)
-        int Confidence,     // 0-100%
-        int ObjectSize      // relative size
+        double Distance,
+        double Velocity,
+        int Confidence,
+        int ObjectSize
     )
     {
         public static DistanceData Parse(ReadOnlySpan<byte> data)
@@ -388,12 +355,12 @@ public static class VexTelemetry
     /// </summary>
     public readonly record struct GpsData(
         byte Port,
-        double X,           // inches (field coordinates)
-        double Y,           // inches
-        double Heading,     // degrees
-        double Pitch,       // degrees
-        double Roll,        // degrees
-        int Quality         // 0-100%
+        double X,
+        double Y,
+        double Heading,
+        double Pitch,
+        double Roll,
+        int Quality
     )
     {
         public static GpsData Parse(ReadOnlySpan<byte> data)
@@ -425,6 +392,65 @@ public static class VexTelemetry
             var timestamp = BinaryPrimitives.ReadUInt32LittleEndian(data[1..]);
             var message = System.Text.Encoding.UTF8.GetString(data[5..]);
             return new LogMessage(level, message, timestamp);
+        }
+    }
+
+    /// <summary>
+    /// PID controller state data.
+    /// </summary>
+    public readonly record struct PidStateData(
+        byte ControllerId,
+        string Name,
+        double Setpoint,
+        double Measurement,
+        double Error,
+        double Output,
+        double P,
+        double I,
+        double D,
+        uint Timestamp
+    )
+    {
+        public static PidStateData Parse(ReadOnlySpan<byte> data)
+        {
+            byte controllerId = data[0];
+            int nameLen = data[1];
+            string name = System.Text.Encoding.UTF8.GetString(data.Slice(2, nameLen));
+            int offset = 2 + nameLen;
+
+            return new PidStateData(
+                controllerId,
+                name,
+                BinaryPrimitives.ReadDoubleLittleEndian(data[offset..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 8)..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 16)..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 24)..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 32)..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 40)..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[(offset + 48)..]),
+                BinaryPrimitives.ReadUInt32LittleEndian(data[(offset + 56)..])
+            );
+        }
+    }
+
+    /// <summary>
+    /// Battery status data.
+    /// </summary>
+    public readonly record struct BatteryData(
+        double Voltage,
+        double Current,
+        double Capacity,
+        double Temperature
+    )
+    {
+        public static BatteryData Parse(ReadOnlySpan<byte> data)
+        {
+            return new BatteryData(
+                BinaryPrimitives.ReadDoubleLittleEndian(data),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[8..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[16..]),
+                BinaryPrimitives.ReadDoubleLittleEndian(data[24..])
+            );
         }
     }
 

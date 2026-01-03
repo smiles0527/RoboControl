@@ -40,6 +40,8 @@
     <ProjectReference Include="..\ControlWorkbench.Math\ControlWorkbench.Math.csproj" />
     <ProjectReference Include="..\ControlWorkbench.Protocol\ControlWorkbench.Protocol.csproj" />
     <ProjectReference Include="..\ControlWorkbench.Transport\ControlWorkbench.Transport.csproj" />
+    <ProjectReference Include="..\ControlWorkbench.VEX\ControlWorkbench.VEX.csproj" />
+    <ProjectReference Include="..\ControlWorkbench.Drone\ControlWorkbench.Drone.csproj" />
   </ItemGroup>
 
 </Project>

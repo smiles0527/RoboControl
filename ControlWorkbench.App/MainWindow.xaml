@@ -7,8 +7,8 @@
         xmlns:views="clr-namespace:ControlWorkbench.App.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
-        Title="ControlWorkbench - Robotics Engineering Tool" 
-        Height="800" Width="1400"
+        Title="ControlWorkbench - Robotics and Drone Engineering Tool" 
+        Height="900" Width="1600"
         WindowStartupLocation="CenterScreen">
     
     <Window.DataContext>
@@ -24,41 +24,105 @@
         
         <!-- Header -->
         <Border Grid.Row="0" Background="#2D2D30" Padding="10">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ControlWorkbench" FontSize="20" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text=" - Robotics &amp; Drone Engineering Tool" FontSize="14" Foreground="#AAAAAA" VerticalAlignment="Bottom" Margin="5,0,0,2"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ControlWorkbench" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text=" - Robotics and Drone Engineering" FontSize="14" Foreground="#AAAAAA" VerticalAlignment="Bottom" Margin="8,0,0,3"/>
+                </StackPanel>
+                
+                <!-- Quick Connect -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <ComboBox x:Name="DeviceTypeSelector" Width="120" Margin="0,0,10,0" SelectedIndex="0">
+                        <ComboBoxItem Content="VEX V5 Brain"/>
+                        <ComboBoxItem Content="Drone (MAVLink)"/>
+                        <ComboBoxItem Content="Betaflight"/>
+                    </ComboBox>
+                    <ComboBox x:Name="PortSelector" Width="100" Margin="0,0,10,0">
+                        <ComboBoxItem Content="COM3"/>
+                        <ComboBoxItem Content="COM4"/>
+                        <ComboBoxItem Content="UDP:14550"/>
+                    </ComboBox>
+                    <Button Content="Connect" Padding="15,5" Background="#4CAF50" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+            </Grid>
         </Border>
         
-        <!-- Main Content - Tab Control -->
+        <!-- Main Content - Tab Control with Platform Categories -->
         <TabControl Grid.Row="1" Margin="5">
-            <!-- Connection Tab -->
+            
+            <!-- ==================== VEX ROBOTICS ==================== -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="VEX V5" FontWeight="Bold"/>
+                    </StackPanel>
+                </TabItem.Header>
+                
+                <TabControl>
+                    <TabItem Header="Path Planner">
+                        <views:VexPathPlannerView/>
+                    </TabItem>
+                    
+                    <TabItem Header="Robot Config">
+                        <views:VexRobotConfigView/>
+                    </TabItem>
+                    
+                    <TabItem Header="Telemetry">
+                        <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
+                    </TabItem>
+                    
+                    <TabItem Header="PID Tuning">
+                        <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+            
+            <!-- ==================== DRONES ==================== -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Drones" FontWeight="Bold"/>
+                    </StackPanel>
+                </TabItem.Header>
+                
+                <TabControl>
+                    <TabItem Header="Mission Planner">
+                        <views:DroneMissionPlannerView/>
+                    </TabItem>
+                    
+                    <TabItem Header="Drone Config">
+                        <views:DroneConfigView/>
+                    </TabItem>
+                    
+                    <TabItem Header="Telemetry">
+                        <views:DroneTelemetryView/>
+                    </TabItem>
+                    
+                    <TabItem Header="PID Tuning">
+                        <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+            
+            <!-- ==================== COMMON TOOLS ==================== -->
             <TabItem Header="Connection">
                 <views:ConnectionView DataContext="{Binding Connection}"/>
             </TabItem>
             
-            <!-- Telemetry Dashboard Tab -->
-            <TabItem Header="Telemetry Dashboard">
-                <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
+            <TabItem Header="Math Workbench">
+                <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
             </TabItem>
             
-            <!-- Parameter Editor Tab -->
             <TabItem Header="Parameter Editor">
                 <views:ParameterEditorView DataContext="{Binding ParameterEditor}"/>
             </TabItem>
             
-            <!-- Math Workbench Tab -->
-            <TabItem Header="Math Workbench (EKF)">
-                <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
-            </TabItem>
-            
-            <!-- Control Design Tab -->
-            <TabItem Header="Control Design (PID/LQR)">
-                <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
-            </TabItem>
-            
-            <!-- Logs Tab -->
-            <TabItem Header="Logs &amp; Metrics">
+            <TabItem Header="Logs">
                 <views:LogsView DataContext="{Binding Logs}"/>
             </TabItem>
         </TabControl>
@@ -85,6 +149,13 @@
             <Separator/>
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Device: "/>
+                    <TextBlock Text="Not Connected" Foreground="#888888"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Rx: "/>
                     <TextBlock Text="{Binding Connection.BytesPerSecond, StringFormat='{}{0:F0} B/s'}"/>
                     <TextBlock Text=" | "/>
@@ -92,11 +163,8 @@
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Uptime: "/>
-                    <TextBlock Text="{Binding TelemetryDashboard.UptimeFormatted}"/>
-                </StackPanel>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="ControlWorkbench v1.0 - VEX + Drone Edition" Foreground="#888888"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>
