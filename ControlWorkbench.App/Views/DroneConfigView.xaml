@@ -35,6 +35,16 @@
             <Setter Property="Padding" Value="20,10"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style TargetType="Button" x:Key="SecondaryButton">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
     </UserControl.Resources>
     
@@ -54,10 +64,10 @@
                         <TextBlock Text="Drone Specifications" Style="{StaticResource HeaderStyle}"/>
                         
                         <TextBlock Text="Drone Name" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Text="Custom Quad 5 inch" Style="{StaticResource InputStyle}"/>
+                        <TextBox x:Name="DroneNameInput" Text="Custom Quad 5 inch" Style="{StaticResource InputStyle}"/>
                         
                         <TextBlock Text="Frame Type" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox SelectedIndex="0">
+                        <ComboBox x:Name="FrameTypeCombo" SelectedIndex="0">
                             <ComboBoxItem Content="Quad X"/>
                             <ComboBoxItem Content="Quad +"/>
                             <ComboBoxItem Content="Quad H"/>
@@ -67,7 +77,7 @@
                         </ComboBox>
                         
                         <TextBlock Text="Flight Controller" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox SelectedIndex="0">
+                        <ComboBox x:Name="FlightControllerCombo" SelectedIndex="0">
                             <ComboBoxItem Content="ArduPilot (Pixhawk, Cube, etc)"/>
                             <ComboBoxItem Content="Betaflight"/>
                             <ComboBoxItem Content="PX4"/>
@@ -95,17 +105,17 @@
                             
                             <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,5,0">
                                 <TextBlock Text="Weight (g)" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="650" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="WeightInput" Text="650" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="1" Grid.Row="0" Margin="5,0,0,0">
                                 <TextBlock Text="Arm Length (mm)" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="110" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="ArmLengthInput" Text="110" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,5,0">
                                 <TextBlock Text="Prop Size (in)" Style="{StaticResource LabelStyle}"/>
-                                <ComboBox SelectedIndex="2">
+                                <ComboBox x:Name="PropSizeCombo" SelectedIndex="2">
                                     <ComboBoxItem Content="3"/>
                                     <ComboBoxItem Content="4"/>
                                     <ComboBoxItem Content="5"/>
@@ -116,7 +126,7 @@
                             
                             <StackPanel Grid.Column="1" Grid.Row="1" Margin="5,0,0,0">
                                 <TextBlock Text="Prop Pitch" Style="{StaticResource LabelStyle}"/>
-                                <ComboBox SelectedIndex="1">
+                                <ComboBox x:Name="PropPitchCombo" SelectedIndex="1">
                                     <ComboBoxItem Content="4.0"/>
                                     <ComboBoxItem Content="4.5"/>
                                     <ComboBoxItem Content="5.0"/>
@@ -125,12 +135,12 @@
                             
                             <StackPanel Grid.Column="0" Grid.Row="2" Margin="0,0,5,0">
                                 <TextBlock Text="Motor KV" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="2400" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="MotorKvInput" Text="2400" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="1" Grid.Row="2" Margin="5,0,0,0">
                                 <TextBlock Text="Motor Size" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="2306" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="MotorSizeInput" Text="2306" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -142,7 +152,7 @@
                         <TextBlock Text="Battery" Style="{StaticResource HeaderStyle}"/>
                         
                         <TextBlock Text="Cell Count" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox SelectedIndex="3">
+                        <ComboBox x:Name="CellCountCombo" SelectedIndex="3">
                             <ComboBoxItem Content="2S (7.4V)"/>
                             <ComboBoxItem Content="3S (11.1V)"/>
                             <ComboBoxItem Content="4S (14.8V)"/>
@@ -151,13 +161,13 @@
                         </ComboBox>
                         
                         <TextBlock Text="Capacity (mAh)" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Text="1500" Style="{StaticResource InputStyle}"/>
+                        <TextBox x:Name="CapacityInput" Text="1500" Style="{StaticResource InputStyle}"/>
                         
                         <TextBlock Text="C Rating" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Text="100" Style="{StaticResource InputStyle}"/>
+                        <TextBox x:Name="CRatingInput" Text="100" Style="{StaticResource InputStyle}"/>
                         
                         <TextBlock Text="Low Voltage Warning (V/cell)" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Text="3.5" Style="{StaticResource InputStyle}"/>
+                        <TextBox x:Name="LowVoltageInput" Text="3.5" Style="{StaticResource InputStyle}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -169,10 +179,9 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="PID Gains" Style="{StaticResource HeaderStyle}"/>
-                        
                         <TextBlock Text="Rate PIDs control rotation speed" Foreground="#888888" FontSize="11" Margin="0,0,0,15"/>
                         
-                        <!-- PID Table Header -->
+                        <!-- Header -->
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -181,8 +190,6 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <TextBlock Grid.Column="0" Text="" Foreground="#888888"/>
                             <TextBlock Grid.Column="1" Text="P" Foreground="#4CAF50" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="2" Text="I" Foreground="#2196F3" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="D" Foreground="#FF9800" FontWeight="Bold" HorizontalAlignment="Center"/>
@@ -198,12 +205,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Roll" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="45" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="80" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="30" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="4" Text="100" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollPInput" Grid.Column="1" Text="45" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollIInput" Grid.Column="2" Text="80" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollDInput" Grid.Column="3" Text="30" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollFFInput" Grid.Column="4" Text="100" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
                         
                         <!-- Pitch -->
@@ -215,12 +221,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Pitch" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="47" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="84" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="32" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="4" Text="105" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchPInput" Grid.Column="1" Text="47" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchIInput" Grid.Column="2" Text="84" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchDInput" Grid.Column="3" Text="32" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchFFInput" Grid.Column="4" Text="105" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
                         
                         <!-- Yaw -->
@@ -232,16 +237,15 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Yaw" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="45" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="90" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="0" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="4" Text="100" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawPInput" Grid.Column="1" Text="45" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawIInput" Grid.Column="2" Text="90" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawDInput" Grid.Column="3" Text="0" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawFFInput" Grid.Column="4" Text="100" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
                         
-                        <Button Content="Calculate from Specs" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
-                        <Button Content="Copy Betaflight CLI" Background="#3E3E42" Foreground="White" Padding="10,8"/>
+                        <Button x:Name="CalculatePidsButton" Content="Calculate from Specs" Style="{StaticResource SecondaryButton}" Margin="0,0,0,5"/>
+                        <Button x:Name="CopyBetaflightButton" Content="Copy Betaflight CLI" Style="{StaticResource SecondaryButton}"/>
                     </StackPanel>
                 </Border>
                 
@@ -249,29 +253,24 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="Filters" Style="{StaticResource HeaderStyle}"/>
-                        
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <StackPanel Grid.Column="0" Margin="0,0,5,0">
                                 <TextBlock Text="Gyro LPF (Hz)" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="150" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="GyroLpfInput" Text="150" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
-                            
                             <StackPanel Grid.Column="1" Margin="5,0,0,0">
                                 <TextBlock Text="D-term LPF (Hz)" Style="{StaticResource LabelStyle}"/>
-                                <TextBox Text="100" Style="{StaticResource InputStyle}"/>
+                                <TextBox x:Name="DtermLpfInput" Text="100" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                         </Grid>
-                        
                         <TextBlock Text="Notch Filter" Style="{StaticResource LabelStyle}"/>
-                        <CheckBox Content="Enable dynamic notch" Foreground="White" IsChecked="True"/>
-                        
+                        <CheckBox x:Name="DynamicNotchCheck" Content="Enable dynamic notch" Foreground="White" IsChecked="True"/>
                         <TextBlock Text="RPM Filter" Style="{StaticResource LabelStyle}"/>
-                        <CheckBox Content="Enable RPM filter (requires ESC telemetry)" Foreground="White" IsChecked="False"/>
+                        <CheckBox x:Name="RpmFilterCheck" Content="Enable RPM filter (requires ESC telemetry)" Foreground="White" IsChecked="False"/>
                     </StackPanel>
                 </Border>
                 
@@ -279,7 +278,6 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8">
                     <StackPanel>
                         <TextBlock Text="Rates (Betaflight)" Style="{StaticResource HeaderStyle}"/>
-                        
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -287,13 +285,10 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <TextBlock Grid.Column="0" Text="" Foreground="#888888"/>
                             <TextBlock Grid.Column="1" Text="RC Rate" Foreground="#888888" HorizontalAlignment="Center" FontSize="11"/>
                             <TextBlock Grid.Column="2" Text="Super" Foreground="#888888" HorizontalAlignment="Center" FontSize="11"/>
                             <TextBlock Grid.Column="3" Text="Expo" Foreground="#888888" HorizontalAlignment="Center" FontSize="11"/>
                         </Grid>
-                        
                         <Grid Margin="0,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -301,13 +296,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Roll" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="0.25" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollRcRateInput" Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollSuperInput" Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="RollExpoInput" Grid.Column="3" Text="0.25" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
-                        
                         <Grid Margin="0,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -315,13 +308,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Pitch" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="0.25" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchRcRateInput" Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchSuperInput" Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="PitchExpoInput" Grid.Column="3" Text="0.25" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
-                        
                         <Grid Margin="0,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -329,14 +320,12 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <TextBlock Grid.Column="0" Text="Yaw" Foreground="White" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
-                            <TextBox Grid.Column="3" Text="0.15" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawRcRateInput" Grid.Column="1" Text="1.0" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawSuperInput" Grid.Column="2" Text="0.7" Style="{StaticResource InputStyle}" Margin="2"/>
+                            <TextBox x:Name="YawExpoInput" Grid.Column="3" Text="0.15" Style="{StaticResource InputStyle}" Margin="2"/>
                         </Grid>
-                        
-                        <TextBlock Text="Max rate: 670 deg/s" Foreground="#888888" FontSize="11" Margin="0,10,0,0"/>
+                        <TextBlock x:Name="MaxRateText" Text="Max rate: 670 deg/s" Foreground="#888888" FontSize="11" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -349,7 +338,6 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="Performance Estimates" Style="{StaticResource HeaderStyle}"/>
-                        
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -362,38 +350,30 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Thrust/Weight Ratio:" Foreground="#AAAAAA"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="6.2:1" Foreground="#4CAF50" FontWeight="Bold"/>
-                            
+                            <TextBlock x:Name="ThrustRatioText" Grid.Row="0" Grid.Column="1" Text="6.2:1" Foreground="#4CAF50" FontWeight="Bold"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Hover Throttle:" Foreground="#AAAAAA" Margin="0,5,0,0"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="16%" Foreground="White" Margin="0,5,0,0"/>
-                            
+                            <TextBlock x:Name="HoverThrottleText" Grid.Row="1" Grid.Column="1" Text="16%" Foreground="White" Margin="0,5,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Est. Flight Time:" Foreground="#AAAAAA" Margin="0,5,0,0"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="5-7 min" Foreground="White" Margin="0,5,0,0"/>
-                            
+                            <TextBlock x:Name="FlightTimeText" Grid.Row="2" Grid.Column="1" Text="5-7 min" Foreground="White" Margin="0,5,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Max Speed:" Foreground="#AAAAAA" Margin="0,5,0,0"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="~140 km/h" Foreground="White" Margin="0,5,0,0"/>
-                            
+                            <TextBlock x:Name="MaxSpeedText" Grid.Row="3" Grid.Column="1" Text="~140 km/h" Foreground="White" Margin="0,5,0,0"/>
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Current:" Foreground="#AAAAAA" Margin="0,5,0,0"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="~120A" Foreground="#FF9800" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="MaxCurrentText" Grid.Row="4" Grid.Column="1" Text="~120A" Foreground="#FF9800" Margin="0,5,0,0"/>
                         </Grid>
                     </StackPanel>
                 </Border>
                 
                 <!-- Recommendations -->
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
-                    <StackPanel>
+                    <StackPanel x:Name="RecommendationsPanel">
                         <TextBlock Text="Recommendations" Style="{StaticResource HeaderStyle}"/>
-                        
                         <Border Background="#1E3D1E" Padding="10" CornerRadius="3" Margin="0,0,0,5">
                             <TextBlock Text="Good thrust to weight ratio for freestyle/racing" Foreground="#4CAF50" TextWrapping="Wrap"/>
                         </Border>
-                        
                         <Border Background="#3D3D1E" Padding="10" CornerRadius="3" Margin="0,0,0,5">
                             <TextBlock Text="Consider lower KV motors for longer flight time" Foreground="#FF9800" TextWrapping="Wrap"/>
                         </Border>
-                        
                         <Border Background="#1E2D3D" Padding="10" CornerRadius="3">
                             <TextBlock Text="PIDs calculated based on specs - tune in flight" Foreground="#2196F3" TextWrapping="Wrap"/>
                         </Border>
@@ -404,12 +384,10 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8">
                     <StackPanel>
                         <TextBlock Text="Export Configuration" Style="{StaticResource HeaderStyle}"/>
-                        
-                        <Button Content="Copy Betaflight CLI Dump" Style="{StaticResource PrimaryButton}" Margin="0,0,0,10"/>
-                        
-                        <Button Content="Export ArduCopter .param" Background="#3E3E42" Foreground="White" Padding="15,10" Margin="0,0,0,5"/>
-                        <Button Content="Export PX4 Parameters" Background="#3E3E42" Foreground="White" Padding="15,10" Margin="0,0,0,5"/>
-                        <Button Content="Save Profile" Background="#3E3E42" Foreground="White" Padding="15,10"/>
+                        <Button x:Name="ExportBetaflightButton" Content="Copy Betaflight CLI Dump" Style="{StaticResource PrimaryButton}" Margin="0,0,0,10"/>
+                        <Button x:Name="ExportArduCopterButton" Content="Export ArduCopter .param" Style="{StaticResource SecondaryButton}" Margin="0,0,0,5"/>
+                        <Button x:Name="ExportPx4Button" Content="Export PX4 Parameters" Style="{StaticResource SecondaryButton}" Margin="0,0,0,5"/>
+                        <Button x:Name="SaveProfileButton" Content="Save Profile" Style="{StaticResource SecondaryButton}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -15,7 +15,13 @@
             <Setter Property="Background" Value="#3E3E42"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4E4E52"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
         <Style TargetType="TextBlock" x:Key="LabelStyle">
@@ -40,7 +46,7 @@
             <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
         
-        <!-- Left Panel - Path List & Tools -->
+        <!-- Left Panel - Path List and Tools -->
         <Border Grid.Column="0" Background="#2D2D30" Margin="5">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="10">
@@ -57,15 +63,15 @@
                     <!-- Alliance Selection -->
                     <TextBlock Text="Alliance" Style="{StaticResource LabelStyle}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <RadioButton Content="Red" Foreground="#FF6B6B" IsChecked="True" Margin="0,0,20,0"/>
-                        <RadioButton Content="Blue" Foreground="#6B9FFF"/>
+                        <RadioButton x:Name="RedAlliance" Content="Red" Foreground="#FF6B6B" IsChecked="True" Margin="0,0,20,0"/>
+                        <RadioButton x:Name="BlueAlliance" Content="Blue" Foreground="#6B9FFF"/>
                     </StackPanel>
                     
                     <!-- Starting Position -->
                     <TextBlock Text="Starting Position" Style="{StaticResource LabelStyle}"/>
                     <ComboBox x:Name="StartPosCombo" SelectedIndex="0" Margin="0,0,0,15">
-                        <ComboBoxItem Content="Positive Corner"/>
-                        <ComboBoxItem Content="Negative Corner"/>
+                        <ComboBoxItem Content="Positive Corner (+)"/>
+                        <ComboBoxItem Content="Negative Corner (-)"/>
                         <ComboBoxItem Content="Skills Start"/>
                     </ComboBox>
                     
@@ -73,17 +79,17 @@
                     
                     <!-- Paths List -->
                     <TextBlock Text="Paths" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    <ListBox x:Name="PathsList" Background="#3E3E42" Foreground="White" Height="150" Margin="0,0,0,10">
-                        <ListBoxItem Content="?? Red Positive Auton"/>
-                        <ListBoxItem Content="?? Red Negative Auton"/>
-                        <ListBoxItem Content="?? Blue Positive Auton"/>
-                        <ListBoxItem Content="? Skills Run"/>
+                    <ListBox x:Name="PathsList" Background="#3E3E42" Foreground="White" Height="120" Margin="0,0,0,10">
+                        <ListBoxItem Content="Red Positive Auton" IsSelected="True"/>
+                        <ListBoxItem Content="Red Negative Auton"/>
+                        <ListBoxItem Content="Blue Positive Auton"/>
+                        <ListBoxItem Content="Skills Run"/>
                     </ListBox>
                     
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="? New" Style="{StaticResource ToolButton}" Width="70"/>
-                        <Button Content="?? Copy" Style="{StaticResource ToolButton}" Width="70"/>
-                        <Button Content="??? Delete" Style="{StaticResource ToolButton}" Width="70"/>
+                        <Button Content="New" Style="{StaticResource ToolButton}" Width="70" Click="NewPath_Click"/>
+                        <Button Content="Copy" Style="{StaticResource ToolButton}" Width="70" Click="CopyPath_Click"/>
+                        <Button Content="Delete" Style="{StaticResource ToolButton}" Width="70" Click="DeletePath_Click"/>
                     </StackPanel>
                     
                     <Separator Background="#555555" Margin="0,15,0,15"/>
@@ -91,14 +97,17 @@
                     <!-- Drawing Tools -->
                     <TextBlock Text="Tools" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
                     <WrapPanel Margin="0,5,0,0">
-                        <Button Content="??" ToolTip="Add Waypoint" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Add Turn" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Add Wait" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Grab Mogo" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Score Ring" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Pneumatic" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Undo" Style="{StaticResource ToolButton}"/>
-                        <Button Content="??" ToolTip="Redo" Style="{StaticResource ToolButton}"/>
+                        <Button Content="WP" ToolTip="Add Waypoint" Style="{StaticResource ToolButton}" Click="AddWaypoint_Click"/>
+                        <Button Content="Turn" ToolTip="Add Turn Point" Style="{StaticResource ToolButton}" Width="50" Click="AddTurn_Click"/>
+                        <Button Content="Wait" ToolTip="Add Wait Action" Style="{StaticResource ToolButton}" Width="50"/>
+                        <Button Content="Mogo" ToolTip="Grab Mobile Goal" Style="{StaticResource ToolButton}" Width="50"/>
+                        <Button Content="Ring" ToolTip="Score Ring" Style="{StaticResource ToolButton}" Width="50"/>
+                        <Button Content="Clamp" ToolTip="Toggle Clamp" Style="{StaticResource ToolButton}" Width="55"/>
+                    </WrapPanel>
+                    <WrapPanel Margin="0,5,0,0">
+                        <Button Content="Undo" ToolTip="Undo" Style="{StaticResource ToolButton}" Width="55" Click="Undo_Click"/>
+                        <Button Content="Redo" ToolTip="Redo" Style="{StaticResource ToolButton}" Width="55" Click="Redo_Click"/>
+                        <Button Content="Clear" ToolTip="Clear Path" Style="{StaticResource ToolButton}" Width="55" Click="ClearPath_Click"/>
                     </WrapPanel>
                     
                     <Separator Background="#555555" Margin="0,15,0,15"/>
@@ -128,27 +137,30 @@
                 
                 <!-- Toolbar -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#2D2D30" Height="40">
-                    <Button Content="?? Simulate" Width="100" Margin="5" Background="#4CAF50" Foreground="White"/>
-                    <Button Content="?? Stop" Width="80" Margin="5"/>
+                    <Button x:Name="SimulateBtn" Content="Simulate" Width="90" Margin="5" Background="#4CAF50" Foreground="White" Click="Simulate_Click"/>
+                    <Button x:Name="StopBtn" Content="Stop" Width="60" Margin="5" Click="Stop_Click"/>
                     <Separator Width="1" Background="#555555" Margin="5"/>
-                    <Button Content="??+" Width="40" Margin="2"/>
-                    <Button Content="??-" Width="40" Margin="2"/>
-                    <Button Content="?? Reset View" Width="100" Margin="5"/>
+                    <Button Content="+" Width="30" Margin="2" ToolTip="Zoom In" Click="ZoomIn_Click"/>
+                    <Button Content="-" Width="30" Margin="2" ToolTip="Zoom Out" Click="ZoomOut_Click"/>
+                    <Button Content="Reset" Width="60" Margin="5" Click="ResetView_Click"/>
                     <Separator Width="1" Background="#555555" Margin="5"/>
-                    <CheckBox Content="Show Grid" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                    <CheckBox Content="Show Curvature" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                    <CheckBox Content="Show Velocity" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                    <CheckBox x:Name="ShowGridCheck" Content="Grid" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                    <CheckBox x:Name="ShowCurvatureCheck" Content="Curvature" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+                    <CheckBox x:Name="ShowVelocityCheck" Content="Velocity" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
                 </StackPanel>
                 
                 <!-- Field Canvas -->
-                <Canvas x:Name="FieldCanvas" Grid.Row="1" Background="#333333" ClipToBounds="True">
-                    <!-- Field will be drawn here -->
-                    <!-- This is a placeholder - actual field image and elements rendered in code-behind -->
+                <Canvas x:Name="FieldCanvas" Grid.Row="1" Background="#333333" ClipToBounds="True"
+                        MouseLeftButtonDown="FieldCanvas_MouseLeftButtonDown"
+                        MouseLeftButtonUp="FieldCanvas_MouseLeftButtonUp"
+                        MouseMove="FieldCanvas_MouseMove"
+                        MouseWheel="FieldCanvas_MouseWheel"
+                        MouseRightButtonDown="FieldCanvas_MouseRightButtonDown">
                     
                     <Canvas.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Add Waypoint Here"/>
-                            <MenuItem Header="Add Turn Point"/>
+                            <MenuItem Header="Add Waypoint Here" Click="AddWaypointHere_Click"/>
+                            <MenuItem Header="Add Turn Point" Click="AddTurnHere_Click"/>
                             <Separator/>
                             <MenuItem Header="Add Action">
                                 <MenuItem Header="Score on Stake"/>
@@ -158,7 +170,7 @@
                                 <MenuItem Header="Wait (ms)..."/>
                             </MenuItem>
                             <Separator/>
-                            <MenuItem Header="Delete Point"/>
+                            <MenuItem Header="Delete Selected Point" Click="DeletePoint_Click"/>
                         </ContextMenu>
                     </Canvas.ContextMenu>
                 </Canvas>
@@ -173,18 +185,21 @@
                         
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Timeline: " Foreground="#888888"/>
-                            <TextBlock x:Name="TimelineText" Text="0.0s / 15.0s" Foreground="White"/>
+                            <TextBlock x:Name="TimelineText" Text="0.0s / 3.2s" Foreground="White"/>
                             <TextBlock Text="  |  Distance: " Foreground="#888888" Margin="20,0,0,0"/>
                             <TextBlock x:Name="DistanceText" Text="0.0 / 48.5 in" Foreground="White"/>
+                            <TextBlock Text="  |  Waypoints: " Foreground="#888888" Margin="20,0,0,0"/>
+                            <TextBlock x:Name="WaypointCountText" Text="5" Foreground="White"/>
                         </StackPanel>
                         
-                        <Slider Grid.Row="1" x:Name="TimelineSlider" Minimum="0" Maximum="100" Value="0" Margin="0,5,0,0"/>
+                        <Slider Grid.Row="1" x:Name="TimelineSlider" Minimum="0" Maximum="100" Value="0" Margin="0,5,0,0"
+                                ValueChanged="TimelineSlider_ValueChanged"/>
                     </Grid>
                 </Border>
             </Grid>
         </Border>
         
-        <!-- Right Panel - Waypoint Details & Code -->
+        <!-- Right Panel - Waypoint Details and Code -->
         <Border Grid.Column="2" Background="#2D2D30" Margin="5">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="10">
@@ -194,7 +209,7 @@
                     <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
@@ -204,25 +219,29 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X (in):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WaypointX" Text="24.0" Style="{StaticResource InputStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X (inches):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WaypointX" Text="24.0" Style="{StaticResource InputStyle}" 
+                                     TextChanged="WaypointValue_Changed"/>
                             
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y (in):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="WaypointY" Text="36.0" Style="{StaticResource InputStyle}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y (inches):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="WaypointY" Text="36.0" Style="{StaticResource InputStyle}"
+                                     TextChanged="WaypointValue_Changed"/>
                             
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Heading (deg):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="WaypointHeading" Text="90" Style="{StaticResource InputStyle}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="WaypointHeading" Text="90" Style="{StaticResource InputStyle}"
+                                     TextChanged="WaypointValue_Changed"/>
                             
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Velocity:" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="WaypointVel" Text="60" Style="{StaticResource InputStyle}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Velocity (%):" Foreground="#AAAAAA" Margin="0,5"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="WaypointVel" Text="100" Style="{StaticResource InputStyle}"
+                                     TextChanged="WaypointValue_Changed"/>
                         </Grid>
                     </Border>
                     
                     <!-- Actions at Waypoint -->
                     <TextBlock Text="Actions at Waypoint" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    <ListBox x:Name="ActionsList" Background="#3E3E42" Foreground="White" Height="100" Margin="0,5,0,10">
-                        <ListBoxItem Content="?? Wait 200ms"/>
-                        <ListBoxItem Content="?? Grab Mobile Goal"/>
+                    <ListBox x:Name="ActionsList" Background="#3E3E42" Foreground="White" Height="80" Margin="0,5,0,10">
+                        <ListBoxItem Content="Wait 200ms"/>
+                        <ListBoxItem Content="Grab Mobile Goal"/>
                     </ListBox>
                     <Button Content="+ Add Action" Background="#3E3E42" Foreground="White" Margin="0,0,0,15"/>
                     
@@ -232,11 +251,22 @@
                     <TextBlock Text="Path Statistics" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
                     <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="Total Distance: 48.5 in" Foreground="#AAAAAA"/>
-                            <TextBlock Text="Estimated Time: 3.2s" Foreground="#AAAAAA"/>
-                            <TextBlock Text="Waypoints: 5" Foreground="#AAAAAA"/>
-                            <TextBlock Text="Max Curvature: 0.08 /in" Foreground="#AAAAAA"/>
-                            <TextBlock Text="Avg Velocity: 52 in/s" Foreground="#AAAAAA"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Total Distance: " Foreground="#888888"/>
+                                <TextBlock x:Name="TotalDistanceText" Text="48.5 in" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Estimated Time: " Foreground="#888888"/>
+                                <TextBlock x:Name="TotalTimeText" Text="3.2s" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Waypoints: " Foreground="#888888"/>
+                                <TextBlock x:Name="WaypointStatsText" Text="5" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Max Curvature: " Foreground="#888888"/>
+                                <TextBlock x:Name="MaxCurvatureText" Text="0.08 /in" Foreground="White"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                     
@@ -245,10 +275,14 @@
                     <!-- Export Options -->
                     <TextBlock Text="Export" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
                     
-                    <Button Content="?? Copy LemLib Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
-                    <Button Content="?? Copy Pure Pursuit Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
-                    <Button Content="?? Save Path File (.json)" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5"/>
-                    <Button Content="?? Load Path File" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,15"/>
+                    <Button Content="Copy LemLib Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"
+                            Click="CopyLemLibCode_Click"/>
+                    <Button Content="Copy Pure Pursuit Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"
+                            Click="CopyPurePursuitCode_Click"/>
+                    <Button Content="Save Path (.json)" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5"
+                            Click="SavePath_Click"/>
+                    <Button Content="Load Path" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,15"
+                            Click="LoadPath_Click"/>
                     
                     <Separator Background="#555555" Margin="0,5,0,15"/>
                     
@@ -264,8 +298,8 @@
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"
-                                 Height="150"
-                                 Text="// LemLib path&#x0a;ASSET(red_positive_txt) = {&#x0a;    24, 36, 90,&#x0a;    48, 48, 45,&#x0a;    72, 36, 0,&#x0a;};&#x0a;&#x0a;void red_positive() {&#x0a;    chassis.follow(&#x0a;        red_positive_txt,&#x0a;        12, 4000);&#x0a;}"/>
+                                 Height="180"
+                                 VerticalScrollBarVisibility="Auto"/>
                     </Border>
                 </StackPanel>
             </ScrollViewer>

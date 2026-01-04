@@ -326,9 +326,14 @@ public class DroneSpecs
     
     // Physical dimensions
     public double WeightGrams { get; set; } = 1500;
+    public double TotalWeightGrams { get => WeightGrams; set => WeightGrams = value; }
     public double ArmLengthMm { get; set; } = 250;      // Motor to center
     public double PropDiameterInches { get; set; } = 5;
     public double PropPitchInches { get; set; } = 4.5;
+    
+    // Motor specs
+    public int MotorKv { get; set; } = 2400;
+    public int MotorCount { get; set; } = 4;
     
     // Performance
     public double MaxThrustGrams { get; set; } = 4000;  // Total thrust at 100%
@@ -338,6 +343,8 @@ public class DroneSpecs
     
     // Battery
     public BatteryConfig Battery { get; set; } = new();
+    public int CellCount { get => Battery.CellCount; set => Battery.CellCount = value; }
+    public double BatteryCapacityMah { get => Battery.CapacityMah; set => Battery.CapacityMah = value; }
     public double FlightTimeMinutes { get; set; } = 25;
     
     // Motors
