@@ -15,6 +15,7 @@ public partial class DroneTelemetryView : UserControl
 {
     private readonly DispatcherTimer _uiUpdateTimer;
     private DateTime _startTime = DateTime.Now;
+    private bool _isLoaded;
     
     // Drone connection service - the actual backend
     private readonly DroneConnectionService _droneService;
@@ -58,6 +59,9 @@ public partial class DroneTelemetryView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (_isLoaded) return;
+        _isLoaded = true;
+        
         _startTime = DateTime.Now;
         
         // Start in simulation mode by default for demo purposes
@@ -72,7 +76,11 @@ public partial class DroneTelemetryView : UserControl
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         _uiUpdateTimer.Stop();
-        _droneService.DisconnectAsync().Wait();
+        try
+        {
+            _droneService.DisconnectAsync().Wait(1000);
+        }
+        catch { }
     }
     
     // Event handlers from DroneConnectionService
@@ -140,6 +148,8 @@ public partial class DroneTelemetryView : UserControl
 
     private void UpdateDisplay()
     {
+        if (!_isLoaded) return;
+        
         var t = _latestTelemetry;
         
         // Flight time

@@ -29,6 +29,7 @@ public partial class VexPathPlannerView : UserControl
     private bool _isPanningField;
     private Point _lastMousePos;
     private Point _contextMenuFieldPos;
+    private bool _isLoaded;
 
     // Undo/Redo
     private readonly Stack<List<WaypointVisual>> _undoStack = new();
@@ -64,8 +65,14 @@ public partial class VexPathPlannerView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        ShowGridCheck.Checked += (s, ev) => { DrawField(); RedrawPath(); };
-        ShowGridCheck.Unchecked += (s, ev) => { DrawField(); RedrawPath(); };
+        if (_isLoaded) return;
+        _isLoaded = true;
+        
+        if (ShowGridCheck != null)
+        {
+            ShowGridCheck.Checked += (s, ev) => { DrawField(); RedrawPath(); };
+            ShowGridCheck.Unchecked += (s, ev) => { DrawField(); RedrawPath(); };
+        }
         
         DrawField();
         AddSamplePath();
@@ -74,12 +81,15 @@ public partial class VexPathPlannerView : UserControl
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        if (!_isLoaded) return;
         DrawField();
         RedrawPath();
     }
 
     private void DrawField()
     {
+        if (FieldCanvas == null) return;
+        
         FieldCanvas.Children.Clear();
 
         double canvasWidth = FieldCanvas.ActualWidth;
@@ -88,9 +98,14 @@ public partial class VexPathPlannerView : UserControl
         if (canvasHeight <= 0) canvasHeight = 500;
 
         double baseSize = System.Math.Min(canvasWidth, canvasHeight) - 20;
+        if (baseSize <= 0) baseSize = 400;
+        
         double fieldPixelSize = baseSize * _zoom;
+        if (fieldPixelSize <= 0) fieldPixelSize = 400;
 
         _scale = fieldPixelSize / FieldSize;
+        if (_scale <= 0) _scale = 1.0;
+        
         _offset = new Point(
             (canvasWidth - fieldPixelSize) / 2 + _panOffset.X,
             (canvasHeight - fieldPixelSize) / 2 + _panOffset.Y

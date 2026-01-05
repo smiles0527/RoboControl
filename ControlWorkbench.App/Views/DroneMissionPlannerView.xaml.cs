@@ -6,196 +6,329 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using ControlWorkbench.Drone.Mission;
-using ControlWorkbench.Drone.Services;
-using ControlWorkbench.Drone.Devices;
 
 namespace ControlWorkbench.App.Views;
 
 /// <summary>
-/// Drone mission planner view with interactive map.
-/// Uses backend MissionPlanner for mission management.
+/// Fully functional drone mission planner view with interactive map.
 /// </summary>
 public partial class DroneMissionPlannerView : UserControl
 {
-    // Backend mission planner
     private readonly MissionPlanner _missionPlanner = new();
     
-    // Connection service for uploading missions
-    private DroneConnectionService? _droneService;
-    
-    private int _selectedWaypointIndex = -1;
+    private int _selectedIndex = -1;
     private bool _isDragging;
     private Point _lastMousePos;
     private Point _mapOffset = new(0, 0);
     private double _zoom = 1.0;
+    private bool _isLoaded;
+    private bool _updatingInputs;
 
-    // Map bounds (simulated)
     private double _centerLat = 40.7128;
     private double _centerLon = -74.0060;
-    private const double MetersPerPixel = 0.5;
 
     public DroneMissionPlannerView()
     {
         InitializeComponent();
-        
-        // Subscribe to mission statistics updates
-        _missionPlanner.StatisticsUpdated += OnMissionStatisticsUpdated;
-        
         Loaded += OnLoaded;
-    }
-    
-    /// <summary>
-    /// Set the drone connection service for mission upload capability.
-    /// </summary>
-    public void SetDroneService(DroneConnectionService service)
-    {
-        _droneService = service;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Set home position
-        _missionPlanner.HomePosition = new GeoPoint(_centerLat, _centerLon, 0);
+        if (_isLoaded) return;
+        _isLoaded = true;
         
-        // Add sample waypoints using the backend
-        AddSampleMission();
-        WireUpEvents();
-        RedrawMap();
-        UpdateMissionStats();
-    }
-
-    private void WireUpEvents()
-    {
+        _missionPlanner.HomePosition = new GeoPoint(_centerLat, _centerLon, 0);
+        HomePositionText.Text = $"{_centerLat:F6}, {_centerLon:F6}";
+        
+        // Wire up map events
         MapCanvas.MouseLeftButtonDown += MapCanvas_MouseLeftButtonDown;
         MapCanvas.MouseLeftButtonUp += MapCanvas_MouseLeftButtonUp;
         MapCanvas.MouseMove += MapCanvas_MouseMove;
         MapCanvas.MouseWheel += MapCanvas_MouseWheel;
         MapCanvas.MouseRightButtonDown += MapCanvas_MouseRightButtonDown;
+        MapCanvas.SizeChanged += (s, ev) => RedrawMap();
+        
+        RedrawMap();
+        RefreshMissionList();
     }
 
-    private void AddSampleMission()
+    // ========== ADD MISSION ITEMS ==========
+    
+    private void AddTakeoff_Click(object sender, RoutedEventArgs e)
+    {
+        double alt = ParseDouble(DefaultAltInput.Text, 50);
+        _missionPlanner.AddTakeoff(alt);
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    private void AddWaypoint_Click(object sender, RoutedEventArgs e)
+    {
+        double alt = ParseDouble(DefaultAltInput.Text, 50);
+        double speed = ParseDouble(DefaultSpeedInput.Text, 5);
+        
+        // Add at center of current view
+        _missionPlanner.AddWaypoint(_centerLat, _centerLon, alt, speed);
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    private void AddLoiter_Click(object sender, RoutedEventArgs e)
+    {
+        double alt = ParseDouble(DefaultAltInput.Text, 50);
+        _missionPlanner.AddLoiter(_centerLat, _centerLon, alt, 30);
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    private void AddRTL_Click(object sender, RoutedEventArgs e)
+    {
+        _missionPlanner.AddRTL();
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    private void AddLand_Click(object sender, RoutedEventArgs e)
+    {
+        _missionPlanner.AddLand();
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    private void DeleteItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedIndex >= 0 && _selectedIndex < _missionPlanner.Items.Count)
+        {
+            _missionPlanner.RemoveItem(_selectedIndex);
+            _selectedIndex = -1;
+            RefreshMissionList();
+            RedrawMap();
+            UpdateWaypointPanel();
+        }
+    }
+
+    private void ClearMission_Click(object sender, RoutedEventArgs e)
     {
         _missionPlanner.Clear();
-        
-        // Takeoff
-        _missionPlanner.AddTakeoff(50);
-
-        // Waypoint 1
-        _missionPlanner.AddWaypoint(40.7135, -74.0055, 50, 5);
-
-        // Loiter
-        _missionPlanner.AddLoiter(40.7140, -74.0045, 50, 30);
-
-        // Waypoint 2
-        _missionPlanner.AddWaypoint(40.7138, -74.0035, 50, 5);
-
-        // RTL
-        _missionPlanner.AddRTL();
+        _selectedIndex = -1;
+        RefreshMissionList();
+        RedrawMap();
+        UpdateWaypointPanel();
     }
+
+    // ========== MISSION LIST ==========
     
-    private void OnMissionStatisticsUpdated(MissionStatistics stats)
+    private void RefreshMissionList()
     {
-        Dispatcher.BeginInvoke(() =>
+        MissionItemsList.Items.Clear();
+        
+        for (int i = 0; i < _missionPlanner.Items.Count; i++)
         {
-            // Update statistics display if we have named elements
-            // StatsText.Text = stats.ToString();
-        });
+            var item = _missionPlanner.Items[i];
+            var listItem = CreateMissionListItem(i, item);
+            MissionItemsList.Items.Add(listItem);
+        }
+        
+        if (_selectedIndex >= 0 && _selectedIndex < MissionItemsList.Items.Count)
+        {
+            MissionItemsList.SelectedIndex = _selectedIndex;
+        }
+        
+        UpdateStatistics();
     }
 
+    private ListBoxItem CreateMissionListItem(int index, MissionItem item)
+    {
+        var border = new Border
+        {
+            Padding = new Thickness(8, 6, 8, 6),
+            Margin = new Thickness(0, 1, 0, 0),
+            Background = new SolidColorBrush(Color.FromRgb(62, 62, 66)),
+            CornerRadius = new CornerRadius(3)
+        };
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(25) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var indexText = new TextBlock
+        {
+            Text = (index + 1).ToString(),
+            Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+            FontWeight = FontWeights.Bold
+        };
+        Grid.SetColumn(indexText, 0);
+
+        var stack = new StackPanel();
+        Grid.SetColumn(stack, 1);
+
+        var typeColor = item.Type switch
+        {
+            MissionItemType.Takeoff => Color.FromRgb(76, 175, 80),
+            MissionItemType.Waypoint => Color.FromRgb(0, 188, 212),
+            MissionItemType.Loiter => Color.FromRgb(255, 152, 0),
+            MissionItemType.Land => Color.FromRgb(255, 235, 59),
+            MissionItemType.ReturnToLaunch => Color.FromRgb(244, 67, 54),
+            _ => Colors.White
+        };
+
+        var typeText = new TextBlock
+        {
+            Text = item.Type.ToString().ToUpper(),
+            Foreground = new SolidColorBrush(typeColor),
+            FontWeight = FontWeights.SemiBold
+        };
+
+        var detailsText = new TextBlock
+        {
+            Text = GetItemDetails(item),
+            Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+            FontSize = 10,
+            FontFamily = new FontFamily("Consolas")
+        };
+
+        stack.Children.Add(typeText);
+        stack.Children.Add(detailsText);
+
+        grid.Children.Add(indexText);
+        grid.Children.Add(stack);
+        border.Child = grid;
+
+        return new ListBoxItem { Content = border, Tag = index };
+    }
+
+    private string GetItemDetails(MissionItem item)
+    {
+        return item.Type switch
+        {
+            MissionItemType.Takeoff => $"Alt: {item.Location?.Altitude:F0}m",
+            MissionItemType.Waypoint => item.Location != null 
+                ? $"{item.Location.Latitude:F5}, {item.Location.Longitude:F5}, {item.Location.Altitude:F0}m" 
+                : "",
+            MissionItemType.Loiter => $"Hold {item.HoldTime:F0}s at {item.Location?.Altitude:F0}m",
+            MissionItemType.Land => "Land at current position",
+            MissionItemType.ReturnToLaunch => "Return to home",
+            _ => ""
+        };
+    }
+
+    private void MissionItemsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (MissionItemsList.SelectedItem is ListBoxItem listItem && listItem.Tag is int index)
+        {
+            _selectedIndex = index;
+            UpdateWaypointPanel();
+            RedrawMap();
+        }
+    }
+
+    // ========== WAYPOINT EDITING ==========
+    
+    private void UpdateWaypointPanel()
+    {
+        if (_selectedIndex < 0 || _selectedIndex >= _missionPlanner.Items.Count)
+        {
+            SelectedWaypointTitle.Text = "No Selection";
+            WaypointEditPanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var item = _missionPlanner.Items[_selectedIndex];
+        SelectedWaypointTitle.Text = $"{item.Type} #{_selectedIndex + 1}";
+        
+        if (item.Location != null)
+        {
+            _updatingInputs = true;
+            WpLatInput.Text = item.Location.Latitude.ToString("F6");
+            WpLonInput.Text = item.Location.Longitude.ToString("F6");
+            WpAltInput.Text = item.Location.Altitude.ToString("F0");
+            WpSpeedInput.Text = item.Speed.ToString("F1");
+            WpHoldInput.Text = item.HoldTime.ToString("F0");
+            _updatingInputs = false;
+            WaypointEditPanel.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            WaypointEditPanel.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void WaypointInput_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (_updatingInputs || _selectedIndex < 0 || _selectedIndex >= _missionPlanner.Items.Count)
+            return;
+
+        var item = _missionPlanner.Items[_selectedIndex];
+        if (item.Location == null) return;
+
+        if (double.TryParse(WpLatInput.Text, out double lat))
+            item.Location.Latitude = lat;
+        if (double.TryParse(WpLonInput.Text, out double lon))
+            item.Location.Longitude = lon;
+        if (double.TryParse(WpAltInput.Text, out double alt))
+            item.Location.Altitude = alt;
+        if (double.TryParse(WpSpeedInput.Text, out double speed))
+            item.Speed = speed;
+        if (double.TryParse(WpHoldInput.Text, out double hold))
+            item.HoldTime = hold;
+
+        RefreshMissionList();
+        RedrawMap();
+    }
+
+    // ========== MAP RENDERING ==========
+    
     private void RedrawMap()
     {
+        if (MapCanvas == null || !_isLoaded) return;
+        
         MapCanvas.Children.Clear();
 
-        double canvasWidth = MapCanvas.ActualWidth;
-        double canvasHeight = MapCanvas.ActualHeight;
-        if (canvasWidth <= 0) canvasWidth = 600;
-        if (canvasHeight <= 0) canvasHeight = 400;
+        double w = MapCanvas.ActualWidth > 0 ? MapCanvas.ActualWidth : 600;
+        double h = MapCanvas.ActualHeight > 0 ? MapCanvas.ActualHeight : 400;
 
-        // Draw grid (simulated map)
-        DrawMapGrid(canvasWidth, canvasHeight);
-
-        // Draw flight path
-        DrawFlightPath();
-
-        // Draw waypoint markers
-        DrawWaypointMarkers();
-
-        // Draw home icon
-        if (_missionPlanner.HomePosition != null)
-        {
-            var homePos = LatLonToCanvas(_missionPlanner.HomePosition.Latitude, _missionPlanner.HomePosition.Longitude);
-            DrawHomeIcon(homePos);
-        }
-    }
-
-    private void DrawMapGrid(double width, double height)
-    {
-        // Dark background
-        var bg = new Rectangle
-        {
-            Width = width,
-            Height = height,
-            Fill = new SolidColorBrush(Color.FromRgb(26, 26, 46))
-        };
+        // Background
+        var bg = new Rectangle { Width = w, Height = h, Fill = new SolidColorBrush(Color.FromRgb(26, 26, 46)) };
         MapCanvas.Children.Add(bg);
 
-        // Grid lines
-        double gridSpacing = 50 * _zoom;
-        for (double x = _mapOffset.X % gridSpacing; x < width; x += gridSpacing)
-        {
-            var line = new Line
-            {
-                X1 = x, Y1 = 0,
-                X2 = x, Y2 = height,
-                Stroke = new SolidColorBrush(Color.FromRgb(40, 40, 70)),
-                StrokeThickness = 1
-            };
-            MapCanvas.Children.Add(line);
-        }
-        for (double y = _mapOffset.Y % gridSpacing; y < height; y += gridSpacing)
-        {
-            var line = new Line
-            {
-                X1 = 0, Y1 = y,
-                X2 = width, Y2 = y,
-                Stroke = new SolidColorBrush(Color.FromRgb(40, 40, 70)),
-                StrokeThickness = 1
-            };
-            MapCanvas.Children.Add(line);
-        }
+        // Grid
+        DrawGrid(w, h);
 
-        // Map label
-        var label = new TextBlock
-        {
-            Text = "Simulated Map View",
-            FontSize = 14,
-            Foreground = new SolidColorBrush(Color.FromRgb(60, 60, 100))
-        };
-        Canvas.SetLeft(label, 10);
-        Canvas.SetTop(label, 10);
-        MapCanvas.Children.Add(label);
+        // Flight path
+        DrawFlightPath();
 
-        var coordsLabel = new TextBlock
+        // Waypoint markers
+        DrawWaypoints();
+
+        // Home marker
+        DrawHomeMarker();
+
+        // Info text
+        var infoText = new TextBlock
         {
-            Text = $"Center: {_centerLat:F4}, {_centerLon:F4}",
+            Text = $"Center: {_centerLat:F4}, {_centerLon:F4} | Zoom: {_zoom:F1}x",
             FontSize = 11,
             Foreground = new SolidColorBrush(Color.FromRgb(80, 80, 120))
         };
-        Canvas.SetLeft(coordsLabel, 10);
-        Canvas.SetTop(coordsLabel, 28);
-        MapCanvas.Children.Add(coordsLabel);
-        
-        // Mission statistics
-        var stats = _missionPlanner.CalculateStatistics();
-        var statsLabel = new TextBlock
+        Canvas.SetLeft(infoText, 10);
+        Canvas.SetTop(infoText, 10);
+        MapCanvas.Children.Add(infoText);
+    }
+
+    private void DrawGrid(double w, double h)
+    {
+        double spacing = 50 * _zoom;
+        var gridBrush = new SolidColorBrush(Color.FromRgb(40, 40, 70));
+
+        for (double x = (_mapOffset.X % spacing + spacing) % spacing; x < w; x += spacing)
         {
-            Text = $"Distance: {stats.TotalDistanceMeters:F0}m | Time: {stats.EstimatedTime:mm\\:ss} | Waypoints: {stats.WaypointCount}",
-            FontSize = 11,
-            Foreground = new SolidColorBrush(Color.FromRgb(100, 180, 100))
-        };
-        Canvas.SetLeft(statsLabel, 10);
-        Canvas.SetTop(statsLabel, 46);
-        MapCanvas.Children.Add(statsLabel);
+            MapCanvas.Children.Add(new Line { X1 = x, Y1 = 0, X2 = x, Y2 = h, Stroke = gridBrush, StrokeThickness = 1 });
+        }
+        for (double y = (_mapOffset.Y % spacing + spacing) % spacing; y < h; y += spacing)
+        {
+            MapCanvas.Children.Add(new Line { X1 = 0, Y1 = y, X2 = w, Y2 = y, Stroke = gridBrush, StrokeThickness = 1 });
+        }
     }
 
     private void DrawFlightPath()
@@ -222,35 +355,32 @@ public partial class DroneMissionPlannerView : UserControl
         MapCanvas.Children.Add(pathLine);
     }
 
-    private void DrawWaypointMarkers()
+    private void DrawWaypoints()
     {
-        var items = _missionPlanner.Items;
-        
-        for (int i = 0; i < items.Count; i++)
+        for (int i = 0; i < _missionPlanner.Items.Count; i++)
         {
-            var item = items[i];
+            var item = _missionPlanner.Items[i];
             if (item.Location == null) continue;
-            
+
             var pos = LatLonToCanvas(item.Location.Latitude, item.Location.Longitude);
 
-            // Marker color based on type
             var color = item.Type switch
             {
                 MissionItemType.Takeoff => Colors.LimeGreen,
                 MissionItemType.Waypoint => Colors.DeepSkyBlue,
                 MissionItemType.Loiter => Colors.Orange,
-                MissionItemType.Orbit => Colors.Magenta,
-                MissionItemType.ReturnToLaunch => Colors.Red,
                 MissionItemType.Land => Colors.Yellow,
+                MissionItemType.ReturnToLaunch => Colors.Red,
                 _ => Colors.White
             };
 
-            bool isSelected = i == _selectedWaypointIndex;
+            bool isSelected = i == _selectedIndex;
+            double size = isSelected ? 20 : 16;
 
             var marker = new Ellipse
             {
-                Width = isSelected ? 20 : 16,
-                Height = isSelected ? 20 : 16,
+                Width = size,
+                Height = size,
                 Fill = new SolidColorBrush(color),
                 Stroke = isSelected ? Brushes.Yellow : Brushes.White,
                 StrokeThickness = isSelected ? 3 : 2,
@@ -258,14 +388,15 @@ public partial class DroneMissionPlannerView : UserControl
                 Tag = i
             };
 
-            Canvas.SetLeft(marker, pos.X - marker.Width / 2);
-            Canvas.SetTop(marker, pos.Y - marker.Height / 2);
+            Canvas.SetLeft(marker, pos.X - size / 2);
+            Canvas.SetTop(marker, pos.Y - size / 2);
             Panel.SetZIndex(marker, 100);
 
             int capturedIndex = i;
             marker.MouseLeftButtonDown += (s, e) =>
             {
-                _selectedWaypointIndex = capturedIndex;
+                _selectedIndex = capturedIndex;
+                MissionItemsList.SelectedIndex = capturedIndex;
                 UpdateWaypointPanel();
                 RedrawMap();
                 e.Handled = true;
@@ -273,90 +404,41 @@ public partial class DroneMissionPlannerView : UserControl
 
             MapCanvas.Children.Add(marker);
 
-            // Waypoint number
-            var numLabel = new TextBlock
+            // Number label
+            var label = new TextBlock
             {
                 Text = (i + 1).ToString(),
                 FontSize = 10,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.Black
             };
-            Canvas.SetLeft(numLabel, pos.X - 4);
-            Canvas.SetTop(numLabel, pos.Y - 5);
-            Panel.SetZIndex(numLabel, 101);
-            MapCanvas.Children.Add(numLabel);
-            
-            // Altitude label
-            var altLabel = new TextBlock
-            {
-                Text = $"{item.Location.Altitude:F0}m",
-                FontSize = 9,
-                Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150))
-            };
-            Canvas.SetLeft(altLabel, pos.X + 12);
-            Canvas.SetTop(altLabel, pos.Y - 5);
-            Panel.SetZIndex(altLabel, 99);
-            MapCanvas.Children.Add(altLabel);
+            Canvas.SetLeft(label, pos.X - 4);
+            Canvas.SetTop(label, pos.Y - 5);
+            Panel.SetZIndex(label, 101);
+            MapCanvas.Children.Add(label);
         }
     }
 
-    private void DrawHomeIcon(Point pos)
+    private void DrawHomeMarker()
     {
-        var home = new Path
+        if (_missionPlanner.HomePosition == null) return;
+        
+        var pos = LatLonToCanvas(_missionPlanner.HomePosition.Latitude, _missionPlanner.HomePosition.Longitude);
+        
+        var home = new Polygon
         {
+            Points = new PointCollection { new(0, 10), new(5, 0), new(10, 10), new(5, 8) },
             Fill = Brushes.White,
-            Data = Geometry.Parse("M10,20 L10,12 L5,12 L10,5 L15,12 L10,12 L10,20 Z")
+            Stroke = Brushes.Black,
+            StrokeThickness = 1
         };
         Canvas.SetLeft(home, pos.X - 5);
-        Canvas.SetTop(home, pos.Y + 15);
+        Canvas.SetTop(home, pos.Y + 12);
         MapCanvas.Children.Add(home);
     }
 
-    private Point LatLonToCanvas(double lat, double lon)
-    {
-        double canvasWidth = MapCanvas.ActualWidth > 0 ? MapCanvas.ActualWidth : 600;
-        double canvasHeight = MapCanvas.ActualHeight > 0 ? MapCanvas.ActualHeight : 400;
-
-        // Simple Mercator-like projection for local area
-        double scale = 100000 * _zoom; // meters to pixels roughly
-        double x = (lon - _centerLon) * scale * System.Math.Cos(_centerLat * System.Math.PI / 180);
-        double y = -((lat - _centerLat) * scale);
-
-        return new Point(
-            canvasWidth / 2 + x + _mapOffset.X,
-            canvasHeight / 2 + y + _mapOffset.Y
-        );
-    }
-
-    private (double lat, double lon) CanvasToLatLon(double canvasX, double canvasY)
-    {
-        double canvasWidth = MapCanvas.ActualWidth > 0 ? MapCanvas.ActualWidth : 600;
-        double canvasHeight = MapCanvas.ActualHeight > 0 ? MapCanvas.ActualHeight : 400;
-
-        double scale = 100000 * _zoom;
-        double x = canvasX - canvasWidth / 2 - _mapOffset.X;
-        double y = canvasY - canvasHeight / 2 - _mapOffset.Y;
-
-        double lon = x / (scale * System.Math.Cos(_centerLat * System.Math.PI / 180)) + _centerLon;
-        double lat = -y / scale + _centerLat;
-
-        return (lat, lon);
-    }
-
-    private void UpdateWaypointPanel()
-    {
-        // This would update the right panel with selected waypoint details
-        // For now, using the static XAML binding
-    }
-
-    private void UpdateMissionStats()
-    {
-        var stats = _missionPlanner.CalculateStatistics();
-        // Update stats display - this triggers redraw which shows stats
-        RedrawMap();
-    }
-
-    // Mouse events for map interaction
+    // ========== MAP INTERACTION ==========
+    
     private void MapCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         _isDragging = true;
@@ -375,48 +457,102 @@ public partial class DroneMissionPlannerView : UserControl
         if (_isDragging && e.LeftButton == MouseButtonState.Pressed)
         {
             var currentPos = e.GetPosition(this);
-            double dx = currentPos.X - _lastMousePos.X;
-            double dy = currentPos.Y - _lastMousePos.Y;
-
-            _mapOffset = new Point(_mapOffset.X + dx, _mapOffset.Y + dy);
+            _mapOffset.X += currentPos.X - _lastMousePos.X;
+            _mapOffset.Y += currentPos.Y - _lastMousePos.Y;
             _lastMousePos = currentPos;
-
             RedrawMap();
         }
     }
 
     private void MapCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
     {
-        double zoomFactor = e.Delta > 0 ? 1.2 : 0.8;
-        _zoom = System.Math.Clamp(_zoom * zoomFactor, 0.5, 5.0);
+        _zoom = System.Math.Clamp(_zoom * (e.Delta > 0 ? 1.2 : 0.8), 0.5, 5.0);
         RedrawMap();
     }
 
     private void MapCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        // Add waypoint at clicked position
         var pos = e.GetPosition(MapCanvas);
         var (lat, lon) = CanvasToLatLon(pos.X, pos.Y);
 
-        // Insert before RTL if present
+        double alt = ParseDouble(DefaultAltInput.Text, 50);
+        double speed = ParseDouble(DefaultSpeedInput.Text, 5);
+
+        // Insert before RTL if last item is RTL
         var lastItem = _missionPlanner.Items.LastOrDefault();
         if (lastItem?.Type == MissionItemType.ReturnToLaunch)
         {
-            // Remove RTL, add waypoint, re-add RTL
             _missionPlanner.RemoveItem(_missionPlanner.Items.Count - 1);
-            _missionPlanner.AddWaypoint(lat, lon, 50, 5);
+            _missionPlanner.AddWaypoint(lat, lon, alt, speed);
             _missionPlanner.AddRTL();
         }
         else
         {
-            _missionPlanner.AddWaypoint(lat, lon, 50, 5);
+            _missionPlanner.AddWaypoint(lat, lon, alt, speed);
         }
 
+        RefreshMissionList();
         RedrawMap();
-        UpdateMissionStats();
     }
 
-    // Export functions
+    private void ZoomIn_Click(object sender, RoutedEventArgs e)
+    {
+        _zoom = System.Math.Min(_zoom * 1.3, 5.0);
+        RedrawMap();
+    }
+
+    private void ZoomOut_Click(object sender, RoutedEventArgs e)
+    {
+        _zoom = System.Math.Max(_zoom / 1.3, 0.5);
+        RedrawMap();
+    }
+
+    private void ResetView_Click(object sender, RoutedEventArgs e)
+    {
+        _zoom = 1.0;
+        _mapOffset = new Point(0, 0);
+        RedrawMap();
+    }
+
+    // ========== COORDINATE CONVERSION ==========
+    
+    private Point LatLonToCanvas(double lat, double lon)
+    {
+        double w = MapCanvas.ActualWidth > 0 ? MapCanvas.ActualWidth : 600;
+        double h = MapCanvas.ActualHeight > 0 ? MapCanvas.ActualHeight : 400;
+        double scale = 100000 * _zoom;
+        double x = (lon - _centerLon) * scale * System.Math.Cos(_centerLat * System.Math.PI / 180);
+        double y = -((lat - _centerLat) * scale);
+        return new Point(w / 2 + x + _mapOffset.X, h / 2 + y + _mapOffset.Y);
+    }
+
+    private (double lat, double lon) CanvasToLatLon(double canvasX, double canvasY)
+    {
+        double w = MapCanvas.ActualWidth > 0 ? MapCanvas.ActualWidth : 600;
+        double h = MapCanvas.ActualHeight > 0 ? MapCanvas.ActualHeight : 400;
+        double scale = 100000 * _zoom;
+        double x = canvasX - w / 2 - _mapOffset.X;
+        double y = canvasY - h / 2 - _mapOffset.Y;
+        double lon = x / (scale * System.Math.Cos(_centerLat * System.Math.PI / 180)) + _centerLon;
+        double lat = -y / scale + _centerLat;
+        return (lat, lon);
+    }
+
+    // ========== STATISTICS ==========
+    
+    private void UpdateStatistics()
+    {
+        var stats = _missionPlanner.CalculateStatistics();
+        TotalDistanceText.Text = stats.TotalDistanceMeters < 1000 
+            ? $"{stats.TotalDistanceMeters:F0} m" 
+            : $"{stats.TotalDistanceMeters / 1000:F2} km";
+        EstTimeText.Text = stats.EstimatedTime.ToString(@"m\:ss");
+        WaypointCountText.Text = stats.WaypointCount.ToString();
+        MaxAltText.Text = $"{stats.MaxAltitude:F0}m";
+    }
+
+    // ========== EXPORT ==========
+    
     private void SaveWaypoints_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.SaveFileDialog
@@ -435,12 +571,11 @@ public partial class DroneMissionPlannerView : UserControl
             for (int i = 0; i < waypoints.Count; i++)
             {
                 var wp = waypoints[i];
-                // Format: index current frame command p1 p2 p3 p4 lat lon alt autocontinue
                 sb.AppendLine($"{i}\t{(i == 0 ? 1 : 0)}\t3\t{(int)wp.Command}\t{wp.Param1}\t{wp.Param2}\t{wp.Param3}\t{wp.Param4}\t{wp.Latitude:F7}\t{wp.Longitude:F7}\t{wp.Altitude:F1}\t1");
             }
 
             System.IO.File.WriteAllText(dialog.FileName, sb.ToString());
-            MessageBox.Show("Mission saved!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"Mission saved with {waypoints.Count} waypoints!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
@@ -455,76 +590,16 @@ public partial class DroneMissionPlannerView : UserControl
 
         if (dialog.ShowDialog() == true)
         {
-            // Use the backend's QGC export
             string json = _missionPlanner.ToQgcPlanJson();
             System.IO.File.WriteAllText(dialog.FileName, json);
             MessageBox.Show("QGC Plan saved!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
+
+    // ========== HELPERS ==========
     
-    /// <summary>
-    /// Upload mission to connected flight controller.
-    /// </summary>
-    public async Task UploadMissionAsync()
+    private static double ParseDouble(string text, double defaultValue)
     {
-        if (_droneService == null || !_droneService.IsConnected)
-        {
-            MessageBox.Show("Not connected to a flight controller.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-        
-        var fc = _droneService.GetFlightController();
-        if (fc != null)
-        {
-            var waypoints = _missionPlanner.ToMavlinkWaypoints();
-            await fc.UploadMissionAsync(waypoints);
-            MessageBox.Show($"Uploaded {waypoints.Count} waypoints to flight controller.", "Upload Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+        return double.TryParse(text, out double result) ? result : defaultValue;
     }
-    
-    /// <summary>
-    /// Start the uploaded mission.
-    /// </summary>
-    public async Task StartMissionAsync()
-    {
-        if (_droneService == null || !_droneService.IsConnected)
-        {
-            MessageBox.Show("Not connected to a flight controller.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-        
-        var fc = _droneService.GetFlightController();
-        if (fc != null)
-        {
-            await fc.StartMissionAsync();
-        }
-    }
-    
-    /// <summary>
-    /// Clear the mission.
-    /// </summary>
-    public void ClearMission()
-    {
-        _missionPlanner.Clear();
-        _selectedWaypointIndex = -1;
-        RedrawMap();
-    }
-    
-    /// <summary>
-    /// Add a survey grid pattern.
-    /// </summary>
-    public void AddSurveyGrid(double lat1, double lon1, double lat2, double lon2, double altitude, double spacing)
-    {
-        _missionPlanner.AddSurveyGrid(
-            new GeoPoint(lat1, lon1, altitude),
-            new GeoPoint(lat2, lon2, altitude),
-            altitude,
-            spacing);
-        RedrawMap();
-    }
-    
-    /// <summary>
-    /// Get the mission planner for external access.
-    /// </summary>
-    public MissionPlanner GetMissionPlanner() => _missionPlanner;
 }

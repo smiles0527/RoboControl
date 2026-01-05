@@ -68,7 +68,7 @@
                 <!-- Team Info -->
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="?? Team Information" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="Team Information" Style="{StaticResource HeaderStyle}"/>
                         
                         <TextBlock Text="Team Number" Style="{StaticResource LabelStyle}"/>
                         <TextBox x:Name="TeamNumber" Text="1234A" Style="{StaticResource InputStyle}"/>
@@ -89,7 +89,7 @@
                 <!-- Drivetrain Config -->
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="?? Drivetrain" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="Drivetrain" Style="{StaticResource HeaderStyle}"/>
                         
                         <TextBlock Text="Drive Type" Style="{StaticResource LabelStyle}"/>
                         <ComboBox x:Name="DriveType" Style="{StaticResource ComboStyle}" SelectedIndex="0">
@@ -102,9 +102,9 @@
                         
                         <TextBlock Text="Motor Cartridge" Style="{StaticResource LabelStyle}"/>
                         <ComboBox x:Name="CartridgeType" Style="{StaticResource ComboStyle}" SelectedIndex="2">
-                            <ComboBoxItem Content="?? Red (100 RPM) - High Torque"/>
-                            <ComboBoxItem Content="?? Green (200 RPM) - Standard"/>
-                            <ComboBoxItem Content="?? Blue (600 RPM) - High Speed"/>
+                            <ComboBoxItem Content="Red (100 RPM) - High Torque"/>
+                            <ComboBoxItem Content="Green (200 RPM) - Standard"/>
+                            <ComboBoxItem Content="Blue (600 RPM) - High Speed"/>
                         </ComboBox>
                         
                         <Grid Margin="0,10,0,0">
@@ -147,7 +147,7 @@
                 <!-- Tracking Wheels -->
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="?? Tracking Wheels (Odometry)" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="Tracking Wheels (Odometry)" Style="{StaticResource HeaderStyle}"/>
                         
                         <CheckBox x:Name="UseTrackingWheels" Content="Use tracking wheels" Foreground="White" IsChecked="True" Margin="0,0,0,10"/>
                         
@@ -174,7 +174,7 @@
             <StackPanel>
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="?? V5 Brain Port Configuration" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="V5 Brain Port Configuration" Style="{StaticResource HeaderStyle}"/>
                         
                         <!-- Visual Brain Layout -->
                         <Border Background="#1E1E1E" Padding="20" CornerRadius="5" Margin="0,10,0,20">
@@ -291,7 +291,7 @@
                 <!-- 3-Wire Ports -->
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8">
                     <StackPanel>
-                        <TextBlock Text="?? 3-Wire (ADI) Ports" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="3-Wire (ADI) Ports" Style="{StaticResource HeaderStyle}"/>
                         
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -338,7 +338,7 @@
             <StackPanel Margin="10,0,0,0">
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="?? Generate Code" Style="{StaticResource HeaderStyle}"/>
+                        <TextBlock Text="Generate Code" Style="{StaticResource HeaderStyle}"/>
                         
                         <TextBlock Text="What to generate:" Style="{StaticResource LabelStyle}"/>
                         <StackPanel Margin="0,5,0,15">
@@ -350,11 +350,11 @@
                             <CheckBox Content="LemLib/EZ-Template setup" Foreground="White" IsChecked="True" Margin="0,3"/>
                         </StackPanel>
                         
-                        <Button x:Name="GenerateButton" Content="?? Generate PROS Project" Style="{StaticResource PrimaryButton}" FontWeight="Bold"/>
+                        <Button x:Name="GenerateButton" Content="Generate PROS Project" Style="{StaticResource PrimaryButton}" FontWeight="Bold"/>
                         
                         <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="?? Copy to Clipboard" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0"/>
-                            <Button Content="?? Save Files..." Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="Copy to Clipboard" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0"/>
+                            <Button Content="Save Files..." Style="{StaticResource SecondaryButton}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -363,7 +363,7 @@
                 <Border Background="#2D2D30" Padding="20" CornerRadius="8">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="?? Code Preview" Style="{StaticResource HeaderStyle}" Margin="0"/>
+                            <TextBlock Text="Code Preview" Style="{StaticResource HeaderStyle}" Margin="0"/>
                             <ComboBox x:Name="PreviewFileSelect" Margin="20,0,0,0" SelectedIndex="0" Width="150">
                                 <ComboBoxItem Content="main.cpp"/>
                                 <ComboBoxItem Content="robot.hpp"/>

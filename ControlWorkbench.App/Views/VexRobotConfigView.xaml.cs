@@ -4,7 +4,7 @@ using System.Windows.Controls;
 
 namespace ControlWorkbench.App.Views;
 
-//// <summary>
+/// <summary>
 /// VEX Robot Configuration view with PROS code generation.
 /// </summary>
 public partial class VexRobotConfigView : UserControl

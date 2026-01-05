@@ -23,7 +23,9 @@ public partial class DroneConfigView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (_isLoaded) return;
         _isLoaded = true;
+        
         WireUpEvents();
         UpdateCalculations();
     }
