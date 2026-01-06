@@ -42,9 +42,26 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 // These can be adjusted in real-time from ControlWorkbench!
 // ============================================================================
 
-// PID gains for driving
+// PID gains for driving (full PID with feedforward)
 cwb::PIDGains drive_pid = cwb::make_pid_gains("drive", 1.5, 0.02, 0.15);
-cwb::PIDGains turn_pid = cwb::make_pid_gains("turn", 2.5, 0.01, 0.25);
+
+// PD gains for turning (no integral - avoids windup on heading control)
+cwb::PDGains turn_pd = cwb::make_pd_gains("turn", 2.5, 0.25);
+
+// Controller configuration with slew rate and deadband
+cwb::ControllerConfig drive_config = cwb::make_controller_config("drive",
+    200,   // slew_rate: max output change per second (0 = disabled)
+    1.0,   // deadband: errors smaller than this are treated as 0
+    10,    // min_output: minimum output to overcome static friction
+    127    // max_output: maximum output
+);
+
+cwb::ControllerConfig turn_config = cwb::make_controller_config("turn",
+    300,   // slew_rate
+    0.02,  // deadband (radians, ~1 degree)
+    8,     // min_output
+    100    // max_output (limit turn speed)
+);
 
 // Feedforward gains for motion profiling
 cwb::FeedforwardGains drive_ff = cwb::make_ff_gains("drive_ff", 0.05, 0.02, 0.005);
@@ -52,7 +69,6 @@ cwb::FeedforwardGains drive_ff = cwb::make_ff_gains("drive_ff", 0.05, 0.02, 0.00
 // General parameters
 cwb::TunableParam& max_speed = cwb::param("max_speed", 100, 0, 127);
 cwb::TunableParam& accel_limit = cwb::param("accel_limit", 8, 1, 20);
-cwb::TunableParam& turn_speed = cwb::param("turn_speed", 80, 0, 127);
 cwb::TunableParam& lookahead_dist = cwb::param("lookahead", 12, 4, 24);
 
 // ============================================================================
@@ -134,40 +150,82 @@ struct Odometry {
 } odom;
 
 // ============================================================================
-// PID CONTROLLER
+// PID CONTROLLER (with ControllerConfig support)
 // ============================================================================
 
 class PIDController {
 public:
-    void set_gains(cwb::PIDGains* g) { gains = g; }
+    void set_gains(cwb::PIDGains* g) { pid_gains = g; pd_gains = nullptr; }
+    void set_gains(cwb::PDGains* g) { pd_gains = g; pid_gains = nullptr; }
+    void set_config(cwb::ControllerConfig* c) { config = c; }
     
     double compute(double error, double dt) {
-        if (!gains || dt <= 0) return 0;
+        if (dt <= 0) return prev_output;
         
-        integral += error * dt;
+        // Apply deadband
+        if (config) {
+            error = config->apply_deadband(error);
+            if (error == 0) {
+                integral = 0;  // Reset integral when in deadband
+                prev_output = 0;
+                return 0;
+            }
+        }
         
-        // Anti-windup
-        integral = std::clamp(integral, -max_integral, max_integral);
+        // Get gains
+        double kP = 0, kI = 0, kD = 0;
+        if (pid_gains) {
+            kP = pid_gains->p();
+            kI = pid_gains->i();
+            kD = pid_gains->d();
+        } else if (pd_gains) {
+            kP = pd_gains->p();
+            kD = pd_gains->d();
+            // kI stays 0 for PD control
+        }
         
+        // Integral (only for PID, not PD)
+        if (kI > 0) {
+            integral += error * dt;
+            integral = std::clamp(integral, -max_integral, max_integral);
+        }
+        
+        // Derivative
         double derivative = (error - prev_error) / dt;
         prev_error = error;
         
-        return gains->p() * error + 
-               gains->i() * integral + 
-               gains->d() * derivative;
+        // Compute raw output
+        double output = kP * error + kI * integral + kD * derivative;
+        
+        // Apply slew rate limiting
+        if (config) {
+            output = config->apply_slew(output, prev_output, dt);
+        }
+        
+        // Apply output clamping (includes min_output boost)
+        if (config) {
+            output = config->clamp_output(output);
+        }
+        
+        prev_output = output;
+        return output;
     }
     
     void reset() {
         integral = 0;
         prev_error = 0;
+        prev_output = 0;
     }
     
     double max_integral = 1000;
     
 private:
-    cwb::PIDGains* gains = nullptr;
+    cwb::PIDGains* pid_gains = nullptr;
+    cwb::PDGains* pd_gains = nullptr;
+    cwb::ControllerConfig* config = nullptr;
     double integral = 0;
     double prev_error = 0;
+    double prev_output = 0;
 };
 
 PIDController drive_controller;
@@ -239,9 +297,12 @@ void initialize() {
         }
     });
     
-    // Initialize PID controllers
+    // Initialize PID controllers with gains and config
     drive_controller.set_gains(&drive_pid);
-    turn_controller.set_gains(&turn_pid);
+    drive_controller.set_config(&drive_config);
+    
+    turn_controller.set_gains(&turn_pd);  // Using PD (no integral) for turning
+    turn_controller.set_config(&turn_config);
     
     // Calibrate IMU
     imu.reset();
@@ -387,7 +448,7 @@ void turn_to_heading(double target_deg, int timeout_ms = 2000) {
         if (fabs(error) < 0.02) break;  // ~1 degree
         
         double output = turn_controller.compute(error, dt);
-        output = std::clamp(output, -turn_speed.get(), turn_speed.get());
+        output = std::clamp(output, -turn_config.max_output, turn_config.max_output);
         
         set_drive(-output, output);
         

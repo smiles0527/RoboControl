@@ -1,0 +1,498 @@
+/**
+ * ControlWorkbench PROS Library - Competition Template
+ * 
+ * A complete, competition-ready robot code template.
+ * 
+ * Features:
+ * - 6-motor drivetrain with Pure Pursuit
+ * - Intake with color sorting
+ * - Lift with PID hold and presets
+ * - Pneumatic subsystems
+ * - Autonomous selector
+ * - Driver curves and deadzones
+ * - Full telemetry
+ * 
+ * USAGE:
+ * 1. Copy this file as your main.cpp
+ * 2. Change motor ports in config namespace
+ * 3. Adjust PID gains and physical dimensions
+ * 4. Write your autonomous routines
+ */
+
+// ============================================================================
+// INCLUDE THE LIBRARY
+// ============================================================================
+#define CWB_IMPLEMENTATION
+#include "cwb/cwb.hpp"
+
+#include "main.h"
+
+// ============================================================================
+// ROBOT CONFIGURATION
+// Change these to match YOUR robot!
+// ============================================================================
+
+namespace config {
+    // Drivetrain motor ports (negative = reversed)
+    constexpr int LEFT_FRONT = -1;
+    constexpr int LEFT_MIDDLE = -2;
+    constexpr int LEFT_BACK = -3;
+    constexpr int RIGHT_FRONT = 4;
+    constexpr int RIGHT_MIDDLE = 5;
+    constexpr int RIGHT_BACK = 6;
+    
+    // Subsystem motor ports
+    constexpr int INTAKE = 7;
+    constexpr int LIFT_LEFT = -8;
+    constexpr int LIFT_RIGHT = 9;
+    
+    // Sensor ports
+    constexpr int IMU = 10;
+    constexpr int LEFT_TRACKER = 11;
+    constexpr int RIGHT_TRACKER = 12;
+    constexpr int OPTICAL = 15;
+    
+    // Pneumatic ports (ADI)
+    constexpr char MOGO_CLAMP = 'A';
+    constexpr char DOINKER = 'B';
+    
+    // Physical dimensions (MEASURE THESE!)
+    constexpr double WHEEL_DIAMETER = 3.25;    // inches
+    constexpr double TRACK_WIDTH = 12.5;       // inches (center to center)
+    constexpr double TRACKER_DIAMETER = 2.75;  // inches (if using tracking wheels)
+    
+    // Set to true if using dedicated tracking wheels
+    constexpr bool USE_TRACKING_WHEELS = false;
+}
+
+// ============================================================================
+// HARDWARE OBJECTS
+// ============================================================================
+
+// Drivetrain
+pros::MotorGroup left_drive({config::LEFT_FRONT, config::LEFT_MIDDLE, config::LEFT_BACK}, 
+                            pros::MotorGearset::blue);
+pros::MotorGroup right_drive({config::RIGHT_FRONT, config::RIGHT_MIDDLE, config::RIGHT_BACK}, 
+                             pros::MotorGearset::blue);
+pros::Imu imu(config::IMU);
+
+// Tracking wheels (optional)
+pros::Rotation left_tracker(config::LEFT_TRACKER);
+pros::Rotation right_tracker(config::RIGHT_TRACKER);
+
+// Subsystems
+pros::Motor intake_motor(config::INTAKE, pros::MotorGearset::green);
+pros::MotorGroup lift_motors({config::LIFT_LEFT, config::LIFT_RIGHT}, pros::MotorGearset::red);
+pros::Optical optical(config::OPTICAL);
+
+// ============================================================================
+// CWB OBJECTS
+// ============================================================================
+
+// Chassis - handles odometry and motion control
+cwb::Chassis chassis(left_drive, right_drive, imu);
+
+// Subsystems - with all the bells and whistles
+cwb::Intake intake(intake_motor, optical);
+cwb::Lift lift(lift_motors);
+cwb::Pneumatic mogo_clamp(config::MOGO_CLAMP);
+cwb::Pneumatic doinker(config::DOINKER);
+
+// Auton selector - brain screen
+cwb::AutonSelector selector;
+
+// Enhanced controller with curves
+cwb::Controller master(pros::E_CONTROLLER_MASTER);
+
+// Debug display - switchable pages on brain
+cwb::DebugDisplay debug;
+
+// ============================================================================
+// AUTONOMOUS ROUTINES
+// ============================================================================
+
+void do_nothing() {
+    cwb::log_info("Running: Do Nothing");
+    // Safety auton - does nothing
+}
+
+void red_positive() {
+    cwb::log_info("Running: Red Positive");
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Autonomous);
+    
+    // Score preload on alliance stake
+    chassis.move_distance(6);
+    intake.run();
+    pros::delay(400);
+    intake.stop();
+    
+    // Drive to mobile goal
+    chassis.move_distance(-12);
+    chassis.turn_to_heading(90);
+    chassis.move_to_point(24, 24, cwb::MoveOptions().set_max_speed(100));
+    mogo_clamp.extend();
+    pros::delay(200);
+    
+    // Collect rings
+    intake.run();
+    intake.set_target_color(cwb::Intake::Color::Red);  // Only keep red
+    intake.enable_sorting(true);
+    
+    chassis.follow_path({
+        {24, 36},
+        {24, 48},
+        {36, 48}
+    });
+    
+    // Score in corner
+    chassis.move_to_point(12, 12);
+    mogo_clamp.retract();
+    chassis.move_distance(-8);
+    
+    intake.stop();
+    cwb::log_info("Red Positive complete - " + cwb::MatchTimer::format_remaining() + " remaining");
+}
+
+void red_negative() {
+    cwb::log_info("Running: Red Negative");
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Autonomous);
+    
+    // Go get mobile goal first
+    chassis.move_to_point(-24, 24);
+    mogo_clamp.extend();
+    
+    // Collect rings while driving
+    intake.run();
+    chassis.move_to_point(-24, 48);
+    chassis.move_to_point(-48, 48);
+    
+    // Score
+    chassis.move_to_point(-12, 12);
+    mogo_clamp.retract();
+    
+    intake.stop();
+}
+
+void blue_positive() {
+    cwb::log_info("Running: Blue Positive");
+    // Mirror of red_negative
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Autonomous);
+    
+    chassis.move_to_point(24, -24);
+    mogo_clamp.extend();
+    
+    intake.run();
+    intake.set_target_color(cwb::Intake::Color::Blue);
+    intake.enable_sorting(true);
+    
+    chassis.move_to_point(24, -48);
+    chassis.move_to_point(48, -48);
+    
+    chassis.move_to_point(12, -12);
+    mogo_clamp.retract();
+    
+    intake.stop();
+}
+
+void blue_negative() {
+    cwb::log_info("Running: Blue Negative");
+    // Mirror of red_positive
+    red_positive();  // Reuse with adjustments
+}
+
+void skills() {
+    cwb::log_info("Running: Skills");
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Skills);
+    
+    // 60-second skills run - maximize points!
+    
+    // Score preload
+    chassis.move_distance(6);
+    intake.run();
+    pros::delay(500);
+    
+    // === CYCLE 1 ===
+    chassis.move_to_point(24, 24);
+    mogo_clamp.extend();
+    
+    // Collect rings
+    chassis.follow_path({
+        {24, 36}, {24, 48}, {36, 48}, {48, 48}
+    });
+    
+    // Score in corner
+    chassis.move_to_point(12, 12);
+    mogo_clamp.retract();
+    chassis.move_distance(-6);
+    
+    cwb::log_info("Cycle 1 complete - " + cwb::MatchTimer::format_remaining() + " left");
+    
+    // === CYCLE 2 ===
+    chassis.move_to_point(72, 24);
+    mogo_clamp.extend();
+    
+    chassis.follow_path({
+        {72, 36}, {72, 48}, {84, 48}, {96, 48}
+    });
+    
+    chassis.move_to_point(132, 12);
+    mogo_clamp.retract();
+    
+    cwb::log_info("Cycle 2 complete - " + cwb::MatchTimer::format_remaining() + " left");
+    
+    // Continue with more cycles based on time remaining...
+    
+    intake.stop();
+    cwb::log_info("Skills complete!");
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+void initialize() {
+    // Initialize telemetry first
+    cwb::init(1);  // UART port 1 (use 0 for USB testing)
+    
+    // ????????????????????????????????????????????????????????????
+    // CRITICAL: Emergency stop - ALWAYS implement this!
+    // ????????????????????????????????????????????????????????????
+    cwb::on_emergency_stop([]() {
+        left_drive.move(0);
+        right_drive.move(0);
+        intake_motor.move(0);
+        lift_motors.move(0);
+        cwb::log_error("?? EMERGENCY STOP!");
+    });
+    
+    // Odometry reset from ControlWorkbench
+    cwb::on_odometry_reset([](double x, double y, double theta) {
+        chassis.set_pose(x, y, theta * 180 / M_PI);
+        cwb::log_info("Position reset");
+    });
+    
+    // ????????????????????????????????????????????????????????????
+    // Configure chassis
+    // ????????????????????????????????????????????????????????????
+    cwb::ChassisConfig chassis_config;
+    chassis_config.wheel_diameter = config::WHEEL_DIAMETER;
+    chassis_config.track_width = config::TRACK_WIDTH;
+    chassis.configure(chassis_config);
+    
+    // Add tracking wheels if using them
+    if (config::USE_TRACKING_WHEELS) {
+        chassis.set_tracking_wheels(&left_tracker, &right_tracker, 
+                                    config::TRACKER_DIAMETER, true, false);
+        cwb::log_info("Using tracking wheels");
+    }
+    
+    // Calibrate IMU
+    chassis.calibrate();
+    while (chassis.is_calibrating()) {
+        pros::lcd::print(1, "Calibrating IMU...");
+        pros::delay(20);
+    }
+    cwb::log_info("IMU calibrated");
+    
+    // ????????????????????????????????????????????????????????????
+    // Configure subsystems
+    // ????????????????????????????????????????????????????????????
+    
+    // Intake - set color sorting for your alliance
+    intake.set_target_color(cwb::Intake::Color::None);  // Configure per auton
+    optical.set_led_pwm(100);
+    
+    // Lift - add position presets
+    lift.add_position("down", 0);
+    lift.add_position("low", 90);
+    lift.add_position("mid", 180);
+    lift.add_position("high", 270);
+    lift.add_position("max", 360);
+    lift.set_limits(-10, 400);  // Safety limits
+    
+    // Set brake modes
+    chassis.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    lift_motors.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    
+    // ????????????????????????????????????????????????????????????
+    // Auton selector - add all routines
+    // ????????????????????????????????????????????????????????????
+    selector.add("Do Nothing", do_nothing, "Safety - no movement");
+    selector.add("Red +", red_positive, "Red side, positive corner");
+    selector.add("Red -", red_negative, "Red side, negative corner");
+    selector.add("Blue +", blue_positive, "Blue side, positive corner");
+    selector.add("Blue -", blue_negative, "Blue side, negative corner");
+    selector.add("Skills", skills, "60-second skills run");
+    selector.init();  // Show on brain screen
+    
+    // ????????????????????????????????????????????????????????????
+    // Driver configuration
+    // ????????????????????????????????????????????????????????????
+    master.set_curve(cwb::DriverCurve::desmos, 5.0);  // Smooth curve
+    master.set_deadzone(5);
+    
+    // ????????????????????????????????????????????????????????????
+    // Debug display pages
+    // ????????????????????????????????????????????????????????????
+    debug.add_page("Position", []() {
+        auto pose = chassis.get_pose();
+        debug.print(1, "X: %.1f in", pose.x);
+        debug.print(2, "Y: %.1f in", pose.y);
+        debug.print(3, "Heading: %.1f deg", chassis.get_heading());
+        debug.print(4, "Connected: %s", cwb::is_connected() ? "Yes" : "No");
+    });
+    
+    debug.add_page("Motors", []() {
+        debug.print(1, "Left: %.0f mA", left_drive.get_current_draw());
+        debug.print(2, "Right: %.0f mA", right_drive.get_current_draw());
+        debug.print(3, "Intake: %.0f mA", intake_motor.get_current_draw());
+        debug.print(4, "Lift: %.0f deg", lift.get_position());
+    });
+    
+    debug.add_page("Battery", []() {
+        debug.print(1, "Voltage: %.2f V", pros::battery::get_voltage() / 1000.0);
+        debug.print(2, "Current: %.2f A", pros::battery::get_current() / 1000.0);
+        debug.print(3, "Capacity: %.0f%%", pros::battery::get_capacity());
+        debug.print(4, "Temp: %.1f C", pros::battery::get_temperature());
+    });
+    
+    cwb::log_info("? Robot initialized - " + cwb::Version::full());
+}
+
+void disabled() {
+    // Robot is disabled - stop everything
+    left_drive.move(0);
+    right_drive.move(0);
+}
+
+void competition_initialize() {
+    // Competition-specific setup if needed
+}
+
+// ============================================================================
+// AUTONOMOUS
+// ============================================================================
+
+void autonomous() {
+    cwb::log_info("??? AUTONOMOUS STARTED ???");
+    selector.run();  // Run the selected auton
+    cwb::log_info("??? AUTONOMOUS COMPLETE ???");
+}
+
+// ============================================================================
+// DRIVER CONTROL
+// ============================================================================
+
+void opcontrol() {
+    cwb::log_info("??? DRIVER CONTROL STARTED ???");
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Driver);
+    
+    uint32_t last_telemetry = 0;
+    
+    while (true) {
+        // ????????????????????????????????????????????????????????????
+        // CRITICAL: Update CWB and chassis every loop
+        // ????????????????????????????????????????????????????????????
+        cwb::update();
+        chassis.update();
+        
+        // ????????????????????????????????????????????????????????????
+        // DRIVETRAIN
+        // ????????????????????????????????????????????????????????????
+        int forward = master.get_left_y();   // Curved input
+        int turn = master.get_right_x();     // Curved input
+        chassis.arcade(forward, turn);
+        
+        // ????????????????????????????????????????????????????????????
+        // INTAKE - R1/R2
+        // ????????????????????????????????????????????????????????????
+        if (master.held(DIGITAL_R1)) {
+            intake.run();
+        } else if (master.held(DIGITAL_R2)) {
+            intake.reverse();
+        } else {
+            intake.stop();
+        }
+        intake.update();  // Required for color sorting
+        
+        // ????????????????????????????????????????????????????????????
+        // LIFT - L1/L2 for manual, Y/B/A/X for presets
+        // ????????????????????????????????????????????????????????????
+        if (master.held(DIGITAL_L1)) {
+            lift.manual_move(127);
+        } else if (master.held(DIGITAL_L2)) {
+            lift.manual_move(-127);
+        } else if (master.pressed(DIGITAL_Y)) {
+            lift.go_to("high");
+        } else if (master.pressed(DIGITAL_B)) {
+            lift.go_to("mid");
+        } else if (master.pressed(DIGITAL_A)) {
+            lift.go_to("low");
+        } else if (master.pressed(DIGITAL_X)) {
+            lift.go_to("down");
+        } else if (!master.held(DIGITAL_L1) && !master.held(DIGITAL_L2)) {
+            if (lift.is_manual()) {
+                lift.manual_stop();
+            }
+        }
+        lift.update();
+        
+        // ????????????????????????????????????????????????????????????
+        // PNEUMATICS - buttons
+        // ????????????????????????????????????????????????????????????
+        if (master.pressed(DIGITAL_LEFT)) {
+            mogo_clamp.toggle();
+            master.rumble_short();
+        }
+        if (master.pressed(DIGITAL_RIGHT)) {
+            doinker.toggle();
+        }
+        
+        // ????????????????????????????????????????????????????????????
+        // TELEMETRY (50Hz)
+        // ????????????????????????????????????????????????????????????
+        if (pros::millis() - last_telemetry >= 20) {
+            last_telemetry = pros::millis();
+            
+            // Motors
+            cwb::send_motor(intake_motor);
+            
+            // Subsystems
+            intake.send_telemetry();
+            lift.send_telemetry();
+            
+            // Battery
+            cwb::send_battery();
+            
+            // Competition
+            cwb::send_competition_status(
+                pros::competition::is_autonomous(),
+                !pros::competition::is_disabled(),
+                pros::competition::is_connected()
+            );
+            
+            // Custom values
+            cwb::send_debug_value("time_left", cwb::MatchTimer::remaining_sec());
+        }
+        
+        // ????????????????????????????????????????????????????????????
+        // DEBUG DISPLAY
+        // ????????????????????????????????????????????????????????????
+        debug.update();
+        
+        // ????????????????????????????????????????????????????????????
+        // CONTROLLER DISPLAY
+        // ????????????????????????????????????????????????????????????
+        if (pros::millis() % 500 == 0) {  // Every 500ms
+            master.print(0, "%s", cwb::MatchTimer::format_remaining().c_str());
+            master.print(1, "%.0f%%", pros::battery::get_capacity());
+        }
+        
+        // Endgame warning
+        if (cwb::MatchTimer::is_endgame(30000) && pros::millis() % 5000 < 100) {
+            master.rumble("-");  // Rumble every 5 seconds in endgame
+        }
+        
+        pros::delay(10);
+    }
+}

@@ -341,8 +341,34 @@ double get_param(const std::string& name);
 bool has_param(const std::string& name);
 
 /**
+ * PD gains wrapper - for control without integral (avoids steady-state issues with I term).
+ * Use when you want simple proportional-derivative control.
+ * Creates parameters: prefix.kP, prefix.kD
+ */
+struct PDGains {
+    TunableParam* kP;
+    TunableParam* kD;
+    
+    PDGains() : kP(nullptr), kD(nullptr) {}
+    PDGains(const std::string& prefix, double p, double d);
+    
+    double p() const { return kP ? kP->get() : 0; }
+    double d() const { return kD ? kD->get() : 0; }
+    
+    /// Check if any gain was updated this frame
+    bool was_updated() const;
+};
+
+/**
+ * Create tunable PD gains (no integral term).
+ * Good for systems where you don't need steady-state error correction,
+ * or where integral windup is a problem.
+ */
+PDGains make_pd_gains(const std::string& prefix, double kp, double kd);
+
+/**
  * PID gains wrapper for easy tuning.
- * Creates three linked parameters: prefix.kP, prefix.kI, prefix.kD
+ * Creates four linked parameters: prefix.kP, prefix.kI, prefix.kD, prefix.kF
  */
 struct PIDGains {
     TunableParam* kP;
@@ -368,6 +394,77 @@ struct PIDGains {
 PIDGains make_pid_gains(const std::string& prefix, double kp, double ki, double kd, double kf = 0);
 
 /**
+ * Controller configuration with slew rate limiting and deadband.
+ * Use this alongside PID/PD gains for complete controller setup.
+ * 
+ * Creates parameters:
+ *   - prefix.slew_rate   : Max change per second (0 = disabled)
+ *   - prefix.deadband    : Error deadband (errors smaller than this are treated as 0)
+ *   - prefix.min_output  : Minimum output magnitude (overcomes static friction)
+ *   - prefix.max_output  : Maximum output magnitude
+ */
+struct ControllerConfig {
+    TunableParam* slew_rate;     // Max output change per second (0 = no limit)
+    TunableParam* deadband;      // Error deadband
+    TunableParam* min_output;    // Minimum output (to overcome static friction)
+    TunableParam* max_output;    // Maximum output
+    
+    ControllerConfig() : slew_rate(nullptr), deadband(nullptr), 
+                         min_output(nullptr), max_output(nullptr) {}
+    ControllerConfig(const std::string& prefix, 
+                     double slew = 0, double dead = 0, 
+                     double min_out = 0, double max_out = 127);
+    
+    double get_slew_rate() const { return slew_rate ? slew_rate->get() : 0; }
+    double get_deadband() const { return deadband ? deadband->get() : 0; }
+    double get_min_output() const { return min_output ? min_output->get() : 0; }
+    double get_max_output() const { return max_output ? max_output->get() : 127; }
+    
+    /**
+     * Apply deadband to error.
+     * Returns 0 if error is within deadband.
+     */
+    double apply_deadband(double error) const;
+    
+    /**
+     * Apply slew rate limiting to output.
+     * @param current_output The new desired output
+     * @param prev_output The previous output value
+     * @param dt Time step in seconds
+     * @return Slew-limited output
+     */
+    double apply_slew(double current_output, double prev_output, double dt) const;
+    
+    /**
+     * Clamp output to min/max range, applying minimum output threshold.
+     * If output magnitude is > 0 but < min_output, it's boosted to min_output.
+     */
+    double clamp_output(double output) const;
+    
+    /**
+     * Apply all constraints: deadband (on error), slew, and output clamping.
+     * @param error The current error (for deadband check)
+     * @param output The computed output
+     * @param prev_output Previous output (for slew limiting)
+     * @param dt Time step
+     * @return Constrained output
+     */
+    double apply_all(double error, double output, double prev_output, double dt) const;
+    
+    /// Check if any config was updated this frame
+    bool was_updated() const;
+};
+
+/**
+ * Create controller configuration.
+ */
+ControllerConfig make_controller_config(const std::string& prefix,
+                                         double slew_rate = 0,
+                                         double deadband = 0,
+                                         double min_output = 0,
+                                         double max_output = 127);
+
+/**
  * Feedforward gains for motion profiling.
  */
 struct FeedforwardGains {
@@ -386,12 +483,50 @@ struct FeedforwardGains {
     
     /// Calculate feedforward output
     double calculate(double velocity, double acceleration = 0, double cos_angle = 0) const;
+    
+    /// Check if any gain was updated this frame
+    bool was_updated() const;
 };
 
 /**
  * Create tunable feedforward gains.
  */
 FeedforwardGains make_ff_gains(const std::string& prefix, double ks, double kv, double ka = 0, double kg = 0);
+
+/**
+ * Complete controller gains combining PID + Feedforward + Config.
+ * This is the "batteries included" option for a complete controller.
+ * 
+ * Creates all parameters under the given prefix:
+ *   - prefix.kP, prefix.kI, prefix.kD, prefix.kF (PID)
+ *   - prefix.kS, prefix.kV, prefix.kA, prefix.kG (Feedforward)
+ *   - prefix.slew_rate, prefix.deadband, prefix.min_output, prefix.max_output (Config)
+ */
+struct CompleteControllerGains {
+    PIDGains pid;
+    FeedforwardGains ff;
+    ControllerConfig config;
+    
+    CompleteControllerGains() {}
+    CompleteControllerGains(const std::string& prefix,
+                            double kp, double ki, double kd, double kf = 0,
+                            double ks = 0, double kv = 0, double ka = 0, double kg = 0,
+                            double slew = 0, double deadband = 0,
+                            double min_out = 0, double max_out = 127);
+    
+    /// Check if any parameter was updated this frame
+    bool was_updated() const;
+};
+
+/**
+ * Create complete controller gains.
+ */
+CompleteControllerGains make_complete_gains(
+    const std::string& prefix,
+    double kp, double ki, double kd, double kf = 0,
+    double ks = 0, double kv = 0, double ka = 0, double kg = 0,
+    double slew = 0, double deadband = 0,
+    double min_out = 0, double max_out = 127);
 
 // =============================================================================
 // CALLBACKS
@@ -547,9 +682,7 @@ static void write_bytes(const uint8_t* data, int len) {
 
 static int read_byte() {
     if (use_stdout) {
-        // Non-blocking read from stdin
-        // Note: This requires proper terminal setup
-        return -1;  // Simplified - use serial for bidirectional
+        return -1;  // Use serial for bidirectional
     } else if (serial_port && serial_port->get_read_avail() > 0) {
         uint8_t byte;
         if (serial_port->read(&byte, 1) == 1) {
@@ -565,13 +698,9 @@ static int read_byte() {
 // -----------------------------------------------------------------------------
 
 void process_set_parameter(const uint8_t* payload, int len) {
-    // Find null terminator for name
     int null_pos = -1;
     for (int i = 0; i < len && i < 128; i++) {
-        if (payload[i] == 0) {
-            null_pos = i;
-            break;
-        }
+        if (payload[i] == 0) { null_pos = i; break; }
     }
     if (null_pos < 0 || null_pos + 9 > len) return;
     
@@ -583,11 +712,7 @@ void process_set_parameter(const uint8_t* payload, int len) {
     if (it != parameters.end()) {
         it->second->set(value);
         it->second->updated_this_frame_ = true;
-        
-        if (param_changed_callback) {
-            param_changed_callback(name, value);
-        }
-        
+        if (param_changed_callback) param_changed_callback(name, value);
         send_message(MessageType::Acknowledge);
     }
 }
@@ -601,11 +726,9 @@ static void process_message(MessageType type, const uint8_t* payload, int len) {
             connected = true;
             send_message(MessageType::Acknowledge);
             break;
-            
         case MessageType::SetParameter:
             process_set_parameter(payload, len);
             break;
-            
         case MessageType::GetParameter: {
             if (len < 1) break;
             std::string name(reinterpret_cast<const char*>(payload));
@@ -620,51 +743,36 @@ static void process_message(MessageType type, const uint8_t* payload, int len) {
             }
             break;
         }
-        
         case MessageType::ResetOdometry:
             if (len >= 24 && odom_reset_callback) {
                 double x, y, theta;
-                std::memcpy(&x, payload, sizeof(double));
-                std::memcpy(&y, payload + 8, sizeof(double));
-                std::memcpy(&theta, payload + 16, sizeof(double));
+                std::memcpy(&x, payload, 8); std::memcpy(&y, payload + 8, 8); std::memcpy(&theta, payload + 16, 8);
                 odom_reset_callback(x, y, theta);
             }
             break;
-            
         case MessageType::EmergencyStop:
-            if (emergency_stop_callback) {
-                emergency_stop_callback();
-            }
+            if (emergency_stop_callback) emergency_stop_callback();
             break;
-            
         case MessageType::PathWaypoint:
             if (len >= 24 && waypoint_callback) {
                 double x, y, theta;
-                std::memcpy(&x, payload, sizeof(double));
-                std::memcpy(&y, payload + 8, sizeof(double));
-                std::memcpy(&theta, payload + 16, sizeof(double));
+                std::memcpy(&x, payload, 8); std::memcpy(&y, payload + 8, 8); std::memcpy(&theta, payload + 16, 8);
                 waypoint_callback(x, y, theta);
             }
             break;
-            
         case MessageType::RunPath:
             if (len >= 4 && run_path_callback) {
-                int32_t path_id;
-                std::memcpy(&path_id, payload, sizeof(int32_t));
+                int32_t path_id; std::memcpy(&path_id, payload, 4);
                 run_path_callback(path_id);
             }
             break;
-            
         case MessageType::StartAutonomous:
             if (len >= 4 && start_auton_callback) {
-                int32_t auton_id;
-                std::memcpy(&auton_id, payload, sizeof(int32_t));
+                int32_t auton_id; std::memcpy(&auton_id, payload, 4);
                 start_auton_callback(auton_id);
             }
             break;
-            
-        default:
-            break;
+        default: break;
     }
 }
 
@@ -673,47 +781,28 @@ static void process_byte(uint8_t b) {
         case ParseState::WaitPreamble1:
             if (b == PREAMBLE1) parse_state = ParseState::WaitPreamble2;
             break;
-            
         case ParseState::WaitPreamble2:
             if (b == PREAMBLE2) parse_state = ParseState::WaitType;
-            else {
-                parse_state = ParseState::WaitPreamble1;
-                stats.parse_errors++;
-            }
+            else { parse_state = ParseState::WaitPreamble1; stats.parse_errors++; }
             break;
-            
         case ParseState::WaitType:
             current_type = static_cast<MessageType>(b);
             parse_state = ParseState::WaitLength;
             break;
-            
         case ParseState::WaitLength:
-            current_length = b;
-            payload_index = 0;
-            if (current_length == 0) {
-                parse_state = ParseState::WaitChecksum;
-            } else if (current_length > MAX_PAYLOAD) {
-                parse_state = ParseState::WaitPreamble1;
-                stats.parse_errors++;
-            } else {
-                parse_state = ParseState::ReadPayload;
-            }
+            current_length = b; payload_index = 0;
+            if (current_length == 0) parse_state = ParseState::WaitChecksum;
+            else if (current_length > MAX_PAYLOAD) { parse_state = ParseState::WaitPreamble1; stats.parse_errors++; }
+            else parse_state = ParseState::ReadPayload;
             break;
-            
         case ParseState::ReadPayload:
             rx_buffer[payload_index++] = b;
-            if (payload_index >= current_length) {
-                parse_state = ParseState::WaitChecksum;
-            }
+            if (payload_index >= current_length) parse_state = ParseState::WaitChecksum;
             break;
-            
         case ParseState::WaitChecksum: {
             uint8_t expected = compute_checksum(current_type, rx_buffer, current_length);
-            if (b == expected) {
-                process_message(current_type, rx_buffer, current_length);
-            } else {
-                stats.checksum_errors++;
-            }
+            if (b == expected) process_message(current_type, rx_buffer, current_length);
+            else stats.checksum_errors++;
             parse_state = ParseState::WaitPreamble1;
             break;
         }
@@ -723,228 +812,120 @@ static void process_byte(uint8_t b) {
 } // namespace detail
 
 // -----------------------------------------------------------------------------
-// Public API implementation
+// Public API
 // -----------------------------------------------------------------------------
 
 bool init(int port) {
     if (detail::initialized) return true;
-    
-    if (port == 0) {
-        detail::use_stdout = true;
-        detail::serial_port = nullptr;
-    } else {
-        detail::use_stdout = false;
-        detail::serial_port = new pros::Serial(port, BAUD_RATE);
-    }
-    
-    detail::last_heartbeat_recv = 0;
-    detail::last_heartbeat_sent = 0;
-    detail::connected = false;
-    detail::initialized = true;
+    if (port == 0) { detail::use_stdout = true; detail::serial_port = nullptr; }
+    else { detail::use_stdout = false; detail::serial_port = new pros::Serial(port, BAUD_RATE); }
+    detail::last_heartbeat_recv = 0; detail::last_heartbeat_sent = 0;
+    detail::connected = false; detail::initialized = true;
     detail::stats = {0, 0, 0, 0, 0, 0};
-    
     log_info("ControlWorkbench telemetry initialized v" + std::string(VERSION));
-    
     return true;
 }
 
 void shutdown() {
-    if (detail::serial_port) {
-        delete detail::serial_port;
-        detail::serial_port = nullptr;
-    }
+    if (detail::serial_port) { delete detail::serial_port; detail::serial_port = nullptr; }
     detail::initialized = false;
 }
 
 void update() {
     if (!detail::initialized) return;
-    
-    // Clear updated flags on all parameters
-    for (auto& pair : detail::parameters) {
-        pair.second->updated_this_frame_ = false;
-    }
-    
-    // Process incoming data
-    int byte;
-    int max_reads = 256;  // Prevent infinite loop
-    while ((byte = detail::read_byte()) >= 0 && max_reads-- > 0) {
-        detail::process_byte(static_cast<uint8_t>(byte));
-    }
-    
-    // Send heartbeat periodically
+    for (auto& pair : detail::parameters) pair.second->updated_this_frame_ = false;
+    int byte, max_reads = 256;
+    while ((byte = detail::read_byte()) >= 0 && max_reads-- > 0) detail::process_byte(static_cast<uint8_t>(byte));
     uint32_t now = pros::millis();
-    if (now - detail::last_heartbeat_sent >= DEFAULT_HEARTBEAT_MS) {
-        send_message(MessageType::Heartbeat);
-        detail::last_heartbeat_sent = now;
-    }
-    
-    // Check connection timeout
-    if (detail::last_heartbeat_recv > 0 && 
-        now - detail::last_heartbeat_recv > CONNECTION_TIMEOUT_MS) {
-        detail::connected = false;
-    }
+    if (now - detail::last_heartbeat_sent >= DEFAULT_HEARTBEAT_MS) { send_message(MessageType::Heartbeat); detail::last_heartbeat_sent = now; }
+    if (detail::last_heartbeat_recv > 0 && now - detail::last_heartbeat_recv > CONNECTION_TIMEOUT_MS) detail::connected = false;
 }
 
-bool is_connected() {
-    return detail::connected;
-}
-
-uint32_t get_last_comm_age() {
-    if (detail::last_heartbeat_recv == 0) return UINT32_MAX;
-    return pros::millis() - detail::last_heartbeat_recv;
-}
+bool is_connected() { return detail::connected; }
+uint32_t get_last_comm_age() { return detail::last_heartbeat_recv == 0 ? UINT32_MAX : pros::millis() - detail::last_heartbeat_recv; }
 
 void send_message(MessageType type, const uint8_t* payload, int len) {
     if (!detail::initialized) return;
     if (len > MAX_PAYLOAD) len = MAX_PAYLOAD;
-    
-    detail::tx_buffer[0] = PREAMBLE1;
-    detail::tx_buffer[1] = PREAMBLE2;
-    detail::tx_buffer[2] = static_cast<uint8_t>(type);
-    detail::tx_buffer[3] = static_cast<uint8_t>(len);
-    
-    if (len > 0 && payload) {
-        std::memcpy(detail::tx_buffer + 4, payload, len);
-    }
-    
+    detail::tx_buffer[0] = PREAMBLE1; detail::tx_buffer[1] = PREAMBLE2;
+    detail::tx_buffer[2] = static_cast<uint8_t>(type); detail::tx_buffer[3] = static_cast<uint8_t>(len);
+    if (len > 0 && payload) std::memcpy(detail::tx_buffer + 4, payload, len);
     detail::tx_buffer[4 + len] = detail::compute_checksum(type, payload, len);
-    
     detail::write_bytes(detail::tx_buffer, 5 + len);
     detail::stats.messages_sent++;
 }
 
-void send_message(MessageType type) {
-    send_message(type, nullptr, 0);
-}
+void send_message(MessageType type) { send_message(type, nullptr, 0); }
 
-void send_odometry(double x, double y, double theta,
-                   double vel_x, double vel_y, double angular_vel) {
-    uint8_t payload[52];
-    uint32_t ts = pros::millis();
-    std::memcpy(payload, &x, 8);
-    std::memcpy(payload + 8, &y, 8);
-    std::memcpy(payload + 16, &theta, 8);
-    std::memcpy(payload + 24, &vel_x, 8);
-    std::memcpy(payload + 32, &vel_y, 8);
-    std::memcpy(payload + 40, &angular_vel, 8);
+void send_odometry(double x, double y, double theta, double vel_x, double vel_y, double angular_vel) {
+    uint8_t payload[52]; uint32_t ts = pros::millis();
+    std::memcpy(payload, &x, 8); std::memcpy(payload + 8, &y, 8); std::memcpy(payload + 16, &theta, 8);
+    std::memcpy(payload + 24, &vel_x, 8); std::memcpy(payload + 32, &vel_y, 8); std::memcpy(payload + 40, &angular_vel, 8);
     std::memcpy(payload + 48, &ts, 4);
     send_message(MessageType::Odometry, payload, 52);
 }
 
-void send_imu(double heading, double pitch, double roll,
-              double gyro_x, double gyro_y, double gyro_z,
-              double accel_x, double accel_y, double accel_z) {
+void send_imu(double heading, double pitch, double roll, double gyro_x, double gyro_y, double gyro_z, double accel_x, double accel_y, double accel_z) {
     uint8_t payload[72];
-    std::memcpy(payload, &heading, 8);
-    std::memcpy(payload + 8, &pitch, 8);
-    std::memcpy(payload + 16, &roll, 8);
-    std::memcpy(payload + 24, &gyro_x, 8);
-    std::memcpy(payload + 32, &gyro_y, 8);
-    std::memcpy(payload + 40, &gyro_z, 8);
-    std::memcpy(payload + 48, &accel_x, 8);
-    std::memcpy(payload + 56, &accel_y, 8);
-    std::memcpy(payload + 64, &accel_z, 8);
+    std::memcpy(payload, &heading, 8); std::memcpy(payload + 8, &pitch, 8); std::memcpy(payload + 16, &roll, 8);
+    std::memcpy(payload + 24, &gyro_x, 8); std::memcpy(payload + 32, &gyro_y, 8); std::memcpy(payload + 40, &gyro_z, 8);
+    std::memcpy(payload + 48, &accel_x, 8); std::memcpy(payload + 56, &accel_y, 8); std::memcpy(payload + 64, &accel_z, 8);
     send_message(MessageType::ImuData, payload, 72);
 }
 
-void send_motor(uint8_t port, double position, double velocity, 
-                double current, double voltage, double temperature,
-                double power, double torque) {
-    uint8_t payload[67];
-    payload[0] = port;
-    std::memcpy(payload + 1, &position, 8);
-    std::memcpy(payload + 9, &velocity, 8);
-    std::memcpy(payload + 17, &current, 8);
-    std::memcpy(payload + 25, &voltage, 8);
-    std::memcpy(payload + 33, &temperature, 8);
-    std::memcpy(payload + 41, &power, 8);
-    std::memcpy(payload + 49, &torque, 8);
-    std::memset(payload + 57, 0, 10);  // Reserved
+void send_motor(uint8_t port, double position, double velocity, double current, double voltage, double temperature, double power, double torque) {
+    uint8_t payload[67]; payload[0] = port;
+    std::memcpy(payload + 1, &position, 8); std::memcpy(payload + 9, &velocity, 8); std::memcpy(payload + 17, &current, 8);
+    std::memcpy(payload + 25, &voltage, 8); std::memcpy(payload + 33, &temperature, 8);
+    std::memcpy(payload + 41, &power, 8); std::memcpy(payload + 49, &torque, 8); std::memset(payload + 57, 0, 10);
     send_message(MessageType::MotorTelemetry, payload, 67);
 }
 
 void send_motor(const pros::Motor& motor) {
-    send_motor(
-        motor.get_port(),
-        motor.get_position(),
-        motor.get_actual_velocity(),
-        motor.get_current_draw(),
-        motor.get_voltage(),
-        motor.get_temperature(),
-        motor.get_power(),
-        motor.get_torque()
-    );
+    send_motor(motor.get_port(), motor.get_position(), motor.get_actual_velocity(), motor.get_current_draw(),
+               motor.get_voltage(), motor.get_temperature(), motor.get_power(), motor.get_torque());
 }
 
-void send_pid_state(uint8_t controller_id, 
-                    double setpoint, double measurement,
-                    double error, double integral, double derivative,
-                    double output, double kp, double ki, double kd) {
-    uint8_t payload[73];
-    payload[0] = controller_id;
-    std::memcpy(payload + 1, &setpoint, 8);
-    std::memcpy(payload + 9, &measurement, 8);
-    std::memcpy(payload + 17, &error, 8);
-    std::memcpy(payload + 25, &integral, 8);
-    std::memcpy(payload + 33, &derivative, 8);
-    std::memcpy(payload + 41, &output, 8);
-    std::memcpy(payload + 49, &kp, 8);
-    std::memcpy(payload + 57, &ki, 8);
-    std::memcpy(payload + 65, &kd, 8);
+void send_pid_state(uint8_t controller_id, double setpoint, double measurement, double error, double integral, double derivative, double output, double kp, double ki, double kd) {
+    uint8_t payload[73]; payload[0] = controller_id;
+    std::memcpy(payload + 1, &setpoint, 8); std::memcpy(payload + 9, &measurement, 8); std::memcpy(payload + 17, &error, 8);
+    std::memcpy(payload + 25, &integral, 8); std::memcpy(payload + 33, &derivative, 8); std::memcpy(payload + 41, &output, 8);
+    std::memcpy(payload + 49, &kp, 8); std::memcpy(payload + 57, &ki, 8); std::memcpy(payload + 65, &kd, 8);
     send_message(MessageType::PidState, payload, 73);
 }
 
 void send_battery(double voltage, double current, double capacity, double temperature) {
     uint8_t payload[32];
-    std::memcpy(payload, &voltage, 8);
-    std::memcpy(payload + 8, &current, 8);
-    std::memcpy(payload + 16, &capacity, 8);
-    std::memcpy(payload + 24, &temperature, 8);
+    std::memcpy(payload, &voltage, 8); std::memcpy(payload + 8, &current, 8);
+    std::memcpy(payload + 16, &capacity, 8); std::memcpy(payload + 24, &temperature, 8);
     send_message(MessageType::BatteryStatus, payload, 32);
 }
 
 void send_battery() {
-    send_battery(
-        pros::battery::get_voltage() / 1000.0,
-        pros::battery::get_current() / 1000.0,
-        pros::battery::get_capacity(),
-        pros::battery::get_temperature()
-    );
+    send_battery(pros::battery::get_voltage() / 1000.0, pros::battery::get_current() / 1000.0,
+                 pros::battery::get_capacity(), pros::battery::get_temperature());
 }
 
 void send_competition_status(bool is_autonomous, bool is_enabled, bool is_connected) {
-    uint8_t payload[3];
-    payload[0] = is_autonomous ? 1 : 0;
-    payload[1] = is_enabled ? 1 : 0;
-    payload[2] = is_connected ? 1 : 0;
+    uint8_t payload[3] = { is_autonomous ? (uint8_t)1 : (uint8_t)0, is_enabled ? (uint8_t)1 : (uint8_t)0, is_connected ? (uint8_t)1 : (uint8_t)0 };
     send_message(MessageType::CompetitionStatus, payload, 3);
 }
 
-void send_path_progress(double progress, 
-                        double current_x, double current_y,
-                        double target_x, double target_y,
-                        double lookahead_x, double lookahead_y) {
+void send_path_progress(double progress, double current_x, double current_y, double target_x, double target_y, double lookahead_x, double lookahead_y) {
     uint8_t payload[56];
-    std::memcpy(payload, &progress, 8);
-    std::memcpy(payload + 8, &current_x, 8);
-    std::memcpy(payload + 16, &current_y, 8);
-    std::memcpy(payload + 24, &target_x, 8);
-    std::memcpy(payload + 32, &target_y, 8);
-    std::memcpy(payload + 40, &lookahead_x, 8);
-    std::memcpy(payload + 48, &lookahead_y, 8);
+    std::memcpy(payload, &progress, 8); std::memcpy(payload + 8, &current_x, 8); std::memcpy(payload + 16, &current_y, 8);
+    std::memcpy(payload + 24, &target_x, 8); std::memcpy(payload + 32, &target_y, 8);
+    std::memcpy(payload + 40, &lookahead_x, 8); std::memcpy(payload + 48, &lookahead_y, 8);
     send_message(MessageType::PathProgress, payload, 56);
 }
 
 void log(LogLevel level, const std::string& message) {
-    uint8_t payload[256];
-    payload[0] = static_cast<uint8_t>(level);
-    uint32_t ts = pros::millis();
-    std::memcpy(payload + 1, &ts, 4);
+    uint8_t payload[256]; payload[0] = static_cast<uint8_t>(level);
+    uint32_t ts = pros::millis(); std::memcpy(payload + 1, &ts, 4);
     int len = std::min(static_cast<int>(message.length()), 250);
     std::memcpy(payload + 5, message.c_str(), len);
     send_message(MessageType::LogMessage, payload, 5 + len);
 }
-
 void log_debug(const std::string& message) { log(LogLevel::Debug, message); }
 void log_info(const std::string& message) { log(LogLevel::Info, message); }
 void log_warning(const std::string& message) { log(LogLevel::Warning, message); }
@@ -958,132 +939,122 @@ void send_debug_value(const std::string& name, double value) {
     send_message(MessageType::DebugValue, payload, name_len + 9);
 }
 
-void send_graph_data(const std::string& series_name, 
-                     const std::vector<std::pair<double, double>>& points) {
-    // Limited implementation - send first few points
-    int max_points = 10;
-    int count = std::min(static_cast<int>(points.size()), max_points);
-    
+void send_graph_data(const std::string& series_name, const std::vector<std::pair<double, double>>& points) {
+    int count = std::min(static_cast<int>(points.size()), 10);
     std::vector<uint8_t> payload;
     payload.push_back(static_cast<uint8_t>(series_name.length()));
     for (char c : series_name) payload.push_back(c);
     payload.push_back(static_cast<uint8_t>(count));
-    
     for (int i = 0; i < count; i++) {
         const uint8_t* xb = reinterpret_cast<const uint8_t*>(&points[i].first);
         const uint8_t* yb = reinterpret_cast<const uint8_t*>(&points[i].second);
         for (int j = 0; j < 8; j++) payload.push_back(xb[j]);
         for (int j = 0; j < 8; j++) payload.push_back(yb[j]);
     }
-    
     send_message(MessageType::GraphData, payload.data(), static_cast<int>(payload.size()));
 }
 
-// TunableParam implementation
-TunableParam::TunableParam(const std::string& name, double default_value,
-                           double min_val, double max_val)
-    : name_(name), value_(default_value), min_(min_val), max_(max_val) {
-    detail::parameters[name] = this;
-}
+// TunableParam
+TunableParam::TunableParam(const std::string& name, double default_value, double min_val, double max_val)
+    : name_(name), value_(default_value), min_(min_val), max_(max_val) { detail::parameters[name] = this; }
+void TunableParam::set(double v) { value_ = std::clamp(v, min_, max_); }
 
-void TunableParam::set(double v) {
-    value_ = std::clamp(v, min_, max_);
-}
-
-TunableParam& param(const std::string& name, double default_value,
-                    double min_val, double max_val) {
+TunableParam& param(const std::string& name, double default_value, double min_val, double max_val) {
     auto it = detail::parameters.find(name);
-    if (it != detail::parameters.end()) {
-        return *it->second;
-    }
-    detail::param_storage.push_back(
-        std::make_unique<TunableParam>(name, default_value, min_val, max_val));
+    if (it != detail::parameters.end()) return *it->second;
+    detail::param_storage.push_back(std::make_unique<TunableParam>(name, default_value, min_val, max_val));
     return *detail::param_storage.back();
 }
+double get_param(const std::string& name) { auto it = detail::parameters.find(name); return it != detail::parameters.end() ? it->second->get() : 0; }
+bool has_param(const std::string& name) { return detail::parameters.find(name) != detail::parameters.end(); }
 
-double get_param(const std::string& name) {
-    auto it = detail::parameters.find(name);
-    if (it != detail::parameters.end()) {
-        return it->second->get();
-    }
-    return 0;
+// PDGains
+PDGains::PDGains(const std::string& prefix, double p, double d) {
+    kP = &param(prefix + ".kP", p, 0, 1000); kD = &param(prefix + ".kD", d, 0, 1000);
 }
+bool PDGains::was_updated() const { return (kP && kP->was_updated()) || (kD && kD->was_updated()); }
+PDGains make_pd_gains(const std::string& prefix, double kp, double kd) { return PDGains(prefix, kp, kd); }
 
-bool has_param(const std::string& name) {
-    return detail::parameters.find(name) != detail::parameters.end();
-}
-
-// PIDGains implementation
+// PIDGains
 PIDGains::PIDGains(const std::string& prefix, double p, double i, double d, double f) {
-    kP = &param(prefix + ".kP", p, 0, 1000);
-    kI = &param(prefix + ".kI", i, 0, 1000);
-    kD = &param(prefix + ".kD", d, 0, 1000);
-    kF = &param(prefix + ".kF", f, 0, 1000);
+    kP = &param(prefix + ".kP", p, 0, 1000); kI = &param(prefix + ".kI", i, 0, 1000);
+    kD = &param(prefix + ".kD", d, 0, 1000); kF = &param(prefix + ".kF", f, 0, 1000);
+}
+bool PIDGains::was_updated() const { return (kP && kP->was_updated()) || (kI && kI->was_updated()) || (kD && kD->was_updated()) || (kF && kF->was_updated()); }
+PIDGains make_pid_gains(const std::string& prefix, double kp, double ki, double kd, double kf) { return PIDGains(prefix, kp, ki, kd, kf); }
+
+// ControllerConfig
+ControllerConfig::ControllerConfig(const std::string& prefix, double slew, double dead, double min_out, double max_out) {
+    slew_rate = &param(prefix + ".slew_rate", slew, 0, 10000);
+    deadband = &param(prefix + ".deadband", dead, 0, 100);
+    min_output = &param(prefix + ".min_output", min_out, 0, 127);
+    max_output = &param(prefix + ".max_output", max_out, 0, 127);
+}
+double ControllerConfig::apply_deadband(double error) const {
+    if (deadband && deadband->get() > 0 && std::abs(error) < deadband->get()) return 0;
+    return error;
+}
+double ControllerConfig::apply_slew(double current_output, double prev_output, double dt) const {
+    if (slew_rate && slew_rate->get() > 0 && dt > 0) {
+        double max_change = slew_rate->get() * dt;
+        if (current_output > prev_output + max_change) return prev_output + max_change;
+        if (current_output < prev_output - max_change) return prev_output - max_change;
+    }
+    return current_output;
+}
+double ControllerConfig::clamp_output(double output) const {
+    double min_val = min_output ? min_output->get() : 0;
+    double max_val = max_output ? max_output->get() : 127;
+    if (min_val > 0) {
+        if (output > 0 && output < min_val) return min_val;
+        if (output < 0 && output > -min_val) return -min_val;
+    }
+    return std::clamp(output, -max_val, max_val);
+}
+double ControllerConfig::apply_all(double error, double output, double prev_output, double dt) const {
+    if (apply_deadband(error) == 0) return 0;
+    output = apply_slew(output, prev_output, dt);
+    return clamp_output(output);
+}
+bool ControllerConfig::was_updated() const {
+    return (slew_rate && slew_rate->was_updated()) || (deadband && deadband->was_updated()) ||
+           (min_output && min_output->was_updated()) || (max_output && max_output->was_updated());
+}
+ControllerConfig make_controller_config(const std::string& prefix, double slew, double dead, double min_out, double max_out) {
+    return ControllerConfig(prefix, slew, dead, min_out, max_out);
 }
 
-bool PIDGains::was_updated() const {
-    return (kP && kP->was_updated()) || 
-           (kI && kI->was_updated()) || 
-           (kD && kD->was_updated()) ||
-           (kF && kF->was_updated());
-}
-
-PIDGains make_pid_gains(const std::string& prefix, double kp, double ki, double kd, double kf) {
-    return PIDGains(prefix, kp, ki, kd, kf);
-}
-
-// FeedforwardGains implementation
+// FeedforwardGains
 FeedforwardGains::FeedforwardGains(const std::string& prefix, double s, double v, double a, double g) {
-    kS = &param(prefix + ".kS", s, 0, 100);
-    kV = &param(prefix + ".kV", v, 0, 100);
-    kA = &param(prefix + ".kA", a, 0, 100);
-    kG = &param(prefix + ".kG", g, 0, 100);
+    kS = &param(prefix + ".kS", s, 0, 100); kV = &param(prefix + ".kV", v, 0, 100);
+    kA = &param(prefix + ".kA", a, 0, 100); kG = &param(prefix + ".kG", g, 0, 100);
 }
-
 double FeedforwardGains::calculate(double velocity, double acceleration, double cos_angle) const {
     double sign = (velocity > 0) ? 1.0 : ((velocity < 0) ? -1.0 : 0.0);
     return s() * sign + v() * velocity + a() * acceleration + g() * cos_angle;
 }
+bool FeedforwardGains::was_updated() const { return (kS && kS->was_updated()) || (kV && kV->was_updated()) || (kA && kA->was_updated()) || (kG && kG->was_updated()); }
+FeedforwardGains make_ff_gains(const std::string& prefix, double ks, double kv, double ka, double kg) { return FeedforwardGains(prefix, ks, kv, ka, kg); }
 
-FeedforwardGains make_ff_gains(const std::string& prefix, double ks, double kv, double ka, double kg) {
-    return FeedforwardGains(prefix, ks, kv, ka, kg);
+// CompleteControllerGains
+CompleteControllerGains::CompleteControllerGains(const std::string& prefix, double kp, double ki, double kd, double kf,
+    double ks, double kv, double ka, double kg, double slew, double dead, double min_out, double max_out)
+    : pid(prefix, kp, ki, kd, kf), ff(prefix, ks, kv, ka, kg), config(prefix, slew, dead, min_out, max_out) {}
+bool CompleteControllerGains::was_updated() const { return pid.was_updated() || ff.was_updated() || config.was_updated(); }
+CompleteControllerGains make_complete_gains(const std::string& prefix, double kp, double ki, double kd, double kf,
+    double ks, double kv, double ka, double kg, double slew, double dead, double min_out, double max_out) {
+    return CompleteControllerGains(prefix, kp, ki, kd, kf, ks, kv, ka, kg, slew, dead, min_out, max_out);
 }
 
 // Callbacks
-void on_odometry_reset(std::function<void(double, double, double)> callback) {
-    detail::odom_reset_callback = callback;
-}
-
-void on_emergency_stop(std::function<void()> callback) {
-    detail::emergency_stop_callback = callback;
-}
-
-void on_waypoint(std::function<void(double, double, double)> callback) {
-    detail::waypoint_callback = callback;
-}
-
-void on_run_path(std::function<void(int)> callback) {
-    detail::run_path_callback = callback;
-}
-
-void on_start_autonomous(std::function<void(int)> callback) {
-    detail::start_auton_callback = callback;
-}
-
-void on_parameter_changed(std::function<void(const std::string&, double)> callback) {
-    detail::param_changed_callback = callback;
-}
-
-int bytes_available() {
-    if (detail::serial_port) {
-        return detail::serial_port->get_read_avail();
-    }
-    return 0;
-}
-
-Stats get_stats() {
-    return detail::stats;
-}
+void on_odometry_reset(std::function<void(double, double, double)> cb) { detail::odom_reset_callback = cb; }
+void on_emergency_stop(std::function<void()> cb) { detail::emergency_stop_callback = cb; }
+void on_waypoint(std::function<void(double, double, double)> cb) { detail::waypoint_callback = cb; }
+void on_run_path(std::function<void(int)> cb) { detail::run_path_callback = cb; }
+void on_start_autonomous(std::function<void(int)> cb) { detail::start_auton_callback = cb; }
+void on_parameter_changed(std::function<void(const std::string&, double)> cb) { detail::param_changed_callback = cb; }
+int bytes_available() { return detail::serial_port ? detail::serial_port->get_read_avail() : 0; }
+Stats get_stats() { return detail::stats; }
 
 } // namespace cwb
 

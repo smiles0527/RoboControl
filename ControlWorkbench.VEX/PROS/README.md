@@ -1,306 +1,389 @@
 # ControlWorkbench PROS Library
 
-A complete C++ library for real-time telemetry and remote tuning between VEX V5 robots running PROS and the ControlWorkbench desktop application.
+<div align="center">
 
-## Features
+**The most comprehensive VEX V5 robotics library for PROS**
 
-- **Real-time Telemetry**: Stream odometry, motor data, IMU, battery status to ControlWorkbench
-- **Remote Parameter Tuning**: Adjust PID gains, speeds, and other values without re-uploading code
-- **Odometry Visualization**: See your robot's position on the field in real-time
-- **Logging**: Send debug messages to ControlWorkbench console
-- **Emergency Stop**: Remote kill switch for safety
-- **Path Integration**: Stream paths to/from the path planner
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/controlworkbench/pros-library)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![PROS](https://img.shields.io/badge/PROS-4.0-orange.svg)](https://pros.cs.purdue.edu/)
 
-## Quick Installation
+</div>
 
-### Method 1: Copy Files (Recommended)
+---
 
-1. Copy the entire `cwb` folder to your PROS project's `include` directory:
-   ```
-   your_project/
-   ??? include/
-   ?   ??? cwb/              <-- Copy this folder here
-   ?   ?   ??? telemetry.hpp
-   ?   ??? main.h
-   ??? src/
-       ??? main.cpp
-   ```
+## ? Features
 
-2. In **exactly one** `.cpp` file (usually `main.cpp`), add before including:
+| Feature | Description |
+|---------|-------------|
+| ?? **Chassis Control** | Pure Pursuit, Boomerang, move-to-point, turn-to-heading |
+| ?? **Odometry** | Tracking wheels or motor encoders with IMU fusion |
+| ??? **PID Controllers** | Anti-windup, derivative filtering, motion profiling |
+| ?? **Telemetry** | Real-time data streaming to ControlWorkbench |
+| ?? **Remote Tuning** | Adjust PID gains live without re-uploading |
+| ?? **Subsystems** | Ready-to-use intake, lift, pneumatic, flywheel |
+| ?? **Auton Selector** | Brain screen selector with descriptions |
+| ??? **Driver Curves** | Exponential, Desmos, deadzone control |
+| ?? **Match Timer** | Endgame warnings, skills timing |
+| ?? **Emergency Stop** | Remote kill switch for safety |
+
+---
+
+## ?? Installation (30 seconds)
+
+1. **Copy** the `cwb` folder to your PROS project's `include` directory
+
+2. **In ONE .cpp file** (usually `main.cpp`):
    ```cpp
    #define CWB_IMPLEMENTATION
-   #include "cwb/telemetry.hpp"
+   #include "cwb/cwb.hpp"
    ```
 
-3. In all other files that need the library, just include normally:
+3. **In other files**, just:
    ```cpp
-   #include "cwb/telemetry.hpp"
+   #include "cwb/cwb.hpp"
    ```
 
-### Method 2: Download from ControlWorkbench
+That's it! No Makefile changes, no dependencies.
 
-1. In ControlWorkbench, go to **Tools ? Export PROS Library**
-2. Extract to your project's `include` folder
+---
 
-## Basic Usage
+## ?? Quick Start
 
 ```cpp
 #define CWB_IMPLEMENTATION
-#include "cwb/telemetry.hpp"
-#include "main.h"
+#include "cwb/cwb.hpp"
 
-// Create tunable parameters - adjust these from ControlWorkbench!
-cwb::TunableParam& max_speed = cwb::param("max_speed", 100, 0, 127);
-cwb::PIDGains drive_pid = cwb::make_pid_gains("drive", 1.0, 0.01, 0.1);
+// Hardware
+pros::MotorGroup left_drive({-1, -2, -3}, pros::MotorGearset::blue);
+pros::MotorGroup right_drive({4, 5, 6}, pros::MotorGearset::blue);
+pros::Imu imu(10);
+
+// CWB Objects
+cwb::Chassis chassis(left_drive, right_drive, imu);
+cwb::AutonSelector selector;
+cwb::Controller master(pros::E_CONTROLLER_MASTER);
 
 void initialize() {
-    // Initialize with UART port 1 (or 0 for USB)
-    cwb::init(1);
+    cwb::init();
+    chassis.calibrate();
     
-    // Set up emergency stop callback
+    // Add autons
+    selector.add("Red +", red_positive);
+    selector.add("Skills", skills);
+    selector.init();
+    
+    // CRITICAL: Emergency stop
     cwb::on_emergency_stop([]() {
-        // STOP ALL MOTORS!
-        left_motor.move(0);
-        right_motor.move(0);
+        left_drive.move(0);
+        right_drive.move(0);
     });
-    
-    cwb::log_info("Robot initialized!");
+}
+
+void autonomous() {
+    selector.run();
 }
 
 void opcontrol() {
+    master.set_curve(cwb::DriverCurve::desmos, 5.0);
+    
     while (true) {
-        // IMPORTANT: Call update() every loop iteration
+        cwb::update();
+        chassis.update();
+        chassis.arcade(master.get_left_y(), master.get_right_x());
+        pros::delay(10);
+    }
+}
+```
+
+---
+
+## ?? Complete API Reference
+
+### Chassis Control
+
+```cpp
+cwb::Chassis chassis(left_motors, right_motors, imu);
+
+// Configuration
+cwb::ChassisConfig config;
+config.wheel_diameter = 3.25;
+config.track_width = 12.5;
+chassis.configure(config);
+
+// Optional: Tracking wheels
+chassis.set_tracking_wheels(&left_tracker, &right_tracker, 2.75);
+
+// Motion commands
+chassis.move_to_point(24, 24);              // Drive to point
+chassis.turn_to_heading(90);                // Turn to heading
+chassis.move_distance(24);                  // Drive forward
+chassis.turn_angle(90);                     // Turn right
+chassis.follow_path(path);                  // Pure Pursuit
+chassis.boomerang(24, 24, 90);              // Curved approach
+
+// With options
+chassis.move_to_point(24, 24, cwb::MoveOptions()
+    .set_max_speed(80)
+    .set_timeout(3000)
+    .set_forwards(false));
+
+// Driver control
+chassis.arcade(forward, turn);
+chassis.tank(left, right);
+chassis.curvature(throttle, curve);
+```
+
+### Subsystems
+
+```cpp
+// Intake with color sorting
+cwb::Intake intake(motor, optical);
+intake.set_target_color(cwb::Intake::Color::Red);  // Keep red, eject others
+intake.enable_sorting(true);
+intake.run();
+intake.update();  // Call every loop for sorting
+
+// Lift with presets
+cwb::Lift lift(motor_group);
+lift.add_position("down", 0);
+lift.add_position("score", 180);
+lift.add_position("high", 360);
+lift.go_to("score");
+lift.update();  // Call every loop
+
+// Pneumatics
+cwb::Pneumatic clamp('A');             // Single-acting
+cwb::Pneumatic shifter('B', 'C');      // Double-acting
+clamp.toggle();
+clamp.extend();
+clamp.retract();
+
+// Flywheel with velocity control
+cwb::Flywheel flywheel(motor);
+flywheel.set_target_rpm(3000);
+if (flywheel.at_speed()) { /* ready to shoot */ }
+flywheel.update();  // Call every loop
+```
+
+### Autonomous Selector
+
+```cpp
+cwb::AutonSelector selector;
+
+// Add routines with optional descriptions
+selector.add("Red +", red_positive, "Red side, positive corner");
+selector.add("Red -", red_negative, "Red side, negative corner");
+selector.add("Skills", skills, "60-second skills run");
+
+// In initialize():
+selector.init();  // Shows on brain screen
+
+// In autonomous():
+selector.run();   // Runs selected routine
+```
+
+### Driver Control
+
+```cpp
+cwb::Controller master(pros::E_CONTROLLER_MASTER);
+
+// Apply input curve
+master.set_curve(cwb::DriverCurve::desmos, 5.0);  // Smooth curve
+master.set_curve(cwb::DriverCurve::exponential, 2.0);  // More aggressive
+master.set_deadzone(5);
+
+// Get curved inputs
+int forward = master.get_left_y();   // Curve applied
+int turn = master.get_right_x();     // Curve applied
+
+// Button helpers
+if (master.pressed(DIGITAL_A)) { }   // New press only
+if (master.held(DIGITAL_A)) { }      // While held
+
+// Rumble feedback
+master.rumble("..--");
+master.rumble_short();
+master.rumble_long();
+```
+
+### Match Timer
+
+```cpp
+// Start timer
+cwb::MatchTimer::start(cwb::MatchTimer::Mode::Autonomous);  // 15 sec
+cwb::MatchTimer::start(cwb::MatchTimer::Mode::Driver);      // 1:45
+cwb::MatchTimer::start(cwb::MatchTimer::Mode::Skills);      // 60 sec
+
+// Check time
+int ms = cwb::MatchTimer::remaining_ms();
+double sec = cwb::MatchTimer::remaining_sec();
+std::string time = cwb::MatchTimer::format_remaining();  // "1:23"
+
+// Endgame warning
+if (cwb::MatchTimer::is_endgame(30000)) {
+    master.rumble("-");  // 30 seconds left!
+}
+```
+
+### PID Controllers
+
+```cpp
+cwb::PIDController pid("name", kp, ki, kd);
+
+// Compute output
+double output = pid.compute(error, dt);
+double output = pid.compute(target, measurement, dt);
+
+// Check if settled
+if (pid.is_settled(1.0, 100)) { }  // Within 1" for 100ms
+
+// Configuration
+pid.set_integral_limit(500);
+pid.set_output_limit(127);
+pid.set_derivative_filter(0.7);
+pid.set_slew_rate(200);
+pid.set_deadband(0.5);
+
+// Send telemetry
+pid.send_telemetry(0);
+```
+
+### Tunable Parameters
+
+```cpp
+// Create remotely-tunable parameter
+cwb::TunableParam& speed = cwb::param("speed", 100, 0, 127);
+
+// Use it
+motor.move(speed.get());
+motor.move(speed);  // Implicit conversion
+
+// Check if changed from ControlWorkbench
+if (speed.was_updated()) {
+    // React to change
+}
+```
+
+### Telemetry
+
+```cpp
+cwb::send_odometry(x, y, theta);
+cwb::send_motor(motor);
+cwb::send_battery();
+cwb::send_debug_value("name", value);
+
+cwb::log_info("message");
+cwb::log_warning("warning");
+cwb::log_error("error");
+```
+
+### Callbacks
+
+```cpp
+// Emergency stop - ALWAYS IMPLEMENT!
+cwb::on_emergency_stop([]() {
+    // STOP EVERYTHING!
+});
+
+// Odometry reset
+cwb::on_odometry_reset([](double x, double y, double theta) {
+    chassis.set_pose(x, y, theta);
+});
+
+// Parameter changed
+cwb::on_parameter_changed([](const std::string& name, double value) {
+    cwb::log_info(name + " = " + std::to_string(value));
+});
+```
+
+---
+
+## ?? Competition Template
+
+See `examples/competition_template.cpp` for a complete, competition-ready robot with:
+
+- ? 6-motor drivetrain with Pure Pursuit
+- ? Intake with color sorting
+- ? Lift with PID hold and presets
+- ? Pneumatic subsystems
+- ? Brain screen auton selector
+- ? Driver curves and deadzones
+- ? Match timer with endgame warnings
+- ? Multi-page debug display
+- ? Full telemetry streaming
+
+---
+
+## ?? Modules
+
+| File | Description |
+|------|-------------|
+| `cwb.hpp` | Main include - brings in everything |
+| `telemetry.hpp` | Communication with ControlWorkbench |
+| `pid.hpp` | PID controllers with motion profiling |
+| `odometry.hpp` | Position tracking |
+| `chassis.hpp` | Drivetrain control with Pure Pursuit |
+| `subsystems.hpp` | Intake, lift, pneumatic, flywheel |
+| `utils.hpp` | Auton selector, driver curves, timer |
+
+---
+
+## ? Troubleshooting
+
+### No telemetry
+- ? Call `cwb::update()` every loop
+- ? Check COM port in ControlWorkbench
+- ? Verify baud rate is 115200
+
+### Odometry drifting
+- ? Calibrate IMU before use
+- ? Use tracking wheels for better accuracy
+- ? Measure wheel diameter and track width carefully
+
+### Robot not stopping on E-stop
+- ? Always implement `cwb::on_emergency_stop()`
+- ? Stop ALL motors and actuators
+
+### Auton not running
+- ? Call `selector.init()` in `initialize()`
+- ? Call `selector.run()` in `autonomous()`
+
+---
+
+## ?? LemLib Compatibility
+
+Use CWB for telemetry alongside LemLib for motion:
+
+```cpp
+#include "lemlib/api.hpp"
+#include "cwb/cwb.hpp"
+
+void opcontrol() {
+    while (true) {
         cwb::update();
         
-        // Send telemetry
-        cwb::send_odometry(robot_x, robot_y, robot_theta);
-        cwb::send_motor(left_motor);
-        cwb::send_motor(right_motor);
-        
-        // Use tunable parameters
-        int speed = controller.get_analog(ANALOG_LEFT_Y) * (max_speed / 127.0);
-        
-        // Send debug values for graphing
-        cwb::send_debug_value("speed", speed);
-        cwb::send_debug_value("error", pid_error);
-        
-        // Check connection status
-        if (cwb::is_connected()) {
-            // Connected to ControlWorkbench
-        }
+        // Send LemLib pose to ControlWorkbench
+        auto pose = chassis.getPose();
+        cwb::send_odometry(pose.x, pose.y, pose.theta * M_PI / 180);
         
         pros::delay(10);
     }
 }
 ```
 
-## API Reference
+---
 
-### Initialization
-
-```cpp
-// Initialize on UART port (1 or 2)
-cwb::init(1);
-
-// Initialize on USB (limited bidirectional support)
-cwb::init(0);
-
-// Clean up (optional)
-cwb::shutdown();
-```
-
-### Telemetry
-
-```cpp
-// Odometry (position in inches, angle in radians)
-cwb::send_odometry(x, y, theta);
-cwb::send_odometry(x, y, theta, vel_x, vel_y, angular_vel);
-
-// Motor telemetry
-cwb::send_motor(port, position, velocity, current, voltage, temp, power, torque);
-cwb::send_motor(my_motor);  // Pass PROS motor directly
-
-// IMU data
-cwb::send_imu(heading, pitch, roll, gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z);
-
-// Battery
-cwb::send_battery();  // Reads from PROS battery API
-cwb::send_battery(voltage, current, capacity, temperature);
-
-// PID state (for tuning visualization)
-cwb::send_pid_state(id, setpoint, measurement, error, integral, derivative, output, kP, kI, kD);
-
-// Path progress
-cwb::send_path_progress(progress, current_x, current_y, target_x, target_y);
-```
-
-### Logging
-
-```cpp
-cwb::log_debug("Debug message");
-cwb::log_info("Info message");
-cwb::log_warning("Warning message");
-cwb::log_error("Error message");
-
-// Custom debug values (for graphing)
-cwb::send_debug_value("my_value", 42.0);
-```
-
-### Tunable Parameters
-
-```cpp
-// Create a tunable parameter with default value
-cwb::TunableParam& my_param = cwb::param("name", default_value);
-
-// With min/max bounds
-cwb::TunableParam& speed = cwb::param("max_speed", 100, 0, 127);
-
-// Use the parameter
-double value = my_param.get();
-double value = my_param;  // Implicit conversion
-
-// Check if it was changed this frame
-if (my_param.was_updated()) {
-    // React to change
-}
-
-// Get any parameter by name
-double val = cwb::get_param("max_speed");
-```
-
-### PID Gains
-
-```cpp
-// Create tunable PID gains (creates drive.kP, drive.kI, drive.kD parameters)
-cwb::PIDGains drive_pid = cwb::make_pid_gains("drive", 1.0, 0.01, 0.1);
-
-// With feedforward term
-cwb::PIDGains drive_pid = cwb::make_pid_gains("drive", 1.0, 0.01, 0.1, 0.0);
-
-// Use the gains
-double output = drive_pid.p() * error + 
-                drive_pid.i() * integral + 
-                drive_pid.d() * derivative +
-                drive_pid.f() * target_velocity;
-
-// Check if any gain changed
-if (drive_pid.was_updated()) {
-    pid_controller.reset();  // Reset integral, etc.
-}
-```
-
-### Feedforward Gains
-
-```cpp
-// Create feedforward gains for motion profiling
-cwb::FeedforwardGains ff = cwb::make_ff_gains("drive_ff", 
-    0.1,   // kS - static friction
-    0.05,  // kV - velocity
-    0.01   // kA - acceleration
-);
-
-// Calculate feedforward output
-double ff_output = ff.calculate(target_velocity, target_acceleration);
-
-// For arms with gravity compensation
-cwb::FeedforwardGains arm_ff = cwb::make_ff_gains("arm_ff", 0.1, 0.05, 0.01, 0.3);
-double arm_output = arm_ff.calculate(velocity, acceleration, cos(arm_angle));
-```
-
-### Callbacks
-
-```cpp
-// Odometry reset (from ControlWorkbench "Reset Position" button)
-cwb::on_odometry_reset([](double x, double y, double theta) {
-    odom.reset(x, y, theta);
-});
-
-// Emergency stop (ALWAYS implement this!)
-cwb::on_emergency_stop([]() {
-    left_motors.move(0);
-    right_motors.move(0);
-    intake.move(0);
-    // Stop ALL actuators!
-});
-
-// Path waypoint received
-cwb::on_waypoint([](double x, double y, double theta) {
-    path.push_back({x, y, theta});
-});
-
-// Run path command
-cwb::on_run_path([](int path_id) {
-    run_autonomous_path(path_id);
-});
-
-// Any parameter changed
-cwb::on_parameter_changed([](const std::string& name, double value) {
-    cwb::log_info("Parameter " + name + " = " + std::to_string(value));
-});
-```
-
-### Connection Status
-
-```cpp
-// Check if connected to ControlWorkbench
-if (cwb::is_connected()) {
-    pros::lcd::print(0, "CWB: Connected");
-} else {
-    pros::lcd::print(0, "CWB: Disconnected");
-}
-
-// Get time since last communication
-uint32_t age_ms = cwb::get_last_comm_age();
-
-// Get statistics
-cwb::Stats stats = cwb::get_stats();
-// stats.messages_sent, stats.messages_received, etc.
-```
-
-## Complete Example
-
-See `example_main.cpp` for a complete working example with:
-- Odometry tracking
-- PID control with remote tuning
-- Motor telemetry
-- Emergency stop handling
-- Point-to-point autonomous
-
-## Wiring
-
-Connect the V5 Brain to ControlWorkbench via:
-
-1. **USB** (Recommended for testing): Direct USB cable, use `cwb::init(0)`
-2. **UART**: Smart port with UART adapter, use `cwb::init(1)` or `cwb::init(2)`
-
-## Troubleshooting
-
-### Not receiving telemetry
-- Make sure `cwb::update()` is called every loop iteration
-- Check the correct COM port is selected in ControlWorkbench
-- Verify baud rate is 115200
-
-### Parameters not updating
-- Ensure parameter names match exactly (case-sensitive)
-- Call `cwb::update()` before reading parameter values
-
-### Emergency stop not working
-- Always implement `on_emergency_stop` callback
-- Stop ALL motors and actuators in the callback
-
-## LemLib Integration
-
-```cpp
-#include "lemlib/api.hpp"
-
-// In opcontrol():
-cwb::send_odometry(
-    chassis.getPose().x,
-    chassis.getPose().y, 
-    chassis.getPose().theta * M_PI / 180  // Convert to radians
-);
-```
-
-## License
+## ?? License
 
 MIT License - Use freely in your robotics projects!
+
+---
+
+<div align="center">
+
+**Built with ?? for the VEX Robotics community**
+
+[Documentation](https://controlworkbench.io/docs) · [Discord](https://discord.gg/controlworkbench) · [GitHub](https://github.com/controlworkbench)
+
+</div>
