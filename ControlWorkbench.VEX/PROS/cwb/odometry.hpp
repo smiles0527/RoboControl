@@ -327,7 +327,6 @@ void Odometry::update_two_wheel() {
     // Get current values
     double left = left_wheel_.get_distance();
     double right = right_wheel_.get_distance();
-    double theta = imu_ ? (imu_->get_heading() * M_PI / 180.0) : pose_.theta;
     
     uint32_t now = pros::millis();
     double dt = (now - prev_time_) / 1000.0;
@@ -336,7 +335,7 @@ void Odometry::update_two_wheel() {
     if (!initialized_) {
         prev_left_ = left;
         prev_right_ = right;
-        prev_theta_ = theta;
+        if (imu_) prev_theta_ = imu_->get_heading() * M_PI / 180.0;
         initialized_ = true;
         return;
     }
@@ -344,42 +343,63 @@ void Odometry::update_two_wheel() {
     // Calculate deltas
     double d_left = left - prev_left_;
     double d_right = right - prev_right_;
-    double d_theta = theta - prev_theta_;
     
-    // Normalize d_theta if using IMU (handle wraparound)
+    // Get heading from IMU (more accurate than wheel encoders)
+    double d_theta;
     if (imu_) {
+        double current_theta = imu_->get_heading() * M_PI / 180.0;
+        d_theta = current_theta - prev_theta_;
+        
+        // Handle IMU wraparound (0-360 degrees)
         while (d_theta > M_PI) d_theta -= 2 * M_PI;
         while (d_theta < -M_PI) d_theta += 2 * M_PI;
+        
+        prev_theta_ = current_theta;
     } else {
+        // Fall back to wheel-based heading (less accurate)
         d_theta = (d_right - d_left) / track_width_;
     }
     
-    // Calculate local displacement
-    double d_forward = (d_left + d_right) / 2.0;
+    // Calculate local displacement using arc approximation
+    // For small angles: displacement ? chord length
+    // For larger angles: use arc formula
+    double d_center = (d_left + d_right) / 2.0;
     
-    // Use arc approximation for position update
-    double avg_theta = pose_.theta + d_theta / 2.0;
-    double dx = d_forward * std::sin(avg_theta);
-    double dy = d_forward * std::cos(avg_theta);
+    double dx, dy;
+    if (std::abs(d_theta) < 1e-6) {
+        // Straight line motion (avoid division by zero)
+        dx = d_center * std::sin(pose_.theta);
+        dy = d_center * std::cos(pose_.theta);
+    } else {
+        // Arc motion - use exact arc formula
+        // radius = d_center / d_theta
+        // chord = 2 * radius * sin(d_theta/2)
+        double radius = d_center / d_theta;
+        double chord = 2.0 * radius * std::sin(d_theta / 2.0);
+        
+        // Direction is at mid-angle
+        double mid_theta = pose_.theta + d_theta / 2.0;
+        dx = chord * std::sin(mid_theta);
+        dy = chord * std::cos(mid_theta);
+    }
     
     // Update pose
     pose_.x += dx;
     pose_.y += dy;
     pose_.theta += d_theta;
     
-    // Normalize theta
+    // Normalize theta to [-PI, PI]
     while (pose_.theta > M_PI) pose_.theta -= 2 * M_PI;
     while (pose_.theta < -M_PI) pose_.theta += 2 * M_PI;
     
     // Calculate velocities
-    if (dt > 0) {
-        linear_velocity_ = d_forward / dt;
+    if (dt > 0.001) {
+        linear_velocity_ = d_center / dt;
         angular_velocity_ = d_theta / dt;
     }
     
     prev_left_ = left;
     prev_right_ = right;
-    prev_theta_ = theta;
 }
 
 void Odometry::update_three_wheel() {
@@ -408,21 +428,41 @@ void Odometry::update_three_wheel() {
     
     // Calculate local displacement
     double d_forward = (d_left + d_right) / 2.0;
+    
+    // Compensate horizontal wheel for rotation
+    // When robot rotates, horizontal wheel travels arc = offset * d_theta
     double d_strafe = d_horizontal - horizontal_offset_ * d_theta;
     
-    // Update using rotation matrix
-    double avg_theta = pose_.theta + d_theta / 2.0;
-    double sin_t = std::sin(avg_theta);
-    double cos_t = std::cos(avg_theta);
+    // Transform to global coordinates
+    double dx, dy;
+    if (std::abs(d_theta) < 1e-6) {
+        // Straight line motion
+        double sin_t = std::sin(pose_.theta);
+        double cos_t = std::cos(pose_.theta);
+        dx = d_forward * sin_t + d_strafe * cos_t;
+        dy = d_forward * cos_t - d_strafe * sin_t;
+    } else {
+        // Arc motion with strafe - use rotation matrix at mid-angle
+        double mid_theta = pose_.theta + d_theta / 2.0;
+        double sin_m = std::sin(mid_theta);
+        double cos_m = std::cos(mid_theta);
+        
+        // Adjust for arc curvature
+        double sin_half = std::sin(d_theta / 2.0);
+        double scale = (std::abs(d_theta) > 1e-10) ? (2.0 * sin_half / d_theta) : 1.0;
+        
+        dx = scale * (d_forward * sin_m + d_strafe * cos_m);
+        dy = scale * (d_forward * cos_m - d_strafe * sin_m);
+    }
     
-    pose_.x += d_forward * sin_t + d_strafe * cos_t;
-    pose_.y += d_forward * cos_t - d_strafe * sin_t;
+    pose_.x += dx;
+    pose_.y += dy;
     pose_.theta += d_theta;
     
     while (pose_.theta > M_PI) pose_.theta -= 2 * M_PI;
     while (pose_.theta < -M_PI) pose_.theta += 2 * M_PI;
     
-    if (dt > 0) {
+    if (dt > 0.001) {
         linear_velocity_ = std::sqrt(d_forward * d_forward + d_strafe * d_strafe) / dt;
         angular_velocity_ = d_theta / dt;
     }

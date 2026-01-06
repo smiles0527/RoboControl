@@ -849,10 +849,21 @@ double PurePursuit::calculate_curvature(const Pose& current, const Pose& lookahe
     
     if (L < 0.001) return 0;
     
-    // Transform to robot frame
-    double local_x = dx * std::cos(current.theta) - dy * std::sin(current.theta);
+    // Transform lookahead point to robot's local coordinate frame
+    // Robot is at origin facing +Y (theta = 0 means facing +Y in our coordinate system)
+    // Local X is to the robot's right, Local Y is forward
+    double sin_t = std::sin(current.theta);
+    double cos_t = std::cos(current.theta);
     
-    // Curvature = 2 * x / L^2
+    // Note: Our coordinate system uses atan2(dx, dy) for heading
+    // So forward is +Y, right is +X
+    // Local X (lateral) = global displacement rotated by -theta
+    double local_x = dx * cos_t - dy * sin_t;  // Positive = target is to the right
+    // double local_y = dx * sin_t + dy * cos_t;  // Positive = target is ahead
+    
+    // Curvature formula: ? = 2 * lateral_offset / L²
+    // This comes from the geometry of a circular arc passing through
+    // the robot and the lookahead point
     return 2.0 * local_x / (L * L);
 }
 

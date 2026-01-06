@@ -2,95 +2,185 @@
 
 <div align="center">
 
-**The most comprehensive VEX V5 robotics library for PROS**
+# ?? THE ONLY LIBRARY YOU NEED FOR VRC ??
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/controlworkbench/pros-library)
+**Complete VEX V5 robotics library for PROS**
+
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PROS](https://img.shields.io/badge/PROS-4.0-orange.svg)](https://pros.cs.purdue.edu/)
+
+*Everything included. No other libraries required. Just add and go.*
 
 </div>
 
 ---
 
-## ? Features
+## ?? What's Included
 
-| Feature | Description |
-|---------|-------------|
-| ?? **Chassis Control** | Pure Pursuit, Boomerang, move-to-point, turn-to-heading |
-| ?? **Odometry** | Tracking wheels or motor encoders with IMU fusion |
-| ??? **PID Controllers** | Anti-windup, derivative filtering, motion profiling |
-| ?? **Telemetry** | Real-time data streaming to ControlWorkbench |
-| ?? **Remote Tuning** | Adjust PID gains live without re-uploading |
-| ?? **Subsystems** | Ready-to-use intake, lift, pneumatic, flywheel |
-| ?? **Auton Selector** | Brain screen selector with descriptions |
-| ??? **Driver Curves** | Exponential, Desmos, deadzone control |
-| ?? **Match Timer** | Endgame warnings, skills timing |
-| ?? **Emergency Stop** | Remote kill switch for safety |
+| Module | Features |
+|--------|----------|
+| **Chassis** | Pure Pursuit, Boomerang, move-to-point, turn-to-heading, swing turns |
+| **Odometry** | Tracking wheels, motor encoders, IMU fusion, GPS fusion |
+| **PID** | Anti-windup, derivative filtering, motion profiling, settle detection |
+| **Subsystems** | Intake (color sorting), Lift (presets), Pneumatics, Flywheel |
+| **Sensors** | Vision, GPS, Distance, Optical, Line Tracker, IMU (all wrapped) |
+| **Path Gen** | Hermite splines, Bezier curves, velocity profiling, path mirroring |
+| **Logging** | SD card recording, match replay, performance analysis |
+| **Utilities** | Auton selector, driver curves, match timer, debug display |
+| **Telemetry** | Real-time streaming, remote tuning, emergency stop |
 
 ---
 
 ## ?? Installation (30 seconds)
 
-1. **Copy** the `cwb` folder to your PROS project's `include` directory
+```
+your_project/
+??? include/
+?   ??? cwb/              ? Copy this folder
+?   ?   ??? cwb.hpp
+?   ?   ??? telemetry.hpp
+?   ?   ??? pid.hpp
+?   ?   ??? odometry.hpp
+?   ?   ??? chassis.hpp
+?   ?   ??? subsystems.hpp
+?   ?   ??? sensors.hpp
+?   ?   ??? path.hpp
+?   ?   ??? logger.hpp
+?   ?   ??? utils.hpp
+?   ??? main.h
+??? src/
+    ??? main.cpp
+```
 
-2. **In ONE .cpp file** (usually `main.cpp`):
-   ```cpp
-   #define CWB_IMPLEMENTATION
-   #include "cwb/cwb.hpp"
-   ```
+**In ONE .cpp file** (usually `main.cpp`):
+```cpp
+#define CWB_IMPLEMENTATION
+#include "cwb/cwb.hpp"
+```
 
-3. **In other files**, just:
-   ```cpp
-   #include "cwb/cwb.hpp"
-   ```
+**In other files**, just:
+```cpp
+#include "cwb/cwb.hpp"
+```
 
-That's it! No Makefile changes, no dependencies.
+**That's it!** No Makefile changes. No other dependencies.
 
 ---
 
-## ?? Quick Start
+## ?? Complete Example
 
 ```cpp
 #define CWB_IMPLEMENTATION
 #include "cwb/cwb.hpp"
 
-// Hardware
+// ???????????????????????????????????????????????????????????????????
+// HARDWARE
+// ???????????????????????????????????????????????????????????????????
 pros::MotorGroup left_drive({-1, -2, -3}, pros::MotorGearset::blue);
 pros::MotorGroup right_drive({4, 5, 6}, pros::MotorGearset::blue);
 pros::Imu imu(10);
+pros::Motor intake_motor(7);
+pros::MotorGroup lift_motors({-8, 9});
+pros::Optical optical(15);
 
-// CWB Objects
+// ???????????????????????????????????????????????????????????????????
+// CWB OBJECTS
+// ???????????????????????????????????????????????????????????????????
 cwb::Chassis chassis(left_drive, right_drive, imu);
+cwb::Intake intake(intake_motor, optical);
+cwb::Lift lift(lift_motors);
+cwb::Pneumatic mogo_clamp('A');
 cwb::AutonSelector selector;
 cwb::Controller master(pros::E_CONTROLLER_MASTER);
+cwb::Logger logger;
 
+// ???????????????????????????????????????????????????????????????????
+// AUTONOMOUS ROUTINES
+// ???????????????????????????????????????????????????????????????????
+void red_positive() {
+    chassis.move_to_point(24, 24);
+    mogo_clamp.extend();
+    intake.run();
+    chassis.follow_path({{24, 36}, {24, 48}, {36, 48}});
+    chassis.move_to_point(12, 12);
+    mogo_clamp.retract();
+}
+
+void skills() {
+    cwb::MatchTimer::start(cwb::MatchTimer::Mode::Skills);
+    logger.start("skills");
+    
+    // Generate smooth path
+    cwb::PathGenerator gen;
+    auto path = gen.generate({{0, 0}, {24, 24}, {48, 24}, {48, 48}});
+    chassis.follow_path(path);
+    
+    // Continue with more actions...
+    logger.stop();
+}
+
+// ???????????????????????????????????????????????????????????????????
+// INITIALIZE
+// ???????????????????????????????????????????????????????????????????
 void initialize() {
     cwb::init();
-    chassis.calibrate();
-    
-    // Add autons
-    selector.add("Red +", red_positive);
-    selector.add("Skills", skills);
-    selector.init();
     
     // CRITICAL: Emergency stop
     cwb::on_emergency_stop([]() {
         left_drive.move(0);
         right_drive.move(0);
+        intake_motor.move(0);
+        lift_motors.move(0);
     });
+    
+    // Configure
+    chassis.calibrate();
+    lift.add_position("down", 0);
+    lift.add_position("score", 180);
+    intake.set_target_color(cwb::Intake::Color::Red);
+    master.set_curve(cwb::DriverCurve::desmos, 5.0);
+    
+    // Auton selector
+    selector.add("Red +", red_positive);
+    selector.add("Skills", skills);
+    selector.init();
+    
+    cwb::print_diagnostics();
 }
 
+// ???????????????????????????????????????????????????????????????????
+// AUTONOMOUS
+// ???????????????????????????????????????????????????????????????????
 void autonomous() {
     selector.run();
 }
 
+// ???????????????????????????????????????????????????????????????????
+// DRIVER CONTROL
+// ???????????????????????????????????????????????????????????????????
 void opcontrol() {
-    master.set_curve(cwb::DriverCurve::desmos, 5.0);
-    
     while (true) {
         cwb::update();
         chassis.update();
+        
+        // Drive
         chassis.arcade(master.get_left_y(), master.get_right_x());
+        
+        // Intake
+        if (master.held(DIGITAL_R1)) intake.run();
+        else if (master.held(DIGITAL_R2)) intake.reverse();
+        else intake.stop();
+        intake.update();
+        
+        // Lift
+        if (master.pressed(DIGITAL_Y)) lift.go_to("score");
+        if (master.pressed(DIGITAL_A)) lift.go_to("down");
+        lift.update();
+        
+        // Pneumatics
+        if (master.pressed(DIGITAL_L1)) mogo_clamp.toggle();
+        
         pros::delay(10);
     }
 }
@@ -98,40 +188,30 @@ void opcontrol() {
 
 ---
 
-## ?? Complete API Reference
+## ?? API Reference
 
 ### Chassis Control
 
 ```cpp
 cwb::Chassis chassis(left_motors, right_motors, imu);
 
-// Configuration
-cwb::ChassisConfig config;
-config.wheel_diameter = 3.25;
-config.track_width = 12.5;
-chassis.configure(config);
-
-// Optional: Tracking wheels
-chassis.set_tracking_wheels(&left_tracker, &right_tracker, 2.75);
+// Setup
+chassis.set_tracking_wheels(&left, &right, 2.75);  // Optional
+chassis.calibrate();
 
 // Motion commands
-chassis.move_to_point(24, 24);              // Drive to point
-chassis.turn_to_heading(90);                // Turn to heading
-chassis.move_distance(24);                  // Drive forward
-chassis.turn_angle(90);                     // Turn right
-chassis.follow_path(path);                  // Pure Pursuit
-chassis.boomerang(24, 24, 90);              // Curved approach
-
-// With options
+chassis.move_to_point(24, 24);                     // Drive to point
 chassis.move_to_point(24, 24, cwb::MoveOptions()
     .set_max_speed(80)
-    .set_timeout(3000)
-    .set_forwards(false));
+    .set_timeout(3000));
+chassis.turn_to_heading(90);                       // Turn to heading
+chassis.move_distance(24);                         // Relative distance
+chassis.follow_path(path);                         // Pure Pursuit
+chassis.boomerang(24, 24, 90);                     // Curved approach
 
 // Driver control
 chassis.arcade(forward, turn);
 chassis.tank(left, right);
-chassis.curvature(throttle, curve);
 ```
 
 ### Subsystems
@@ -139,238 +219,195 @@ chassis.curvature(throttle, curve);
 ```cpp
 // Intake with color sorting
 cwb::Intake intake(motor, optical);
-intake.set_target_color(cwb::Intake::Color::Red);  // Keep red, eject others
+intake.set_target_color(cwb::Intake::Color::Red);
 intake.enable_sorting(true);
 intake.run();
-intake.update();  // Call every loop for sorting
+intake.update();  // Call every loop
 
 // Lift with presets
-cwb::Lift lift(motor_group);
+cwb::Lift lift(motors);
 lift.add_position("down", 0);
 lift.add_position("score", 180);
-lift.add_position("high", 360);
 lift.go_to("score");
 lift.update();  // Call every loop
 
 // Pneumatics
-cwb::Pneumatic clamp('A');             // Single-acting
-cwb::Pneumatic shifter('B', 'C');      // Double-acting
-clamp.toggle();
+cwb::Pneumatic clamp('A');
 clamp.extend();
 clamp.retract();
+clamp.toggle();
 
-// Flywheel with velocity control
+// Flywheel
 cwb::Flywheel flywheel(motor);
 flywheel.set_target_rpm(3000);
-if (flywheel.at_speed()) { /* ready to shoot */ }
-flywheel.update();  // Call every loop
+if (flywheel.at_speed()) { /* shoot */ }
+flywheel.update();
 ```
 
-### Autonomous Selector
+### Sensors
+
+```cpp
+// Vision
+cwb::Vision vision(1);
+auto obj = vision.get_largest(1);  // Get largest object with signature 1
+if (obj && obj->is_centered()) { /* aligned */ }
+
+// GPS
+cwb::GPS gps(1, 0, 0);  // Port, X offset, Y offset
+auto pos = gps.get_position();
+if (gps.has_fix()) { /* reliable position */ }
+
+// Distance
+cwb::Distance dist(1);
+if (dist.is_within(12)) { /* object within 12 inches */ }
+
+// Optical
+cwb::Optical optical(1);
+if (optical.is_red()) { /* red object */ }
+
+// Line tracker array
+cwb::LineArray lines({'A', 'B', 'C'});
+double error = lines.get_position();  // -1 to 1
+
+// IMU
+cwb::IMU imu(1);
+if (imu.is_tipping()) { /* robot tipping! */ }
+```
+
+### Path Generation
+
+```cpp
+cwb::PathGenerator gen;
+gen.set_constraints({.max_velocity = 60, .max_acceleration = 120});
+
+// Generate smooth path from waypoints
+std::vector<cwb::Waypoint> waypoints = {{0, 0}, {24, 24}, {48, 24}};
+auto path = gen.generate(waypoints);
+
+// Utilities
+path = cwb::PathUtils::mirror(path);   // For opposite alliance
+path = cwb::PathUtils::reverse(path);  // For driving backward
+path = cwb::PathUtils::rotate(path, 90);
+
+// Bezier curves
+auto curve = cwb::BezierPath::cubic(p0, p1, p2, p3);
+```
+
+### Data Logging
+
+```cpp
+// Simple value logging
+cwb::Logger logger;
+logger.start("match1");
+logger.log("x", x);
+logger.log("y", y);
+logger.tick();  // Call every loop
+logger.stop();
+
+// Match recording for replay
+cwb::MatchRecorder recorder;
+recorder.start_autonomous();
+recorder.record(x, y, theta, left_power, right_power);
+recorder.save("skills.csv");
+
+// Performance analysis
+auto analysis = cwb::PerformanceAnalyzer::analyze(recorder);
+cwb::log_info(analysis.summary());
+```
+
+### Auton Selector
 
 ```cpp
 cwb::AutonSelector selector;
-
-// Add routines with optional descriptions
-selector.add("Red +", red_positive, "Red side, positive corner");
-selector.add("Red -", red_negative, "Red side, negative corner");
+selector.add("Red +", red_positive, "Red alliance, positive corner");
 selector.add("Skills", skills, "60-second skills run");
-
-// In initialize():
-selector.init();  // Shows on brain screen
-
-// In autonomous():
-selector.run();   // Runs selected routine
+selector.init();  // In initialize()
+selector.run();   // In autonomous()
 ```
 
 ### Driver Control
 
 ```cpp
 cwb::Controller master(pros::E_CONTROLLER_MASTER);
-
-// Apply input curve
-master.set_curve(cwb::DriverCurve::desmos, 5.0);  // Smooth curve
-master.set_curve(cwb::DriverCurve::exponential, 2.0);  // More aggressive
+master.set_curve(cwb::DriverCurve::desmos, 5.0);
 master.set_deadzone(5);
 
-// Get curved inputs
-int forward = master.get_left_y();   // Curve applied
-int turn = master.get_right_x();     // Curve applied
+int forward = master.get_left_y();   // Curved
+int turn = master.get_right_x();
 
-// Button helpers
-if (master.pressed(DIGITAL_A)) { }   // New press only
+if (master.pressed(DIGITAL_A)) { }   // New press
 if (master.held(DIGITAL_A)) { }      // While held
 
-// Rumble feedback
-master.rumble("..--");
-master.rumble_short();
-master.rumble_long();
+master.rumble("-.");  // Feedback
 ```
 
 ### Match Timer
 
 ```cpp
-// Start timer
-cwb::MatchTimer::start(cwb::MatchTimer::Mode::Autonomous);  // 15 sec
-cwb::MatchTimer::start(cwb::MatchTimer::Mode::Driver);      // 1:45
-cwb::MatchTimer::start(cwb::MatchTimer::Mode::Skills);      // 60 sec
+cwb::MatchTimer::start(cwb::MatchTimer::Mode::Skills);  // 60 sec
 
-// Check time
 int ms = cwb::MatchTimer::remaining_ms();
-double sec = cwb::MatchTimer::remaining_sec();
-std::string time = cwb::MatchTimer::format_remaining();  // "1:23"
+std::string time = cwb::MatchTimer::format_remaining();
 
-// Endgame warning
 if (cwb::MatchTimer::is_endgame(30000)) {
-    master.rumble("-");  // 30 seconds left!
+    // 30 seconds left!
 }
-```
-
-### PID Controllers
-
-```cpp
-cwb::PIDController pid("name", kp, ki, kd);
-
-// Compute output
-double output = pid.compute(error, dt);
-double output = pid.compute(target, measurement, dt);
-
-// Check if settled
-if (pid.is_settled(1.0, 100)) { }  // Within 1" for 100ms
-
-// Configuration
-pid.set_integral_limit(500);
-pid.set_output_limit(127);
-pid.set_derivative_filter(0.7);
-pid.set_slew_rate(200);
-pid.set_deadband(0.5);
-
-// Send telemetry
-pid.send_telemetry(0);
-```
-
-### Tunable Parameters
-
-```cpp
-// Create remotely-tunable parameter
-cwb::TunableParam& speed = cwb::param("speed", 100, 0, 127);
-
-// Use it
-motor.move(speed.get());
-motor.move(speed);  // Implicit conversion
-
-// Check if changed from ControlWorkbench
-if (speed.was_updated()) {
-    // React to change
-}
-```
-
-### Telemetry
-
-```cpp
-cwb::send_odometry(x, y, theta);
-cwb::send_motor(motor);
-cwb::send_battery();
-cwb::send_debug_value("name", value);
-
-cwb::log_info("message");
-cwb::log_warning("warning");
-cwb::log_error("error");
-```
-
-### Callbacks
-
-```cpp
-// Emergency stop - ALWAYS IMPLEMENT!
-cwb::on_emergency_stop([]() {
-    // STOP EVERYTHING!
-});
-
-// Odometry reset
-cwb::on_odometry_reset([](double x, double y, double theta) {
-    chassis.set_pose(x, y, theta);
-});
-
-// Parameter changed
-cwb::on_parameter_changed([](const std::string& name, double value) {
-    cwb::log_info(name + " = " + std::to_string(value));
-});
 ```
 
 ---
 
-## ?? Competition Template
+## ?? Configuration Tips
 
-See `examples/competition_template.cpp` for a complete, competition-ready robot with:
+### PID Tuning
+All PID gains are remotely tunable via ControlWorkbench:
+```cpp
+// Gains are automatically created as: lateral.kP, lateral.kI, lateral.kD
+// Adjust in real-time without re-uploading code!
+```
 
-- ? 6-motor drivetrain with Pure Pursuit
-- ? Intake with color sorting
-- ? Lift with PID hold and presets
-- ? Pneumatic subsystems
-- ? Brain screen auton selector
-- ? Driver curves and deadzones
-- ? Match timer with endgame warnings
-- ? Multi-page debug display
-- ? Full telemetry streaming
+### Color Sorting
+```cpp
+intake.set_target_color(cwb::Intake::Color::Red);   // Keep red, eject blue
+intake.set_eject_color(cwb::Intake::Color::Blue);   // Explicitly eject blue
+```
 
----
+### Path Mirroring
+```cpp
+// Create path for Red alliance
+auto red_path = gen.generate({{12, 12}, {24, 24}});
 
-## ?? Modules
-
-| File | Description |
-|------|-------------|
-| `cwb.hpp` | Main include - brings in everything |
-| `telemetry.hpp` | Communication with ControlWorkbench |
-| `pid.hpp` | PID controllers with motion profiling |
-| `odometry.hpp` | Position tracking |
-| `chassis.hpp` | Drivetrain control with Pure Pursuit |
-| `subsystems.hpp` | Intake, lift, pneumatic, flywheel |
-| `utils.hpp` | Auton selector, driver curves, timer |
+// Mirror for Blue alliance
+auto blue_path = cwb::PathUtils::mirror(red_path);
+```
 
 ---
 
 ## ? Troubleshooting
 
-### No telemetry
-- ? Call `cwb::update()` every loop
-- ? Check COM port in ControlWorkbench
-- ? Verify baud rate is 115200
-
-### Odometry drifting
-- ? Calibrate IMU before use
-- ? Use tracking wheels for better accuracy
-- ? Measure wheel diameter and track width carefully
-
-### Robot not stopping on E-stop
-- ? Always implement `cwb::on_emergency_stop()`
-- ? Stop ALL motors and actuators
-
-### Auton not running
-- ? Call `selector.init()` in `initialize()`
-- ? Call `selector.run()` in `autonomous()`
+| Issue | Solution |
+|-------|----------|
+| No telemetry | Call `cwb::update()` every loop |
+| Odometry drifting | Calibrate IMU, measure dimensions carefully |
+| Robot not stopping on E-stop | Implement `cwb::on_emergency_stop()` |
+| Auton not running | Call `selector.init()` and `selector.run()` |
+| Color sorting not working | Call `intake.update()` every loop |
+| SD card not working | Check card format (FAT32), use `/usd/` path |
 
 ---
 
-## ?? LemLib Compatibility
+## ?? Memory Usage
 
-Use CWB for telemetry alongside LemLib for motion:
+| Module | Flash | RAM |
+|--------|-------|-----|
+| Core (telemetry, PID) | ~15KB | ~2KB |
+| Chassis + Odometry | ~12KB | ~1KB |
+| Subsystems | ~8KB | ~0.5KB |
+| Sensors | ~10KB | ~0.5KB |
+| Path + Logger | ~12KB | ~1KB |
+| Utils | ~6KB | ~0.5KB |
+| **Total** | **~63KB** | **~5.5KB** |
 
-```cpp
-#include "lemlib/api.hpp"
-#include "cwb/cwb.hpp"
-
-void opcontrol() {
-    while (true) {
-        cwb::update();
-        
-        // Send LemLib pose to ControlWorkbench
-        auto pose = chassis.getPose();
-        cwb::send_odometry(pose.x, pose.y, pose.theta * M_PI / 180);
-        
-        pros::delay(10);
-    }
-}
-```
+V5 Brain has 32MB flash and 512KB RAM - plenty of room!
 
 ---
 
@@ -382,8 +419,8 @@ MIT License - Use freely in your robotics projects!
 
 <div align="center">
 
-**Built with ?? for the VEX Robotics community**
+**Built for VRC Champions ??**
 
-[Documentation](https://controlworkbench.io/docs) · [Discord](https://discord.gg/controlworkbench) · [GitHub](https://github.com/controlworkbench)
+*One library. Complete robot control. Win Worlds.*
 
 </div>
