@@ -31,6 +31,9 @@ public partial class VexPathPlannerView : UserControl
     private Point _contextMenuFieldPos;
     private bool _isLoaded;
 
+    // Performance: throttle redraws during drag
+    private bool _redrawPending;
+
     // Undo/Redo
     private readonly Stack<List<WaypointVisual>> _undoStack = new();
     private readonly Stack<List<WaypointVisual>> _redoStack = new();
@@ -42,6 +45,9 @@ public partial class VexPathPlannerView : UserControl
 
     // Path visualization
     private readonly Path _pathLine;
+    
+    // Cached visual elements for waypoints (to avoid recreating)
+    private readonly List<UIElement> _waypointVisuals = new();
 
     public VexPathPlannerView()
     {
@@ -74,6 +80,13 @@ public partial class VexPathPlannerView : UserControl
             ShowGridCheck.Unchecked += (s, ev) => { DrawField(); RedrawPath(); };
         }
         
+        // Wire up canvas events for unified mouse handling
+        FieldCanvas.MouseLeftButtonDown += FieldCanvas_MouseLeftButtonDown;
+        FieldCanvas.MouseLeftButtonUp += FieldCanvas_MouseLeftButtonUp;
+        FieldCanvas.MouseMove += FieldCanvas_MouseMove;
+        FieldCanvas.MouseWheel += FieldCanvas_MouseWheel;
+        FieldCanvas.MouseRightButtonDown += FieldCanvas_MouseRightButtonDown;
+        
         DrawField();
         AddSamplePath();
         UpdateStatistics();
@@ -90,6 +103,8 @@ public partial class VexPathPlannerView : UserControl
     {
         if (FieldCanvas == null) return;
         
+        // Remove all children except waypoint visuals (we'll handle those separately)
+        var toKeep = _waypointVisuals.ToList();
         FieldCanvas.Children.Clear();
 
         double canvasWidth = FieldCanvas.ActualWidth;
@@ -393,13 +408,12 @@ public partial class VexPathPlannerView : UserControl
 
     private void RedrawPath()
     {
-        // Remove old waypoint visuals
-        var toRemove = FieldCanvas.Children.OfType<UIElement>()
-            .Where(e => e is Ellipse el && el.Tag is string s && s == "waypoint" ||
-                        e is Line ln && ln.Tag is string s2 && s2 == "heading")
-            .ToList();
-        foreach (var item in toRemove)
-            FieldCanvas.Children.Remove(item);
+        // Clear only waypoint visuals (not the entire canvas)
+        foreach (var visual in _waypointVisuals)
+        {
+            FieldCanvas.Children.Remove(visual);
+        }
+        _waypointVisuals.Clear();
 
         if (_waypoints.Count < 1)
         {
@@ -465,19 +479,16 @@ public partial class VexPathPlannerView : UserControl
                 Stroke = isSelected ? Brushes.Yellow : Brushes.White,
                 StrokeThickness = isSelected ? 3 : 2,
                 Cursor = Cursors.Hand,
-                Tag = "waypoint"
+                Tag = i, // Store index in Tag for hit testing
+                IsHitTestVisible = true
             };
 
             Canvas.SetLeft(marker, pos.X - marker.Width / 2);
             Canvas.SetTop(marker, pos.Y - marker.Height / 2);
             Panel.SetZIndex(marker, 100);
 
-            int capturedIndex = i;
-            marker.MouseLeftButtonDown += (s, e) => SelectAndStartDrag(capturedIndex, e);
-            marker.MouseMove += Marker_MouseMove;
-            marker.MouseLeftButtonUp += Marker_MouseLeftButtonUp;
-
             FieldCanvas.Children.Add(marker);
+            _waypointVisuals.Add(marker);
 
             // Heading arrow
             double arrowLen = 18;
@@ -489,10 +500,11 @@ public partial class VexPathPlannerView : UserControl
                 Y2 = pos.Y - arrowLen * System.Math.Sin((90 - wp.Heading) * System.Math.PI / 180),
                 Stroke = Brushes.White,
                 StrokeThickness = 2,
-                Tag = "heading"
+                IsHitTestVisible = false
             };
             Panel.SetZIndex(arrow, 99);
             FieldCanvas.Children.Add(arrow);
+            _waypointVisuals.Add(arrow);
 
             // Waypoint number label
             var numLabel = new TextBlock
@@ -500,78 +512,164 @@ public partial class VexPathPlannerView : UserControl
                 Text = (i + 1).ToString(),
                 FontSize = 9,
                 FontWeight = FontWeights.Bold,
-                Foreground = Brushes.Black
+                Foreground = Brushes.Black,
+                IsHitTestVisible = false
             };
             Canvas.SetLeft(numLabel, pos.X - 4);
             Canvas.SetTop(numLabel, pos.Y - 5);
             Panel.SetZIndex(numLabel, 101);
             FieldCanvas.Children.Add(numLabel);
+            _waypointVisuals.Add(numLabel);
         }
 
         UpdateStatistics();
         UpdateCodePreview();
     }
-
-    private void SelectAndStartDrag(int index, MouseButtonEventArgs e)
+    
+    /// <summary>
+    /// Fast update of just waypoint positions without full redraw
+    /// </summary>
+    private void UpdateWaypointPositions()
     {
-        _selectedWaypointIndex = index;
-        _selectedWaypoint = _waypoints[index];
-        _draggingWaypoint = _selectedWaypoint;
-        _isDraggingWaypoint = true;
-        _lastMousePos = e.GetPosition(FieldCanvas);
-
-        // Update UI
-        WaypointX.Text = _selectedWaypoint.X.ToString("F1");
-        WaypointY.Text = _selectedWaypoint.Y.ToString("F1");
-        WaypointHeading.Text = _selectedWaypoint.Heading.ToString("F0");
-        WaypointVel.Text = _selectedWaypoint.Velocity.ToString("F0");
-
-        if (e.Source is UIElement el)
-            el.CaptureMouse();
-
-        e.Handled = true;
-        RedrawPath();
-    }
-
-    private void Marker_MouseMove(object sender, MouseEventArgs e)
-    {
-        if (_isDraggingWaypoint && _draggingWaypoint != null)
+        if (_waypoints.Count < 1)
         {
-            var currentPos = e.GetPosition(FieldCanvas);
-            var fieldPos = CanvasToField(currentPos.X, currentPos.Y);
+            _pathLine.Data = null;
+            return;
+        }
 
-            _draggingWaypoint.X = System.Math.Clamp(fieldPos.X, 0, FieldSize);
-            _draggingWaypoint.Y = System.Math.Clamp(fieldPos.Y, 0, FieldSize);
+        // Update path line geometry
+        if (_waypoints.Count >= 2)
+        {
+            var geometry = new PathGeometry();
+            var figure = new PathFigure
+            {
+                StartPoint = FieldToCanvas(_waypoints[0].X, _waypoints[0].Y)
+            };
 
-            WaypointX.Text = _draggingWaypoint.X.ToString("F1");
-            WaypointY.Text = _draggingWaypoint.Y.ToString("F1");
+            for (int i = 1; i < _waypoints.Count; i++)
+            {
+                var prev = _waypoints[i - 1];
+                var curr = _waypoints[i];
 
-            RedrawPath();
-            e.Handled = true;
+                var p0 = FieldToCanvas(prev.X, prev.Y);
+                var p3 = FieldToCanvas(curr.X, curr.Y);
+
+                double dx = curr.X - prev.X;
+                double dy = curr.Y - prev.Y;
+                double dist = System.Math.Sqrt(dx * dx + dy * dy);
+                double cp = dist * 0.35 * _scale;
+
+                var p1 = new Point(
+                    p0.X + cp * System.Math.Cos((90 - prev.Heading) * System.Math.PI / 180),
+                    p0.Y - cp * System.Math.Sin((90 - prev.Heading) * System.Math.PI / 180)
+                );
+                var p2 = new Point(
+                    p3.X - cp * System.Math.Cos((90 - curr.Heading) * System.Math.PI / 180),
+                    p3.Y + cp * System.Math.Sin((90 - curr.Heading) * System.Math.PI / 180)
+                );
+
+                figure.Segments.Add(new BezierSegment(p1, p2, p3, true));
+            }
+
+            geometry.Figures.Add(figure);
+            _pathLine.Data = geometry;
+        }
+
+        // Update visual positions (3 elements per waypoint: marker, arrow, label)
+        int visualIndex = 0;
+        for (int i = 0; i < _waypoints.Count && visualIndex + 2 < _waypointVisuals.Count; i++)
+        {
+            var wp = _waypoints[i];
+            var pos = FieldToCanvas(wp.X, wp.Y);
+            
+            // Update marker position
+            if (_waypointVisuals[visualIndex] is Ellipse marker)
+            {
+                Canvas.SetLeft(marker, pos.X - marker.Width / 2);
+                Canvas.SetTop(marker, pos.Y - marker.Height / 2);
+            }
+            visualIndex++;
+            
+            // Update arrow
+            if (_waypointVisuals[visualIndex] is Line arrow)
+            {
+                double arrowLen = 18;
+                arrow.X1 = pos.X;
+                arrow.Y1 = pos.Y;
+                arrow.X2 = pos.X + arrowLen * System.Math.Cos((90 - wp.Heading) * System.Math.PI / 180);
+                arrow.Y2 = pos.Y - arrowLen * System.Math.Sin((90 - wp.Heading) * System.Math.PI / 180);
+            }
+            visualIndex++;
+            
+            // Update label position
+            if (_waypointVisuals[visualIndex] is TextBlock label)
+            {
+                Canvas.SetLeft(label, pos.X - 4);
+                Canvas.SetTop(label, pos.Y - 5);
+            }
+            visualIndex++;
         }
     }
-
-    private void Marker_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    
+    private void RequestThrottledRedraw()
     {
-        if (sender is UIElement el)
-            el.ReleaseMouseCapture();
+        if (_redrawPending) return;
         
-        if (_isDraggingWaypoint)
+        _redrawPending = true;
+        Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
         {
-            SaveStateForUndo();
-        }
-        
-        _isDraggingWaypoint = false;
-        _draggingWaypoint = null;
-        e.Handled = true;
+            _redrawPending = false;
+            UpdateWaypointPositions();
+        });
     }
 
-    // Canvas panning (middle mouse or when not on a waypoint)
+    private int HitTestWaypoint(Point canvasPos)
+    {
+        // Check if we hit a waypoint marker
+        for (int i = _waypoints.Count - 1; i >= 0; i--)
+        {
+            var wp = _waypoints[i];
+            var wpPos = FieldToCanvas(wp.X, wp.Y);
+            double dx = canvasPos.X - wpPos.X;
+            double dy = canvasPos.Y - wpPos.Y;
+            double dist = System.Math.Sqrt(dx * dx + dy * dy);
+            
+            if (dist <= 12) // Hit radius
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Unified canvas mouse handling
     private void FieldCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        // Only pan if not clicking on a waypoint
-        if (!_isDraggingWaypoint)
+        var canvasPos = e.GetPosition(FieldCanvas);
+        int hitIndex = HitTestWaypoint(canvasPos);
+        
+        if (hitIndex >= 0)
         {
+            // Start dragging a waypoint
+            _selectedWaypointIndex = hitIndex;
+            _selectedWaypoint = _waypoints[hitIndex];
+            _draggingWaypoint = _selectedWaypoint;
+            _isDraggingWaypoint = true;
+            _lastMousePos = canvasPos;
+
+            // Update UI
+            WaypointX.Text = _selectedWaypoint.X.ToString("F1");
+            WaypointY.Text = _selectedWaypoint.Y.ToString("F1");
+            WaypointHeading.Text = _selectedWaypoint.Heading.ToString("F0");
+            WaypointVel.Text = _selectedWaypoint.Velocity.ToString("F0");
+
+            FieldCanvas.CaptureMouse();
+            e.Handled = true;
+            RedrawPath(); // Show selection
+        }
+        else
+        {
+            // Start panning
             _isPanningField = true;
             _lastMousePos = e.GetPosition(this);
             FieldCanvas.CaptureMouse();
@@ -580,16 +678,41 @@ public partial class VexPathPlannerView : UserControl
 
     private void FieldCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        if (_isDraggingWaypoint)
+        {
+            SaveStateForUndo();
+            _isDraggingWaypoint = false;
+            _draggingWaypoint = null;
+            RedrawPath(); // Final full redraw
+        }
+        
         if (_isPanningField)
         {
             _isPanningField = false;
-            FieldCanvas.ReleaseMouseCapture();
         }
+        
+        FieldCanvas.ReleaseMouseCapture();
     }
 
     private void FieldCanvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (_isPanningField && e.LeftButton == MouseButtonState.Pressed)
+        var canvasPos = e.GetPosition(FieldCanvas);
+        
+        if (_isDraggingWaypoint && _draggingWaypoint != null && e.LeftButton == MouseButtonState.Pressed)
+        {
+            var fieldPos = CanvasToField(canvasPos.X, canvasPos.Y);
+
+            _draggingWaypoint.X = System.Math.Clamp(fieldPos.X, 0, FieldSize);
+            _draggingWaypoint.Y = System.Math.Clamp(fieldPos.Y, 0, FieldSize);
+
+            WaypointX.Text = _draggingWaypoint.X.ToString("F1");
+            WaypointY.Text = _draggingWaypoint.Y.ToString("F1");
+
+            // Use throttled update for smooth dragging
+            RequestThrottledRedraw();
+            e.Handled = true;
+        }
+        else if (_isPanningField && e.LeftButton == MouseButtonState.Pressed)
         {
             var currentPos = e.GetPosition(this);
             double dx = currentPos.X - _lastMousePos.X;
