@@ -5,12 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1200"
-             Background="#1E1E1E">
+             Background="{StaticResource BgDarkBrush}">
     
     <UserControl.Resources>
         <Style TargetType="Border" x:Key="MotorCard">
-            <Setter Property="Background" Value="#2D2D30"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -24,7 +26,8 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2D2D30" Padding="15">
+        <Border Grid.Row="0" Background="{StaticResource BgMediumBrush}" Padding="15"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -33,21 +36,34 @@
                 </Grid.ColumnDefinitions>
                 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Motor Health Dashboard" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-                    <Border x:Name="OverallStatusBadge" Background="#4CAF50" CornerRadius="10" Padding="10,3" Margin="20,0,0,0" VerticalAlignment="Center">
+                    <Ellipse Width="10" Height="10" Margin="0,0,12,0">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="{StaticResource AccentOrange}" Offset="0"/>
+                                <GradientStop Color="{StaticResource AccentRed}" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                        <Ellipse.Effect>
+                            <DropShadowEffect Color="{StaticResource AccentOrange}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                    <TextBlock Text="Motor Health Dashboard" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <Border x:Name="OverallStatusBadge" Background="{StaticResource AccentGreenBrush}" CornerRadius="10" Padding="12,4" Margin="20,0,0,0" VerticalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect Color="{StaticResource AccentGreen}" BlurRadius="10" ShadowDepth="0" Opacity="0.4"/>
+                        </Border.Effect>
                         <TextBlock x:Name="OverallStatusText" Text="All Systems Normal" Foreground="White" FontWeight="Bold" FontSize="11"/>
                     </Border>
                 </StackPanel>
                 
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <TextBlock Text="Update Rate:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="Update Rate:" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="UpdateRateCombo" Width="80" VerticalAlignment="Center">
                         <ComboBoxItem Content="10 Hz" IsSelected="True"/>
                         <ComboBoxItem Content="20 Hz"/>
                         <ComboBoxItem Content="50 Hz"/>
                     </ComboBox>
-                    <Button Content="Export Report" Padding="15,5" Background="#3E3E42" Foreground="White" 
-                            BorderThickness="0" Cursor="Hand" Margin="20,0,0,0" Click="ExportReport_Click"/>
+                    <Button Content="Export Report" Margin="20,0,0,0" Click="ExportReport_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -458,16 +474,17 @@
         </ScrollViewer>
         
         <!-- Footer -->
-        <Border Grid.Row="2" Background="#2D2D30" Padding="10">
+        <Border Grid.Row="2" Background="{StaticResource BgMediumBrush}" Padding="10"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Temperature Thresholds: " Foreground="#666666"/>
-                    <TextBlock Text="Green &lt;45�C" Foreground="#4CAF50" Margin="10,0"/>
-                    <TextBlock Text="Yellow 45-55�C" Foreground="#FF9800" Margin="10,0"/>
-                    <TextBlock Text="Red &gt;55�C" Foreground="#F44336" Margin="10,0"/>
+                    <TextBlock Text="Temperature Thresholds: " Foreground="{StaticResource TextMutedBrush}"/>
+                    <TextBlock Text="Green &lt;45°C" Foreground="{StaticResource AccentGreenBrush}" Margin="10,0"/>
+                    <TextBlock Text="Yellow 45-55°C" Foreground="{StaticResource AccentOrangeBrush}" Margin="10,0"/>
+                    <TextBlock Text="Red &gt;55°C" Foreground="{StaticResource AccentRedBrush}" Margin="10,0"/>
                 </StackPanel>
                 
-                <TextBlock x:Name="LastUpdateText" Text="Last update: 0ms ago" Foreground="#666666" HorizontalAlignment="Right"/>
+                <TextBlock x:Name="LastUpdateText" Text="Last update: 0ms ago" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
     </Grid>

@@ -10,7 +10,7 @@
         Title="ControlWorkbench" 
         Height="900" Width="1600"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E"
+        Background="{StaticResource BgDarkBrush}"
         Focusable="True">
     
     <Window.DataContext>
@@ -20,92 +20,242 @@
     <Grid>
         <!-- Welcome/Mode Selection Screen -->
         <Grid x:Name="WelcomeScreen" Visibility="Visible">
+            <!-- Animated gradient background -->
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#1a1a2e" Offset="0"/>
-                    <GradientStop Color="#16213e" Offset="1"/>
+                    <GradientStop Color="#0D1117" Offset="0"/>
+                    <GradientStop Color="#161B22" Offset="0.5"/>
+                    <GradientStop Color="#0D1117" Offset="1"/>
                 </LinearGradientBrush>
             </Grid.Background>
             
+            <!-- Decorative grid pattern overlay -->
+            <Canvas Opacity="0.03">
+                <Canvas.Background>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,40,40" ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing Brush="#00D9FF">
+                                <GeometryDrawing.Geometry>
+                                    <GeometryGroup>
+                                        <RectangleGeometry Rect="0,0,1,40"/>
+                                        <RectangleGeometry Rect="0,0,40,1"/>
+                                    </GeometryGroup>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
+            </Canvas>
+            
+            <!-- Decorative glow orbs -->
+            <Ellipse Width="600" Height="600" Margin="-200,-200,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#1500D9FF" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="500" Height="500" Margin="0,0,-150,-150" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#15A855F7" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <!-- Logo/Title -->
-                <TextBlock Text="ControlWorkbench" FontSize="48" FontWeight="Bold" Foreground="White" 
-                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                <TextBlock Text="Robotics and Drone Engineering Tool" FontSize="18" Foreground="#888888" 
-                           HorizontalAlignment="Center" Margin="0,0,0,60"/>
+                <!-- Logo/Title with glow effect -->
+                <TextBlock Text="CONTROL" FontSize="64" FontWeight="Black" 
+                           HorizontalAlignment="Center" Margin="0,0,0,-10">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00D9FF" Offset="0"/>
+                            <GradientStop Color="#A855F7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="#00D9FF" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="WORKBENCH" FontSize="64" FontWeight="Black" 
+                           HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#A855F7" Offset="0"/>
+                            <GradientStop Color="#EC4899" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="#A855F7" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="Robotics • Drones • Control Systems" FontSize="16" Foreground="#8B949E" 
+                           HorizontalAlignment="Center" Margin="0,0,0,60" FontWeight="Light"/>
                 
                 <!-- Mode Selection -->
-                <TextBlock Text="Select Your Platform" FontSize="16" Foreground="#AAAAAA" 
-                           HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                <TextBlock Text="SELECT YOUR PLATFORM" FontSize="12" Foreground="#6E7681" FontWeight="Bold"
+                           HorizontalAlignment="Center" Margin="0,0,0,25"/>
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <!-- VEX V5 Option -->
-                    <Border x:Name="VexOption" Background="#2D2D30" Width="280" Height="320" Margin="20" 
-                            CornerRadius="10" Cursor="Hand" MouseLeftButtonDown="VexOption_Click"
+                    <Border x:Name="VexOption" Width="320" Height="380" Margin="15" 
+                            CornerRadius="16" Cursor="Hand" 
+                            MouseLeftButtonDown="VexOption_Click"
                             MouseEnter="Option_MouseEnter" MouseLeave="Option_MouseLeave">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1C2128" Offset="0"/>
+                                <GradientStop Color="#21262D" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#30363D" Offset="0"/>
+                                <GradientStop Color="#EF4444" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <Border.BorderThickness>1</Border.BorderThickness>
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                            <DropShadowEffect Color="#EF4444" BlurRadius="20" ShadowDepth="0" Opacity="0.15"/>
                         </Border.Effect>
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <!-- VEX Icon -->
-                            <Border Background="#C62828" Width="80" Height="80" CornerRadius="40" Margin="0,0,0,20">
-                                <TextBlock Text="V5" FontSize="32" FontWeight="Bold" Foreground="White" 
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </Border>
+                        <Grid>
+                            <!-- Decorative corner accent -->
+                            <Path Data="M0,0 L60,0 L0,60 Z" Fill="#20EF4444" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform>
+                                    <RotateTransform Angle="90"/>
+                                </Path.RenderTransform>
+                            </Path>
                             
-                            <TextBlock Text="VEX V5 Robotics" FontSize="20" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            
-                            <TextBlock Text="Path planning, robot configuration," Foreground="#888888" FontSize="12" 
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="PROS code generation, telemetry" Foreground="#888888" FontSize="12" 
-                                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                            
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="25">
+                                <!-- VEX Icon -->
+                                <Border Width="90" Height="90" CornerRadius="45" Margin="0,0,0,25">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#EF4444" Offset="0"/>
+                                            <GradientStop Color="#DC2626" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#EF4444" BlurRadius="25" ShadowDepth="0" Opacity="0.6"/>
+                                    </Border.Effect>
+                                    <TextBlock Text="V5" FontSize="36" FontWeight="Black" Foreground="White" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                
+                                <TextBlock Text="VEX V5" FontSize="26" FontWeight="Bold" Foreground="White" 
+                                           HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock Text="Robotics Competition" FontSize="14" Foreground="#8B949E" 
+                                           HorizontalAlignment="Center" Margin="0,0,0,25"/>
+                                
+                                <Border Height="1" Background="#30363D" Margin="0,0,0,20"/>
 
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="• LemLib / EZ-Template support" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• Pure Pursuit path planner" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• High Stakes field layout" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• PID tuning tools" Foreground="#666666" FontSize="11"/>
+                                <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="LemLib / EZ-Template" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Pure Pursuit Paths" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="High Stakes Field" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Live PID Tuning" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
+                        </Grid>
                     </Border>
                     
                     <!-- Drone Option -->
-                    <Border x:Name="DroneOption" Background="#2D2D30" Width="280" Height="320" Margin="20" 
-                            CornerRadius="10" Cursor="Hand" MouseLeftButtonDown="DroneOption_Click"
+                    <Border x:Name="DroneOption" Width="320" Height="380" Margin="15" 
+                            CornerRadius="16" Cursor="Hand"
+                            MouseLeftButtonDown="DroneOption_Click"
                             MouseEnter="Option_MouseEnter" MouseLeave="Option_MouseLeave">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1C2128" Offset="0"/>
+                                <GradientStop Color="#21262D" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#30363D" Offset="0"/>
+                                <GradientStop Color="#3B82F6" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <Border.BorderThickness>1</Border.BorderThickness>
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                            <DropShadowEffect Color="#3B82F6" BlurRadius="20" ShadowDepth="0" Opacity="0.15"/>
                         </Border.Effect>
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <!-- Drone Icon -->
-                            <Border Background="#2196F3" Width="80" Height="80" CornerRadius="40" Margin="0,0,0,20">
-                                <TextBlock Text="UAV" FontSize="24" FontWeight="Bold" Foreground="White" 
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </Border>
+                        <Grid>
+                            <!-- Decorative corner accent -->
+                            <Path Data="M0,0 L60,0 L0,60 Z" Fill="#203B82F6" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform>
+                                    <RotateTransform Angle="90"/>
+                                </Path.RenderTransform>
+                            </Path>
                             
-                            <TextBlock Text="Drone / UAV" FontSize="20" FontWeight="Bold" Foreground="White" 
-                                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            
-                            <TextBlock Text="Mission planning, telemetry," Foreground="#888888" FontSize="12" 
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="PID tuning, flight simulation" Foreground="#888888" FontSize="12" 
-                                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                            
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="25">
+                                <!-- Drone Icon -->
+                                <Border Width="90" Height="90" CornerRadius="45" Margin="0,0,0,25">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#3B82F6" Offset="0"/>
+                                            <GradientStop Color="#2563EB" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#3B82F6" BlurRadius="25" ShadowDepth="0" Opacity="0.6"/>
+                                    </Border.Effect>
+                                    <TextBlock Text="&#x2708;" FontSize="40" Foreground="White" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                
+                                <TextBlock Text="DRONE" FontSize="26" FontWeight="Bold" Foreground="White" 
+                                           HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock Text="UAV / Quadcopter" FontSize="14" Foreground="#8B949E" 
+                                           HorizontalAlignment="Center" Margin="0,0,0,25"/>
+                                
+                                <Border Height="1" Background="#30363D" Margin="0,0,0,20"/>
 
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="• ArduPilot / Betaflight / PX4" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• Mission planner with export" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• Real-time telemetry dashboard" Foreground="#666666" FontSize="11"/>
-                                <TextBlock Text="• Drone physics simulation" Foreground="#666666" FontSize="11"/>
+                                <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#00D9FF" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="ArduPilot / PX4" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#00D9FF" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Mission Planning" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#00D9FF" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Real-time Telemetry" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <Ellipse Width="6" Height="6" Fill="#00D9FF" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Flight Simulation" Foreground="#8B949E" FontSize="12"/>
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
+                        </Grid>
                     </Border>
                 </StackPanel>
                 
-                <TextBlock Text="v1.0" FontSize="12" Foreground="#444444" 
-                           HorizontalAlignment="Center" Margin="0,40,0,0"/>
+                <!-- Version and credits -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,50,0,0">
+                    <TextBlock Text="v2.0" FontSize="12" Foreground="#6E7681" VerticalAlignment="Center"/>
+                    <Ellipse Width="4" Height="4" Fill="#6E7681" Margin="15,0"/>
+                    <TextBlock Text="Built for Competition" FontSize="12" Foreground="#6E7681" FontStyle="Italic"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
         
@@ -117,8 +267,18 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <!-- Header -->
-            <Border Grid.Row="0" Background="#2D2D30" Padding="10">
+            <!-- Header with gradient -->
+            <Border Grid.Row="0" Padding="15,10">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#161B22" Offset="0"/>
+                        <GradientStop Color="#1C2128" Offset="0.5"/>
+                        <GradientStop Color="#161B22" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+                </Border.Effect>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -127,61 +287,67 @@
                     </Grid.ColumnDefinitions>
                     
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <Button x:Name="BackButton" Content="Back" Padding="10,5" Background="#3E3E42" 
-                                Foreground="White" BorderThickness="0" Cursor="Hand" Click="BackButton_Click"
-                                Margin="0,0,20,0"/>
-                        <TextBlock x:Name="CurrentModeTitle" Text="VEX V5" FontSize="20" FontWeight="Bold" 
-                                   Foreground="White" VerticalAlignment="Center"/>
+                        <Button x:Name="BackButton" Content="&#x2190; Back" Padding="12,6" 
+                                Click="BackButton_Click" Margin="0,0,20,0"/>
+                        <TextBlock x:Name="CurrentModeTitle" Text="VEX V5" FontSize="22" FontWeight="Bold" 
+                                   VerticalAlignment="Center">
+                            <TextBlock.Foreground>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#00D9FF" Offset="0"/>
+                                    <GradientStop Color="#A855F7" Offset="1"/>
+                                </LinearGradientBrush>
+                            </TextBlock.Foreground>
+                        </TextBlock>
                     </StackPanel>
                     
                     <!-- Connection Panel -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <ComboBox x:Name="PortSelector" Width="120" Margin="0,0,10,0"/>
-                        <Button x:Name="ConnectButton" Content="Connect" Padding="15,5" Background="#4CAF50" 
-                                Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                        <ComboBox x:Name="PortSelector" Width="140" Margin="0,0,10,0"/>
+                        <Button x:Name="ConnectButton" Content="&#x26A1; Connect" 
+                                Style="{StaticResource SuccessButton}" Padding="20,8"/>
                     </StackPanel>
                 </Grid>
             </Border>
             
             <!-- VEX Content -->
-            <TabControl x:Name="VexTabControl" Grid.Row="1" Margin="5" Visibility="Collapsed">
-                <TabItem Header="🗺️ Path Planner">
+            <TabControl x:Name="VexTabControl" Grid.Row="1" Margin="0" Visibility="Collapsed">
+                <TabItem Header="&#x1F5FA; Path Planner">
                     <views:VexPathPlannerView/>
                 </TabItem>
-                <TabItem Header="🤖 Live View">
+                <TabItem Header="&#x1F916; Live View">
                     <views:LiveRobotView/>
                 </TabItem>
-                <TabItem Header="🎛️ PID Tuner">
+                <TabItem Header="&#x1F39B; PID Tuner">
                     <views:PidTunerView/>
                 </TabItem>
-                <TabItem Header="🔧 Motor Health">
+                <TabItem Header="&#x1F527; Motor Health">
                     <views:MotorHealthView/>
                 </TabItem>
-                <TabItem Header="⚙️ Robot Config">
+                <TabItem Header="&#x2699; Robot Config">
                     <views:VexRobotConfigView/>
                 </TabItem>
-                <TabItem Header="📊 Telemetry">
+                <TabItem Header="&#x1F4CA; Telemetry">
                     <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
                 </TabItem>
-                <TabItem Header="📈 Control Design">
+                <TabItem Header="&#x1F4C8; Control Design">
                     <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
                 </TabItem>
-                <TabItem Header="🧮 Math">
+                <TabItem Header="&#x1F9EE; Math">
                     <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
                 </TabItem>
-                <TabItem Header="🛠️ Tools">
+                <TabItem Header="&#x1F6E0; Tools">
                     <views:ToolsView DataContext="{Binding Tools}"/>
                 </TabItem>
-                <TabItem Header="🔌 Connection">
+                <TabItem Header="&#x1F50C; Connection">
                     <views:ConnectionView DataContext="{Binding Connection}"/>
                 </TabItem>
-                <TabItem Header="📜 Logs">
+                <TabItem Header="&#x1F4DC; Logs">
                     <views:LogsView DataContext="{Binding Logs}"/>
                 </TabItem>
             </TabControl>
             
             <!-- Drone Content -->
-            <TabControl x:Name="DroneTabControl" Grid.Row="1" Margin="5" Visibility="Collapsed">
+            <TabControl x:Name="DroneTabControl" Grid.Row="1" Margin="0" Visibility="Collapsed">
                 <TabItem Header="Mission Planner">
                     <views:DroneMissionPlannerView/>
                 </TabItem>
@@ -209,22 +375,24 @@
             </TabControl>
             
             <!-- Status Bar -->
-            <StatusBar Grid.Row="2" Background="#2D2D30">
-                <StatusBarItem>
+            <Border Grid.Row="2" Background="{StaticResource BgMediumBrush}" Padding="15,8">
+                <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse x:Name="ConnectionIndicator" Width="10" Height="10" Fill="Gray" Margin="0,0,5,0"/>
-                        <TextBlock x:Name="ConnectionStatusText" Text="Not Connected" Foreground="#888888"/>
+                        <Border x:Name="ConnectionStatusBorder" CornerRadius="10" Padding="10,4" Margin="0,0,15,0">
+                            <Border.Background>
+                                <SolidColorBrush Color="#6E7681" Opacity="0.2"/>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="ConnectionIndicator" Width="8" Height="8" Fill="#6E7681" Margin="0,0,8,0"/>
+                                <TextBlock x:Name="ConnectionStatusText" Text="Not Connected" Foreground="#8B949E" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock x:Name="ModeStatusText" Text="" Foreground="#8B949E" VerticalAlignment="Center"/>
                     </StackPanel>
-                </StatusBarItem>
-                <Separator/>
-                <StatusBarItem>
-                    <TextBlock x:Name="ModeStatusText" Text="" Foreground="#888888"/>
-                </StatusBarItem>
-                <Separator/>
-                <StatusBarItem HorizontalAlignment="Right">
-                    <TextBlock Text="ControlWorkbench v1.0" Foreground="#555555"/>
-                </StatusBarItem>
-            </StatusBar>
+                    <TextBlock Text="ControlWorkbench v2.0" Foreground="#6E7681" HorizontalAlignment="Right" 
+                               VerticalAlignment="Center" FontSize="11"/>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </Window>

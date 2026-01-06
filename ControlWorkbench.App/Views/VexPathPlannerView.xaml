@@ -5,129 +5,201 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1200"
-             Background="#1E1E1E">
+             Background="{StaticResource BgDarkBrush}">
     
     <UserControl.Resources>
-        <Style TargetType="Button" x:Key="ToolButton">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="Background" Value="#3E3E42"/>
-            <Setter Property="Foreground" Value="White"/>
+        <Style x:Key="ToolButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BgLightBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="2"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#4E4E52"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
-        
-        <Style TargetType="TextBlock" x:Key="LabelStyle">
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,5,0,2"/>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,15,0,8"/>
         </Style>
-        
-        <Style TargetType="TextBox" x:Key="InputStyle">
-            <Setter Property="Background" Value="#3E3E42"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="Padding" Value="5,3"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
         </Style>
     </UserControl.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="280"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
         
         <!-- Left Panel - Path List and Tools -->
-        <Border Grid.Column="0" Background="#2D2D30" Margin="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
-                    <TextBlock Text="VEX Path Planner" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+        <Border Grid.Column="0" Background="{StaticResource BgMediumBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                <StackPanel>
+                    <!-- Header with glow -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Ellipse Width="10" Height="10" Margin="0,0,10,0">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource AccentPink}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource AccentPurple}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{StaticResource AccentPink}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                        <TextBlock Text="PATH PLANNER" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
                     
                     <!-- Game Selection -->
-                    <TextBlock Text="VRC Game" Style="{StaticResource LabelStyle}"/>
-                    <ComboBox x:Name="GameCombo" SelectedIndex="0" Margin="0,0,0,10">
+                    <TextBlock Text="VRC GAME" Style="{StaticResource SectionHeader}"/>
+                    <ComboBox x:Name="GameCombo" SelectedIndex="0">
                         <ComboBoxItem Content="High Stakes (2024-25)"/>
                         <ComboBoxItem Content="Over Under (2023-24)"/>
                         <ComboBoxItem Content="Spin Up (2022-23)"/>
                     </ComboBox>
                     
                     <!-- Alliance Selection -->
-                    <TextBlock Text="Alliance" Style="{StaticResource LabelStyle}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <RadioButton x:Name="RedAlliance" Content="Red" Foreground="#FF6B6B" IsChecked="True" Margin="0,0,20,0"/>
-                        <RadioButton x:Name="BlueAlliance" Content="Blue" Foreground="#6B9FFF"/>
-                    </StackPanel>
+                    <TextBlock Text="ALLIANCE" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource StatCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="RedAlliance" IsChecked="True" Cursor="Hand">
+                                <RadioButton.Template>
+                                    <ControlTemplate TargetType="RadioButton">
+                                        <Border x:Name="bg" CornerRadius="6" Padding="15,10" Cursor="Hand">
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <Ellipse Width="20" Height="20" Margin="0,0,0,6">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{StaticResource AccentRed}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock Text="RED" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" 
+                                                           HorizontalAlignment="Center" FontSize="12"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bg" Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{StaticResource AccentRed}" Opacity="0.2"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter TargetName="bg" Property="BorderBrush" Value="{StaticResource AccentRedBrush}"/>
+                                                <Setter TargetName="bg" Property="BorderThickness" Value="2"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </RadioButton.Template>
+                            </RadioButton>
+                            <RadioButton x:Name="BlueAlliance" Grid.Column="1" Cursor="Hand">
+                                <RadioButton.Template>
+                                    <ControlTemplate TargetType="RadioButton">
+                                        <Border x:Name="bg" CornerRadius="6" Padding="15,10" Cursor="Hand">
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <Ellipse Width="20" Height="20" Margin="0,0,0,6">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{StaticResource AccentBlue}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock Text="BLUE" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" 
+                                                           HorizontalAlignment="Center" FontSize="12"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bg" Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{StaticResource AccentBlue}" Opacity="0.2"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter TargetName="bg" Property="BorderBrush" Value="{StaticResource AccentBlueBrush}"/>
+                                                <Setter TargetName="bg" Property="BorderThickness" Value="2"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </RadioButton.Template>
+                            </RadioButton>
+                        </Grid>
+                    </Border>
                     
                     <!-- Starting Position -->
-                    <TextBlock Text="Starting Position" Style="{StaticResource LabelStyle}"/>
-                    <ComboBox x:Name="StartPosCombo" SelectedIndex="0" Margin="0,0,0,15">
+                    <TextBlock Text="STARTING POSITION" Style="{StaticResource SectionHeader}"/>
+                    <ComboBox x:Name="StartPosCombo" SelectedIndex="0">
                         <ComboBoxItem Content="Positive Corner (+)"/>
                         <ComboBoxItem Content="Negative Corner (-)"/>
                         <ComboBoxItem Content="Skills Start"/>
                     </ComboBox>
                     
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
-                    
                     <!-- Paths List -->
-                    <TextBlock Text="Paths" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    <ListBox x:Name="PathsList" Background="#3E3E42" Foreground="White" Height="120" Margin="0,0,0,10">
+                    <TextBlock Text="PATHS" Style="{StaticResource SectionHeader}"/>
+                    <ListBox x:Name="PathsList" Height="120">
                         <ListBoxItem Content="Red Positive Auton" IsSelected="True"/>
                         <ListBoxItem Content="Red Negative Auton"/>
                         <ListBoxItem Content="Blue Positive Auton"/>
                         <ListBoxItem Content="Skills Run"/>
                     </ListBox>
                     
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="New" Style="{StaticResource ToolButton}" Width="70" Click="NewPath_Click"/>
-                        <Button Content="Copy" Style="{StaticResource ToolButton}" Width="70" Click="CopyPath_Click"/>
-                        <Button Content="Delete" Style="{StaticResource ToolButton}" Width="70" Click="DeletePath_Click"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Center">
+                        <Button Content="+ New" Style="{StaticResource ToolButton}" Click="NewPath_Click"/>
+                        <Button Content="Copy" Style="{StaticResource ToolButton}" Click="CopyPath_Click"/>
+                        <Button Content="Delete" Style="{StaticResource ToolButton}" Click="DeletePath_Click"/>
                     </StackPanel>
                     
-                    <Separator Background="#555555" Margin="0,15,0,15"/>
-                    
                     <!-- Drawing Tools -->
-                    <TextBlock Text="Tools" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    <WrapPanel Margin="0,5,0,0">
-                        <Button Content="WP" ToolTip="Add Waypoint" Style="{StaticResource ToolButton}" Click="AddWaypoint_Click"/>
-                        <Button Content="Turn" ToolTip="Add Turn Point" Style="{StaticResource ToolButton}" Width="50" Click="AddTurn_Click"/>
-                        <Button Content="Wait" ToolTip="Add Wait Action" Style="{StaticResource ToolButton}" Width="50"/>
-                        <Button Content="Mogo" ToolTip="Grab Mobile Goal" Style="{StaticResource ToolButton}" Width="50"/>
-                        <Button Content="Ring" ToolTip="Score Ring" Style="{StaticResource ToolButton}" Width="50"/>
-                        <Button Content="Clamp" ToolTip="Toggle Clamp" Style="{StaticResource ToolButton}" Width="55"/>
+                    <TextBlock Text="TOOLS" Style="{StaticResource SectionHeader}"/>
+                    <WrapPanel>
+                        <Button Content="&#x1F4CD; Waypoint" Style="{StaticResource ToolButton}" Click="AddWaypoint_Click"/>
+                        <Button Content="&#x21BB; Turn" Style="{StaticResource ToolButton}" Click="AddTurn_Click"/>
+                        <Button Content="&#x23F8; Wait" Style="{StaticResource ToolButton}"/>
+                        <Button Content="&#x1F534; Mogo" Style="{StaticResource ToolButton}"/>
+                        <Button Content="&#x1F7E1; Ring" Style="{StaticResource ToolButton}"/>
                     </WrapPanel>
-                    <WrapPanel Margin="0,5,0,0">
-                        <Button Content="Undo" ToolTip="Undo" Style="{StaticResource ToolButton}" Width="55" Click="Undo_Click"/>
-                        <Button Content="Redo" ToolTip="Redo" Style="{StaticResource ToolButton}" Width="55" Click="Redo_Click"/>
-                        <Button Content="Clear" ToolTip="Clear Path" Style="{StaticResource ToolButton}" Width="55" Click="ClearPath_Click"/>
-                    </WrapPanel>
-                    
-                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="&#x21B6; Undo" Style="{StaticResource ToolButton}" Click="Undo_Click"/>
+                        <Button Content="&#x21B7; Redo" Style="{StaticResource ToolButton}" Click="Redo_Click"/>
+                        <Button Content="&#x1F5D1; Clear" Style="{StaticResource ToolButton}" Click="ClearPath_Click"/>
+                    </StackPanel>
                     
                     <!-- Path Settings -->
-                    <TextBlock Text="Path Settings" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    
-                    <TextBlock Text="Max Velocity (in/s)" Style="{StaticResource LabelStyle}"/>
-                    <Slider x:Name="MaxVelSlider" Minimum="20" Maximum="100" Value="60"/>
-                    <TextBlock Text="{Binding Value, ElementName=MaxVelSlider, StringFormat='{}{0:F0} in/s'}" Foreground="#888888" FontSize="10"/>
-                    
-                    <TextBlock Text="Lookahead Distance (in)" Style="{StaticResource LabelStyle}"/>
-                    <Slider x:Name="LookaheadSlider" Minimum="6" Maximum="24" Value="12"/>
-                    <TextBlock Text="{Binding Value, ElementName=LookaheadSlider, StringFormat='{}{0:F0} in'}" Foreground="#888888" FontSize="10"/>
+                    <TextBlock Text="PATH SETTINGS" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource StatCard}">
+                        <StackPanel>
+                            <TextBlock Text="Max Velocity" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                            <Grid>
+                                <Slider x:Name="MaxVelSlider" Minimum="20" Maximum="100" Value="60"/>
+                                <TextBlock Text="{Binding Value, ElementName=MaxVelSlider, StringFormat='{}{0:F0} in/s'}" 
+                                           Foreground="{StaticResource AccentCyanBrush}" HorizontalAlignment="Right" FontWeight="Bold"
+                                           FontFamily="Cascadia Code" Margin="0,-5,0,0"/>
+                            </Grid>
+                            
+                            <TextBlock Text="Lookahead Distance" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,10,0,0"/>
+                            <Grid>
+                                <Slider x:Name="LookaheadSlider" Minimum="6" Maximum="24" Value="12"/>
+                                <TextBlock Text="{Binding Value, ElementName=LookaheadSlider, StringFormat='{}{0:F0} in'}" 
+                                           Foreground="{StaticResource AccentCyanBrush}" HorizontalAlignment="Right" FontWeight="Bold"
+                                           FontFamily="Cascadia Code" Margin="0,-5,0,0"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Border>
         
         <!-- Center - Field Canvas -->
-        <Border Grid.Column="1" Background="#252526" Margin="5">
+        <Border Grid.Column="1" Background="{StaticResource BgDarkBrush}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -136,27 +208,39 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Toolbar -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#2D2D30" Height="40">
-                    <Button x:Name="SimulateBtn" Content="Simulate" Width="90" Margin="5" Background="#4CAF50" Foreground="White" Click="Simulate_Click"/>
-                    <Button x:Name="StopBtn" Content="Stop" Width="60" Margin="5" Click="Stop_Click"/>
-                    <Separator Width="1" Background="#555555" Margin="5"/>
-                    <Button Content="+" Width="30" Margin="2" ToolTip="Zoom In" Click="ZoomIn_Click"/>
-                    <Button Content="-" Width="30" Margin="2" ToolTip="Zoom Out" Click="ZoomOut_Click"/>
-                    <Button Content="Reset" Width="60" Margin="5" Click="ResetView_Click"/>
-                    <Separator Width="1" Background="#555555" Margin="5"/>
-                    <CheckBox x:Name="ShowGridCheck" Content="Grid" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                    <CheckBox x:Name="ShowCurvatureCheck" Content="Curvature" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                    <CheckBox x:Name="ShowVelocityCheck" Content="Velocity" IsChecked="True" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                </StackPanel>
+                <Border Grid.Row="0" Background="{StaticResource BgMediumBrush}" Padding="10"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="SimulateBtn" Content="&#x25B6; Simulate" Style="{StaticResource SuccessButton}" Click="Simulate_Click"/>
+                        <Button x:Name="StopBtn" Content="&#x25A0; Stop" Style="{StaticResource DangerButton}" Click="Stop_Click"/>
+                        
+                        <Border Width="1" Background="{StaticResource BorderBrush}" Margin="15,5"/>
+                        
+                        <Button Content="+" Width="36" Style="{StaticResource ToolButton}" Click="ZoomIn_Click"/>
+                        <Button Content="-" Width="36" Style="{StaticResource ToolButton}" Click="ZoomOut_Click"/>
+                        <Button Content="Reset" Style="{StaticResource ToolButton}" Click="ResetView_Click"/>
+                        
+                        <Border Width="1" Background="{StaticResource BorderBrush}" Margin="15,5"/>
+                        
+                        <CheckBox x:Name="ShowGridCheck" Content="Grid" IsChecked="True" VerticalAlignment="Center" Margin="10,0"/>
+                        <CheckBox x:Name="ShowCurvatureCheck" Content="Curvature" IsChecked="True" VerticalAlignment="Center" Margin="10,0"/>
+                        <CheckBox x:Name="ShowVelocityCheck" Content="Velocity" IsChecked="True" VerticalAlignment="Center" Margin="10,0"/>
+                    </StackPanel>
+                </Border>
                 
                 <!-- Field Canvas -->
-                <Canvas x:Name="FieldCanvas" Grid.Row="1" Background="#333333" ClipToBounds="True"
+                <Canvas x:Name="FieldCanvas" Grid.Row="1" ClipToBounds="True"
                         MouseLeftButtonDown="FieldCanvas_MouseLeftButtonDown"
                         MouseLeftButtonUp="FieldCanvas_MouseLeftButtonUp"
                         MouseMove="FieldCanvas_MouseMove"
                         MouseWheel="FieldCanvas_MouseWheel"
                         MouseRightButtonDown="FieldCanvas_MouseRightButtonDown">
-                    
+                    <Canvas.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0D1117" Offset="0"/>
+                            <GradientStop Color="#161B22" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Canvas.Background>
                     <Canvas.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Add Waypoint Here" Click="AddWaypointHere_Click"/>
@@ -176,23 +260,39 @@
                 </Canvas>
                 
                 <!-- Timeline -->
-                <Border Grid.Row="2" Background="#2D2D30" Height="60">
-                    <Grid Margin="10,5">
+                <Border Grid.Row="2" Background="{StaticResource BgMediumBrush}" Padding="15,10"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                    <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Timeline: " Foreground="#888888"/>
-                            <TextBlock x:Name="TimelineText" Text="0.0s / 3.2s" Foreground="White"/>
-                            <TextBlock Text="  |  Distance: " Foreground="#888888" Margin="20,0,0,0"/>
-                            <TextBlock x:Name="DistanceText" Text="0.0 / 48.5 in" Foreground="White"/>
-                            <TextBlock Text="  |  Waypoints: " Foreground="#888888" Margin="20,0,0,0"/>
-                            <TextBlock x:Name="WaypointCountText" Text="5" Foreground="White"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="4" Padding="10,5" Margin="5,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TIME" Foreground="{StaticResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="TimelineText" Text="0.0s / 3.2s" Foreground="{StaticResource AccentCyanBrush}" 
+                                               FontFamily="Cascadia Code" FontWeight="Bold" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="4" Padding="10,5" Margin="5,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="DIST" Foreground="{StaticResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="DistanceText" Text="0.0 / 48.5 in" Foreground="{StaticResource AccentPurpleBrush}" 
+                                               FontFamily="Cascadia Code" FontWeight="Bold" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="4" Padding="10,5" Margin="5,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="WAYPOINTS" Foreground="{StaticResource TextMutedBrush}" FontSize="10" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="WaypointCountText" Text="5" Foreground="{StaticResource AccentPinkBrush}" 
+                                               FontFamily="Cascadia Code" FontWeight="Bold" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                         
-                        <Slider Grid.Row="1" x:Name="TimelineSlider" Minimum="0" Maximum="100" Value="0" Margin="0,5,0,0"
+                        <Slider Grid.Row="1" x:Name="TimelineSlider" Minimum="0" Maximum="100" Value="0" Margin="0,10,0,0"
                                 ValueChanged="TimelineSlider_ValueChanged"/>
                     </Grid>
                 </Border>
@@ -200,16 +300,27 @@
         </Border>
         
         <!-- Right Panel - Waypoint Details and Code -->
-        <Border Grid.Column="2" Background="#2D2D30" Margin="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
+        <Border Grid.Column="2" Background="{StaticResource BgMediumBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                <StackPanel>
                     <!-- Selected Waypoint -->
-                    <TextBlock Text="Selected Waypoint" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <Ellipse Width="10" Height="10" Fill="{StaticResource AccentCyanBrush}" Margin="0,0,10,0">
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{StaticResource AccentCyan}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                        <TextBlock Text="SELECTED WAYPOINT" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
                     
-                    <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
+                    <Border Style="{StaticResource StatCard}">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{StaticResource AccentCyan}" Opacity="0.3"/>
+                        </Border.BorderBrush>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
@@ -219,87 +330,88 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X (inches):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WaypointX" Text="24.0" Style="{StaticResource InputStyle}" 
-                                     TextChanged="WaypointValue_Changed"/>
+                            <TextBlock Text="X" Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" x:Name="WaypointX" Text="24.0" TextChanged="WaypointValue_Changed"/>
                             
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y (inches):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="WaypointY" Text="36.0" Style="{StaticResource InputStyle}"
-                                     TextChanged="WaypointValue_Changed"/>
+                            <TextBlock Grid.Row="1" Text="Y" Foreground="{StaticResource AccentPurpleBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="WaypointY" Text="36.0" TextChanged="WaypointValue_Changed"/>
                             
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Heading (deg):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="WaypointHeading" Text="90" Style="{StaticResource InputStyle}"
-                                     TextChanged="WaypointValue_Changed"/>
+                            <TextBlock Grid.Row="2" Text="Heading" Foreground="{StaticResource AccentPinkBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="WaypointHeading" Text="90" TextChanged="WaypointValue_Changed"/>
                             
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Velocity (%):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="WaypointVel" Text="100" Style="{StaticResource InputStyle}"
-                                     TextChanged="WaypointValue_Changed"/>
+                            <TextBlock Grid.Row="3" Text="Velocity" Foreground="{StaticResource AccentGreenBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="WaypointVel" Text="100" TextChanged="WaypointValue_Changed"/>
                         </Grid>
                     </Border>
                     
                     <!-- Actions at Waypoint -->
-                    <TextBlock Text="Actions at Waypoint" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
-                    <ListBox x:Name="ActionsList" Background="#3E3E42" Foreground="White" Height="80" Margin="0,5,0,10">
+                    <TextBlock Text="ACTIONS AT WAYPOINT" Style="{StaticResource SectionHeader}"/>
+                    <ListBox x:Name="ActionsList" Height="80">
                         <ListBoxItem Content="Wait 200ms"/>
                         <ListBoxItem Content="Grab Mobile Goal"/>
                     </ListBox>
-                    <Button Content="+ Add Action" Background="#3E3E42" Foreground="White" Margin="0,0,0,15"/>
-                    
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    <Button Content="+ Add Action" Margin="0,8,0,0"/>
                     
                     <!-- Path Statistics -->
-                    <TextBlock Text="Path Statistics" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                    <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Total Distance: " Foreground="#888888"/>
-                                <TextBlock x:Name="TotalDistanceText" Text="48.5 in" Foreground="White"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Estimated Time: " Foreground="#888888"/>
-                                <TextBlock x:Name="TotalTimeText" Text="3.2s" Foreground="White"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Waypoints: " Foreground="#888888"/>
-                                <TextBlock x:Name="WaypointStatsText" Text="5" Foreground="White"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Max Curvature: " Foreground="#888888"/>
-                                <TextBlock x:Name="MaxCurvatureText" Text="0.08 /in" Foreground="White"/>
-                            </StackPanel>
-                        </StackPanel>
+                    <TextBlock Text="PATH STATISTICS" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource StatCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Total Distance" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" x:Name="TotalDistanceText" Text="48.5 in" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                            
+                            <TextBlock Grid.Row="1" Text="Estimated Time" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TotalTimeText" Text="3.2s" 
+                                       Foreground="{StaticResource AccentGreenBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                            
+                            <TextBlock Grid.Row="2" Text="Waypoints" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="WaypointStatsText" Text="5" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                            
+                            <TextBlock Grid.Row="3" Text="Max Curvature" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="MaxCurvatureText" Text="0.08 /in" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        </Grid>
                     </Border>
                     
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
-                    
                     <!-- Export Options -->
-                    <TextBlock Text="Export" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                    
-                    <Button Content="Copy LemLib Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"
-                            Click="CopyLemLibCode_Click"/>
-                    <Button Content="Copy Pure Pursuit Code" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5"
+                    <TextBlock Text="EXPORT" Style="{StaticResource SectionHeader}"/>
+                    <Button Content="&#x1F4CB; Copy LemLib Code" Style="{StaticResource PrimaryButton}" 
+                            HorizontalAlignment="Stretch" Margin="0,0,0,5" Click="CopyLemLibCode_Click"/>
+                    <Button Content="&#x1F3AF; Copy Pure Pursuit" HorizontalAlignment="Stretch" Margin="0,0,0,5"
                             Click="CopyPurePursuitCode_Click"/>
-                    <Button Content="Save Path (.json)" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5"
-                            Click="SavePath_Click"/>
-                    <Button Content="Load Path" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,15"
-                            Click="LoadPath_Click"/>
-                    
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
+                        <Button Content="Save" Click="SavePath_Click"/>
+                        <Button Content="Load" Click="LoadPath_Click"/>
+                    </StackPanel>
                     
                     <!-- Quick Code Preview -->
-                    <TextBlock Text="Code Preview" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                    <Border Background="#1E1E1E" Padding="10" CornerRadius="5">
-                        <TextBox x:Name="CodePreview" 
-                                 FontFamily="Consolas" 
-                                 FontSize="11" 
-                                 Foreground="#9CDCFE"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 IsReadOnly="True"
-                                 TextWrapping="Wrap"
-                                 AcceptsReturn="True"
-                                 Height="180"
-                                 VerticalScrollBarVisibility="Auto"/>
+                    <TextBlock Text="CODE PREVIEW" Style="{StaticResource SectionHeader}"/>
+                    <Border CornerRadius="8" Padding="10" Height="180"
+                            Background="{StaticResource BgDarkBrush}"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBox x:Name="CodePreview" 
+                                     FontFamily="Cascadia Code, Consolas" 
+                                     FontSize="11" 
+                                     Foreground="{StaticResource AccentCyanBrush}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"/>
+                        </ScrollViewer>
                     </Border>
                 </StackPanel>
             </ScrollViewer>

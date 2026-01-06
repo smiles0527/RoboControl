@@ -5,55 +5,72 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1200"
-             Background="#1E1E1E">
+             Background="{StaticResource BgDarkBrush}">
     
     <UserControl.Resources>
-        <Style TargetType="TextBlock" x:Key="LabelStyle">
-            <Setter Property="Foreground" Value="#AAAAAA"/>
-            <Setter Property="FontSize" Value="12"/>
+        <Style x:Key="GainCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="GainLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Black"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        <Style TargetType="TextBox" x:Key="GainInput">
-            <Setter Property="Background" Value="#3E3E42"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="Width" Value="80"/>
+        <Style x:Key="GainInput" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BgDarkBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontFamily" Value="Cascadia Code, Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Width" Value="90"/>
             <Setter Property="TextAlignment" Value="Right"/>
         </Style>
-        <Style TargetType="Slider" x:Key="GainSlider">
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="Button" x:Key="ActionButton">
-            <Setter Property="Background" Value="#3E3E42"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="5"/>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,15,0,8"/>
         </Style>
     </UserControl.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="340"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
         
         <!-- Left Panel: Controllers and Gains -->
-        <Border Grid.Column="0" Background="#252526" Margin="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
-                    <TextBlock Text="PID Tuner" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+        <Border Grid.Column="0" Background="{StaticResource BgMediumBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                <StackPanel>
+                    <!-- Header -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Ellipse Width="10" Height="10" Margin="0,0,10,0">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource AccentGreen}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource AccentCyan}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{StaticResource AccentGreen}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                        <TextBlock Text="PID TUNER" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
                     
                     <!-- Controller Selection -->
-                    <TextBlock Text="SELECT CONTROLLER" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ListBox x:Name="ControllerList" Background="#2D2D30" Foreground="White" Height="120" 
-                             SelectionChanged="ControllerList_SelectionChanged">
+                    <TextBlock Text="SELECT CONTROLLER" Style="{StaticResource SectionHeader}"/>
+                    <ListBox x:Name="ControllerList" Height="130" SelectionChanged="ControllerList_SelectionChanged">
                         <ListBoxItem Content="lateral" IsSelected="True"/>
                         <ListBoxItem Content="angular"/>
                         <ListBoxItem Content="drive_ff"/>
@@ -61,16 +78,17 @@
                         <ListBoxItem Content="intake"/>
                     </ListBox>
                     
-                    <Separator Background="#555555" Margin="0,15,0,15"/>
-                    
                     <!-- Gain Inputs -->
-                    <TextBlock Text="GAINS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="GAINS" Style="{StaticResource SectionHeader}"/>
                     
                     <!-- kP -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                    <Border Style="{StaticResource GainCard}">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{StaticResource AccentGreen}" Opacity="0.3"/>
+                        </Border.BorderBrush>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
@@ -79,22 +97,25 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Text="kP" FontSize="16" FontWeight="Bold" Foreground="#4CAF50" VerticalAlignment="Center"/>
+                            <TextBlock Text="kP" Style="{StaticResource GainLabel}" Foreground="{StaticResource AccentGreenBrush}"/>
                             <Slider x:Name="KpSlider" Grid.Column="1" Minimum="0" Maximum="50" Value="10" 
-                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                                    VerticalAlignment="Center" Margin="10,0" ValueChanged="Gain_ValueChanged"/>
                             <TextBox x:Name="KpText" Grid.Column="2" Text="10.00" Style="{StaticResource GainInput}"
                                      TextChanged="GainText_Changed"/>
                             
                             <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Proportional - Stronger response to error" 
-                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                                       Foreground="{StaticResource TextMutedBrush}" FontSize="10" Margin="0,8,0,0"/>
                         </Grid>
                     </Border>
                     
                     <!-- kI -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                    <Border Style="{StaticResource GainCard}">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{StaticResource AccentBlue}" Opacity="0.3"/>
+                        </Border.BorderBrush>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
@@ -103,22 +124,25 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Text="kI" FontSize="16" FontWeight="Bold" Foreground="#2196F3" VerticalAlignment="Center"/>
+                            <TextBlock Text="kI" Style="{StaticResource GainLabel}" Foreground="{StaticResource AccentBlueBrush}"/>
                             <Slider x:Name="KiSlider" Grid.Column="1" Minimum="0" Maximum="5" Value="0" 
-                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                                    VerticalAlignment="Center" Margin="10,0" ValueChanged="Gain_ValueChanged"/>
                             <TextBox x:Name="KiText" Grid.Column="2" Text="0.00" Style="{StaticResource GainInput}"
                                      TextChanged="GainText_Changed"/>
                             
                             <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Integral - Eliminates steady-state error" 
-                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                                       Foreground="{StaticResource TextMutedBrush}" FontSize="10" Margin="0,8,0,0"/>
                         </Grid>
                     </Border>
                     
                     <!-- kD -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                    <Border Style="{StaticResource GainCard}">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{StaticResource AccentOrange}" Opacity="0.3"/>
+                        </Border.BorderBrush>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
@@ -127,56 +151,49 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             
-                            <TextBlock Text="kD" FontSize="16" FontWeight="Bold" Foreground="#FF9800" VerticalAlignment="Center"/>
+                            <TextBlock Text="kD" Style="{StaticResource GainLabel}" Foreground="{StaticResource AccentOrangeBrush}"/>
                             <Slider x:Name="KdSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="30" 
-                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                                    VerticalAlignment="Center" Margin="10,0" ValueChanged="Gain_ValueChanged"/>
                             <TextBox x:Name="KdText" Grid.Column="2" Text="30.00" Style="{StaticResource GainInput}"
                                      TextChanged="GainText_Changed"/>
                             
                             <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Derivative - Dampens oscillation" 
-                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                                       Foreground="{StaticResource TextMutedBrush}" FontSize="10" Margin="0,8,0,0"/>
                         </Grid>
                     </Border>
                     
-                    <Separator Background="#555555" Margin="0,10,0,10"/>
-                    
                     <!-- Actions -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button x:Name="SendGainsBtn" Content="?? Send to Robot" Style="{StaticResource ActionButton}" 
-                                Background="#4CAF50" Click="SendGains_Click"/>
-                        <Button x:Name="FetchGainsBtn" Content="?? Fetch" Style="{StaticResource ActionButton}"
-                                Click="FetchGains_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button x:Name="SendGainsBtn" Content="&#x26A1; Send to Robot" 
+                                Style="{StaticResource SuccessButton}" Click="SendGains_Click"/>
+                        <Button x:Name="FetchGainsBtn" Content="&#x2193; Fetch" Click="FetchGains_Click"/>
                     </StackPanel>
                     
-                    <Separator Background="#555555" Margin="0,15,0,15"/>
-                    
                     <!-- Presets -->
-                    <TextBlock Text="PRESETS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <WrapPanel>
-                        <Button Content="Conservative" Style="{StaticResource ActionButton}" Width="90" Click="PresetConservative_Click"/>
-                        <Button Content="Balanced" Style="{StaticResource ActionButton}" Width="90" Click="PresetBalanced_Click"/>
-                        <Button Content="Aggressive" Style="{StaticResource ActionButton}" Width="90" Click="PresetAggressive_Click"/>
-                    </WrapPanel>
+                    <TextBlock Text="PRESETS" Style="{StaticResource SectionHeader}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Safe" Width="80" Click="PresetConservative_Click"/>
+                        <Button Content="Balanced" Width="80" Click="PresetBalanced_Click"/>
+                        <Button Content="Fast" Width="80" Click="PresetAggressive_Click"/>
+                    </StackPanel>
                     
-                    <Separator Background="#555555" Margin="0,15,0,15"/>
-                    
-                    <!-- Save/Load -->
-                    <TextBlock Text="PROFILES" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="ProfileCombo" Margin="0,0,0,5">
+                    <!-- Profiles -->
+                    <TextBlock Text="PROFILES" Style="{StaticResource SectionHeader}"/>
+                    <ComboBox x:Name="ProfileCombo" Margin="0,0,0,8">
                         <ComboBoxItem Content="Default"/>
                         <ComboBoxItem Content="Competition"/>
                         <ComboBoxItem Content="Skills"/>
                     </ComboBox>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Save Profile" Style="{StaticResource ActionButton}" Click="SaveProfile_Click"/>
-                        <Button Content="Load Profile" Style="{StaticResource ActionButton}" Click="LoadProfile_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Save" Width="90" Click="SaveProfile_Click"/>
+                        <Button Content="Load" Width="90" Click="LoadProfile_Click"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Border>
         
         <!-- Center: Graphs -->
-        <Border Grid.Column="1" Background="#252526" Margin="5">
+        <Border Grid.Column="1" Background="{StaticResource BgDarkBrush}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -185,18 +202,24 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Toolbar -->
-                <Border Grid.Row="0" Background="#2D2D30" Padding="10">
+                <Border Grid.Row="0" Background="{StaticResource BgMediumBrush}" Padding="15,10"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="StartTestBtn" Content="? Start Test" Style="{StaticResource ActionButton}" 
-                                Background="#4CAF50" Click="StartTest_Click"/>
-                        <Button x:Name="StopTestBtn" Content="? Stop" Style="{StaticResource ActionButton}"
-                                Click="StopTest_Click" IsEnabled="False"/>
-                        <Separator Width="1" Background="#555555" Margin="10,0"/>
-                        <Button Content="Clear Graph" Style="{StaticResource ActionButton}" Click="ClearGraph_Click"/>
-                        <Button Content="Export CSV" Style="{StaticResource ActionButton}" Click="ExportCsv_Click"/>
-                        <Separator Width="1" Background="#555555" Margin="10,0"/>
-                        <TextBlock Text="Test Mode:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox x:Name="TestModeCombo" Width="120" VerticalAlignment="Center">
+                        <Button x:Name="StartTestBtn" Content="&#x25B6; Start Test" 
+                                Style="{StaticResource SuccessButton}" Click="StartTest_Click"/>
+                        <Button x:Name="StopTestBtn" Content="&#x25A0; Stop" 
+                                Style="{StaticResource DangerButton}" Click="StopTest_Click" IsEnabled="False"/>
+                        
+                        <Border Width="1" Background="{StaticResource BorderBrush}" Margin="15,0"/>
+                        
+                        <Button Content="Clear" Click="ClearGraph_Click"/>
+                        <Button Content="Export CSV" Click="ExportCsv_Click"/>
+                        
+                        <Border Width="1" Background="{StaticResource BorderBrush}" Margin="15,0"/>
+                        
+                        <TextBlock Text="Test Mode:" Foreground="{StaticResource TextSecondaryBrush}" 
+                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="TestModeCombo" Width="130">
                             <ComboBoxItem Content="Step Response" IsSelected="True"/>
                             <ComboBoxItem Content="Ramp"/>
                             <ComboBoxItem Content="Sine Wave"/>
@@ -206,49 +229,47 @@
                 </Border>
                 
                 <!-- Response Graph -->
-                <Border Grid.Row="1" Background="#1E1E1E" Margin="10">
+                <Border Grid.Row="1" Margin="15" CornerRadius="10"
+                        Background="{StaticResource BgCardBrush}"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <Grid>
-                        <TextBlock Text="Response" FontWeight="Bold" Foreground="White" Margin="10" VerticalAlignment="Top"/>
+                        <TextBlock Text="RESPONSE" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" 
+                                   Margin="15,10" VerticalAlignment="Top" FontSize="12"/>
                         
-                        <!-- Graph canvas -->
-                        <Canvas x:Name="ResponseCanvas" Margin="50,30,20,30" ClipToBounds="True"/>
-                        
-                        <!-- Y axis labels -->
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="45" Margin="5,30,0,30">
-                            <TextBlock Text="100" Foreground="#666666" FontSize="10"/>
-                            <TextBlock Text="50" Foreground="#666666" FontSize="10" Margin="0,0,0,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="0" Foreground="#666666" FontSize="10" VerticalAlignment="Bottom"/>
-                        </StackPanel>
+                        <Canvas x:Name="ResponseCanvas" Margin="50,35,20,30" ClipToBounds="True"/>
                         
                         <!-- Legend -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
-                            <Rectangle Width="15" Height="3" Fill="#4CAF50" Margin="0,0,5,0"/>
-                            <TextBlock Text="Setpoint" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
-                            <Rectangle Width="15" Height="3" Fill="#2196F3" Margin="0,0,5,0"/>
-                            <TextBlock Text="Actual" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
-                            <Rectangle Width="15" Height="3" Fill="#FF6B6B" Margin="0,0,5,0"/>
-                            <TextBlock Text="Error" Foreground="#888888" FontSize="10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="15">
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentGreenBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="Setpoint" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentCyanBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="Actual" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentPinkBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="Error" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
                         </StackPanel>
                     </Grid>
                 </Border>
                 
                 <!-- PID Terms Graph -->
-                <Border Grid.Row="2" Background="#1E1E1E" Margin="10">
+                <Border Grid.Row="2" Margin="15,0,15,15" CornerRadius="10"
+                        Background="{StaticResource BgCardBrush}"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <Grid>
-                        <TextBlock Text="PID Terms" FontWeight="Bold" Foreground="White" Margin="10" VerticalAlignment="Top"/>
+                        <TextBlock Text="PID TERMS" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" 
+                                   Margin="15,10" VerticalAlignment="Top" FontSize="12"/>
                         
-                        <Canvas x:Name="TermsCanvas" Margin="50,30,20,30" ClipToBounds="True"/>
+                        <Canvas x:Name="TermsCanvas" Margin="50,35,20,30" ClipToBounds="True"/>
                         
                         <!-- Legend -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
-                            <Rectangle Width="15" Height="3" Fill="#4CAF50" Margin="0,0,5,0"/>
-                            <TextBlock Text="P" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
-                            <Rectangle Width="15" Height="3" Fill="#2196F3" Margin="0,0,5,0"/>
-                            <TextBlock Text="I" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
-                            <Rectangle Width="15" Height="3" Fill="#FF9800" Margin="0,0,5,0"/>
-                            <TextBlock Text="D" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
-                            <Rectangle Width="15" Height="3" Fill="White" Margin="0,0,5,0"/>
-                            <TextBlock Text="Output" Foreground="#888888" FontSize="10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="15">
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentGreenBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="P" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentBlueBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="I" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource AccentOrangeBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="D" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,12,0"/>
+                            <Border Width="15" Height="3" CornerRadius="1" Background="{StaticResource TextPrimaryBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="Output" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -256,126 +277,152 @@
         </Border>
         
         <!-- Right Panel: Metrics and Analysis -->
-        <Border Grid.Column="2" Background="#252526" Margin="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
-                    <TextBlock Text="Response Metrics" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+        <Border Grid.Column="2" Background="{StaticResource BgMediumBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                <StackPanel>
+                    <!-- Header -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Ellipse Width="10" Height="10" Fill="{StaticResource AccentPurpleBrush}" Margin="0,0,10,0">
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{StaticResource AccentPurple}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                        <TextBlock Text="ANALYSIS" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
                     
-                    <!-- Performance Metrics -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="PERFORMANCE" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                
-                                <TextBlock Text="Rise Time" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Column="1" x:Name="RiseTimeText" Text="0.32s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
-                                
-                                <TextBlock Grid.Row="1" Text="Settle Time" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SettleTimeText" Text="0.85s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
-                                
-                                <TextBlock Grid.Row="2" Text="Overshoot" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="OvershootText" Text="12.3%" Foreground="#FF9800" FontFamily="Consolas" FontWeight="Bold"/>
-                                
-                                <TextBlock Grid.Row="3" Text="Steady-State Error" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="SteadyStateText" Text="0.5%" Foreground="#4CAF50" FontFamily="Consolas" FontWeight="Bold"/>
-                                
-                                <TextBlock Grid.Row="4" Text="Peak Time" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="4" Grid.Column="1" x:Name="PeakTimeText" Text="0.45s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
-                            </Grid>
+                    <!-- Tuning Quality Score -->
+                    <Border Style="{StaticResource GainCard}" Padding="20">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1C2128" Offset="0"/>
+                                <GradientStop Color="#21262D" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock x:Name="QualityScore" Text="B+" FontSize="56" FontWeight="Black" HorizontalAlignment="Center">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="{StaticResource AccentGreen}" Offset="0"/>
+                                        <GradientStop Color="{StaticResource AccentCyan}" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="{StaticResource AccentGreen}" BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <TextBlock x:Name="QualityDescription" Text="Good response, slight overshoot" 
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" 
+                                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Border>
                     
-                    <!-- Rating -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="TUNING QUALITY" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock x:Name="QualityScore" Text="B+" FontSize="48" FontWeight="Bold" Foreground="#4CAF50"/>
-                            </StackPanel>
-                            <TextBlock x:Name="QualityDescription" Text="Good response, slight overshoot" 
-                                       Foreground="#888888" FontSize="11" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                        </StackPanel>
+                    <!-- Performance Metrics -->
+                    <TextBlock Text="PERFORMANCE" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource GainCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="28"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Rise Time" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" x:Name="RiseTimeText" Text="0.32s" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        
+                            <TextBlock Grid.Row="1" Text="Settle Time" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SettleTimeText" Text="0.85s" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        
+                            <TextBlock Grid.Row="2" Text="Overshoot" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="OvershootText" Text="12.3%" 
+                                       Foreground="{StaticResource AccentOrangeBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        
+                            <TextBlock Grid.Row="3" Text="Steady-State Error" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="SteadyStateText" Text="0.5%" 
+                                       Foreground="{StaticResource AccentGreenBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        
+                            <TextBlock Grid.Row="4" Text="Peak Time" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="PeakTimeText" Text="0.45s" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        </Grid>
                     </Border>
                     
                     <!-- Suggestions -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="SUGGESTIONS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            
-                            <StackPanel x:Name="SuggestionsList">
-                                <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
-                                    <StackPanel>
-                                        <TextBlock Text="?? Reduce overshoot" Foreground="#FF9800" FontWeight="Bold"/>
-                                        <TextBlock Text="Try increasing kD by 20% or reducing kP by 10%" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
-                                    <StackPanel>
-                                        <TextBlock Text="? Good rise time" Foreground="#4CAF50" FontWeight="Bold"/>
-                                        <TextBlock Text="Response is fast enough for competition" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
+                    <TextBlock Text="SUGGESTIONS" Style="{StaticResource SectionHeader}"/>
+                    <StackPanel x:Name="SuggestionsList">
+                        <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,6"
+                                BorderBrush="{StaticResource AccentOrangeBrush}" BorderThickness="0,0,0,2">
+                            <StackPanel>
+                                <TextBlock Text="&#x26A0; Reduce overshoot" Foreground="{StaticResource AccentOrangeBrush}" FontWeight="Bold" FontSize="12"/>
+                                <TextBlock Text="Try increasing kD by 20% or reducing kP by 10%" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"/>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                        </Border>
+                        <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,6"
+                                BorderBrush="{StaticResource AccentGreenBrush}" BorderThickness="0,0,0,2">
+                            <StackPanel>
+                                <TextBlock Text="&#x2713; Good rise time" Foreground="{StaticResource AccentGreenBrush}" FontWeight="Bold" FontSize="12"/>
+                                <TextBlock Text="Response is fast enough for competition" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                     
                     <!-- Auto-Tune -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                    <TextBlock Text="AUTO-TUNE" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource GainCard}">
                         <StackPanel>
-                            <TextBlock Text="AUTO-TUNE" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <TextBlock Text="Automatically find optimal gains using Ziegler-Nichols or relay feedback method." 
-                                       Foreground="#888888" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock Text="Automatically find optimal gains using established tuning methods." 
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
                             <ComboBox x:Name="AutoTuneMethod" Margin="0,0,0,10">
                                 <ComboBoxItem Content="Ziegler-Nichols" IsSelected="True"/>
                                 <ComboBoxItem Content="Cohen-Coon"/>
                                 <ComboBoxItem Content="Relay Feedback"/>
                             </ComboBox>
-                            <Button Content="?? Start Auto-Tune" Style="{StaticResource ActionButton}" 
-                                    Background="#2196F3" HorizontalAlignment="Stretch" Click="AutoTune_Click"/>
+                            <Button Content="&#x1F527; Start Auto-Tune" Style="{StaticResource PrimaryButton}" 
+                                    HorizontalAlignment="Stretch" Click="AutoTune_Click"/>
                         </StackPanel>
                     </Border>
                     
-                    <!-- Current Values (Live from Robot) -->
-                    <Border Background="#2D2D30" CornerRadius="5" Padding="10">
-                        <StackPanel>
-                            <TextBlock Text="LIVE VALUES" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                
-                                <TextBlock Text="Setpoint" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Column="1" x:Name="LiveSetpointText" Text="24.0" Foreground="#4CAF50" FontFamily="Consolas"/>
-                                
-                                <TextBlock Grid.Row="1" Text="Measurement" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LiveMeasurementText" Text="23.5" Foreground="#2196F3" FontFamily="Consolas"/>
-                                
-                                <TextBlock Grid.Row="2" Text="Error" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LiveErrorText" Text="0.5" Foreground="#FF6B6B" FontFamily="Consolas"/>
-                                
-                                <TextBlock Grid.Row="3" Text="Output" Foreground="#AAAAAA"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LiveOutputText" Text="42" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
-                            </Grid>
-                        </StackPanel>
+                    <!-- Live Values -->
+                    <TextBlock Text="LIVE VALUES" Style="{StaticResource SectionHeader}"/>
+                    <Border Style="{StaticResource GainCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="24"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Setpoint" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" x:Name="LiveSetpointText" Text="24.0" 
+                                       Foreground="{StaticResource AccentGreenBrush}" FontFamily="Cascadia Code"/>
+                            
+                            <TextBlock Grid.Row="1" Text="Measurement" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LiveMeasurementText" Text="23.5" 
+                                       Foreground="{StaticResource AccentCyanBrush}" FontFamily="Cascadia Code"/>
+                            
+                            <TextBlock Grid.Row="2" Text="Error" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LiveErrorText" Text="0.5" 
+                                       Foreground="{StaticResource AccentPinkBrush}" FontFamily="Cascadia Code"/>
+                            
+                            <TextBlock Grid.Row="3" Text="Output" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LiveOutputText" Text="42" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Cascadia Code" FontWeight="Bold"/>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </ScrollViewer>

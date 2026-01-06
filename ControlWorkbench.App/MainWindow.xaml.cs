@@ -1,6 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 
 namespace ControlWorkbench.App;
 
@@ -54,17 +57,35 @@ public partial class MainWindow : Window
     
     private void Option_MouseEnter(object sender, MouseEventArgs e)
     {
-        if (sender is System.Windows.Controls.Border border)
+        if (sender is Border border)
         {
-            border.Background = new SolidColorBrush(Color.FromRgb(60, 60, 64));
+            // Scale up and enhance glow
+            var transform = new ScaleTransform(1.02, 1.02);
+            border.RenderTransform = transform;
+            border.RenderTransformOrigin = new Point(0.5, 0.5);
+            
+            // Increase glow intensity
+            if (border.Effect is DropShadowEffect shadow)
+            {
+                shadow.Opacity = 0.4;
+                shadow.BlurRadius = 30;
+            }
         }
     }
     
     private void Option_MouseLeave(object sender, MouseEventArgs e)
     {
-        if (sender is System.Windows.Controls.Border border)
+        if (sender is Border border)
         {
-            border.Background = new SolidColorBrush(Color.FromRgb(45, 45, 48));
+            // Reset scale
+            border.RenderTransform = new ScaleTransform(1.0, 1.0);
+            
+            // Reset glow
+            if (border.Effect is DropShadowEffect shadow)
+            {
+                shadow.Opacity = 0.15;
+                shadow.BlurRadius = 20;
+            }
         }
     }
     
@@ -83,8 +104,8 @@ public partial class MainWindow : Window
         DroneTabControl.Visibility = Visibility.Collapsed;
         
         // Update UI
-        CurrentModeTitle.Text = "VEX V5 Robotics";
-        ModeStatusText.Text = "Mode: VEX V5";
+        CurrentModeTitle.Text = "VEX V5 ROBOTICS";
+        ModeStatusText.Text = "Platform: VEX V5";
         Title = "ControlWorkbench - VEX V5";
         
         // Update port options for VEX (serial ports)
@@ -104,8 +125,8 @@ public partial class MainWindow : Window
         DroneTabControl.Visibility = Visibility.Visible;
         
         // Update UI
-        CurrentModeTitle.Text = "Drone / UAV";
-        ModeStatusText.Text = "Mode: Drone";
+        CurrentModeTitle.Text = "DRONE / UAV";
+        ModeStatusText.Text = "Platform: Drone";
         Title = "ControlWorkbench - Drone";
         
         // Update port options for Drone (UDP, TCP, serial)
