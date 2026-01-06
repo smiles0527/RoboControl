@@ -1,196 +1,522 @@
-id<UserControl x:Class="ControlWorkbench.App.Views.DroneMissionPlannerView"
+<UserControl x:Class="ControlWorkbench.App.Views.DroneMissionPlannerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="1200"
-             Background="#1E1E1E">
+             d:DesignHeight="800" d:DesignWidth="1400"
+             Background="#0a0a12">
     
     <UserControl.Resources>
         <Style TargetType="Button" x:Key="ToolButton">
             <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="2"/>
-            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Background" Value="#252530"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#3a3a4a"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#353545"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="Button" x:Key="PrimaryButton">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#0078D4"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Padding" Value="15,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style TargetType="Button" x:Key="DangerButton">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#C62828"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,4"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         
         <Style TargetType="TextBlock" x:Key="LabelStyle">
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,5,0,2"/>
+            <Setter Property="Foreground" Value="#888899"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,6,0,3"/>
         </Style>
         
         <Style TargetType="TextBox" x:Key="InputStyle">
-            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Background" Value="#1a1a25"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="Padding" Value="5,3"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="BorderBrush" Value="#3a3a4a"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+        
+        <Style TargetType="ComboBox" x:Key="ComboStyle">
+            <Setter Property="Background" Value="#1a1a25"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3a3a4a"/>
+            <Setter Property="Padding" Value="8,6"/>
         </Style>
     </UserControl.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="320"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="340"/>
         </Grid.ColumnDefinitions>
         
-        <!-- Left Panel - Mission Items -->
-        <Border Grid.Column="0" Background="#2D2D30" Margin="5">
+        <!-- ==================== LEFT PANEL - MISSION CONTROL ==================== -->
+        <Border Grid.Column="0" Background="#12121a" Margin="3">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <StackPanel Grid.Row="0" Margin="10">
-                    <TextBlock Text="Drone Mission Planner" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                    
-                    <!-- Home Position -->
-                    <TextBlock Text="Home Position" Style="{StaticResource LabelStyle}"/>
-                    <Border Background="#3E3E42" Padding="8" CornerRadius="3" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock x:Name="HomePositionText" Text="40.712776, -74.005974" Foreground="White" FontFamily="Consolas"/>
-                            <TextBlock x:Name="HomeAltText" Text="Alt: 0m" Foreground="#888888" FontSize="11"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                <!-- Header -->
+                <Border Grid.Row="0" Background="#1a1a25" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="MISSION PLANNER" FontSize="14" FontWeight="Bold" Foreground="#00d4ff" Margin="0,0,0,8"/>
+                        
+                        <!-- Connection Status -->
+                        <Border Background="#0a0a12" Padding="10" CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse x:Name="ConnectionDot" Width="10" Height="10" Fill="#4CAF50" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock x:Name="ConnectionStatus" Text="Simulation Mode" Foreground="White" FontSize="12"/>
+                                    <TextBlock x:Name="VehicleType" Text="ArduCopter 4.4.0" Foreground="#666677" FontSize="10"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Home Position -->
+                <Border Grid.Row="1" Background="#1a1a25" Margin="0,3,0,0" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="HOME POSITION" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                        <Border Background="#0a0a12" Padding="10" CornerRadius="4" Margin="0,5,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock x:Name="HomePositionText" Text="40.712776, -74.005974" Foreground="#00d4ff" FontFamily="Consolas" FontSize="12"/>
+                                    <TextBlock x:Name="HomeAltText" Text="Alt: 0m ASL | HDOP: 0.8" Foreground="#666677" FontSize="10"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Set" Style="{StaticResource ToolButton}" Width="50" Click="SetHome_Click"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
                 
                 <!-- Mission Items List -->
-                <Border Grid.Row="1" Margin="10,0">
+                <Border Grid.Row="2" Background="#1a1a25" Margin="0,3,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBlock Text="Mission Items" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                        <Border Grid.Row="0" Background="#252530" Padding="10,8">
+                            <Grid>
+                                <TextBlock Text="MISSION SEQUENCE" Style="{StaticResource LabelStyle}" FontWeight="Bold" Margin="0"/>
+                                <TextBlock x:Name="ItemCountText" Text="0 items" Foreground="#666677" HorizontalAlignment="Right" FontSize="10" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
                         
-                        <ListBox x:Name="MissionItemsList" Grid.Row="1" Background="#252526" BorderThickness="0" 
-                                 SelectionChanged="MissionItemsList_SelectionChanged">
+                        <ListBox x:Name="MissionItemsList" Grid.Row="1" Background="Transparent" BorderThickness="0" 
+                                 SelectionChanged="MissionItemsList_SelectionChanged" Margin="5">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0,2"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                         </ListBox>
                     </Grid>
                 </Border>
                 
-                <!-- Add Item Buttons -->
-                <StackPanel Grid.Row="2" Margin="10">
-                    <WrapPanel>
-                        <Button Content="Takeoff" Style="{StaticResource ToolButton}" Click="AddTakeoff_Click"/>
-                        <Button Content="Waypoint" Style="{StaticResource ToolButton}" Click="AddWaypoint_Click"/>
-                        <Button Content="Loiter" Style="{StaticResource ToolButton}" Click="AddLoiter_Click"/>
-                        <Button Content="RTL" Style="{StaticResource ToolButton}" Click="AddRTL_Click"/>
-                        <Button Content="Land" Style="{StaticResource ToolButton}" Click="AddLand_Click"/>
-                        <Button Content="Delete" Style="{StaticResource ToolButton}" Background="#C62828" Click="DeleteItem_Click"/>
-                    </WrapPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-        
-        <!-- Center - Map View -->
-        <Border Grid.Column="1" Background="#252526" Margin="5">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                
-                <!-- Toolbar -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#2D2D30" Height="45">
-                    <Button Content="Clear All" Style="{StaticResource ToolButton}" Click="ClearMission_Click"/>
-                    <Separator Width="1" Background="#555555" Margin="5"/>
-                    <Button Content="Zoom +" Style="{StaticResource ToolButton}" Width="50" Click="ZoomIn_Click"/>
-                    <Button Content="Zoom -" Style="{StaticResource ToolButton}" Width="50" Click="ZoomOut_Click"/>
-                    <Button Content="Reset View" Style="{StaticResource ToolButton}" Click="ResetView_Click"/>
-                    <Separator Width="1" Background="#555555" Margin="5"/>
-                    <TextBlock Text="Right-click map to add waypoints" Foreground="#888888" VerticalAlignment="Center" Margin="10,0"/>
-                </StackPanel>
-                
-                <!-- Map Canvas -->
-                <Canvas x:Name="MapCanvas" Grid.Row="1" Background="#1a1a2e" ClipToBounds="True"/>
-                
-                <!-- Bottom info bar -->
-                <Border Grid.Row="2" Background="#2D2D30" Padding="10">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Distance: " Foreground="#888888"/>
-                        <TextBlock x:Name="TotalDistanceText" Text="0 m" Foreground="White" Margin="0,0,20,0"/>
-                        <TextBlock Text="Est. Time: " Foreground="#888888"/>
-                        <TextBlock x:Name="EstTimeText" Text="0:00" Foreground="White" Margin="0,0,20,0"/>
-                        <TextBlock Text="Waypoints: " Foreground="#888888"/>
-                        <TextBlock x:Name="WaypointCountText" Text="0" Foreground="White" Margin="0,0,20,0"/>
-                        <TextBlock Text="Max Alt: " Foreground="#888888"/>
-                        <TextBlock x:Name="MaxAltText" Text="0m" Foreground="White"/>
+                <!-- Add Mission Items -->
+                <Border Grid.Row="3" Background="#1a1a25" Margin="0,3,0,0" Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="ADD COMMAND" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                        <WrapPanel Margin="0,5,0,0">
+                            <Button Content="Takeoff" Style="{StaticResource ToolButton}" Click="AddTakeoff_Click"/>
+                            <Button Content="Waypoint" Style="{StaticResource ToolButton}" Click="AddWaypoint_Click"/>
+                            <Button Content="Loiter" Style="{StaticResource ToolButton}" Click="AddLoiter_Click"/>
+                            <Button Content="Orbit" Style="{StaticResource ToolButton}" Click="AddOrbit_Click"/>
+                            <Button Content="ROI" Style="{StaticResource ToolButton}" Click="AddROI_Click"/>
+                            <Button Content="Land" Style="{StaticResource ToolButton}" Click="AddLand_Click"/>
+                            <Button Content="RTL" Style="{StaticResource ToolButton}" Click="AddRTL_Click"/>
+                        </WrapPanel>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="Delete" Style="{StaticResource DangerButton}" Margin="0,0,3,0" Click="DeleteItem_Click"/>
+                            <Button Grid.Column="1" Content="Clear All" Style="{StaticResource ToolButton}" Margin="3,0,0,0" Click="ClearMission_Click"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
         
-        <!-- Right Panel - Waypoint Details & Export -->
-        <Border Grid.Column="2" Background="#2D2D30" Margin="5">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
-                    <!-- Selected Waypoint -->
-                    <TextBlock x:Name="SelectedWaypointTitle" Text="No Selection" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+        <!-- ==================== CENTER - MAP VIEW ==================== -->
+        <Border Grid.Column="1" Background="#0a0a12" Margin="0,3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Top Toolbar -->
+                <Border Grid.Row="0" Background="#1a1a25" Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Left tools -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Button Content="Upload" Style="{StaticResource PrimaryButton}" Click="Upload_Click" Margin="0,0,5,0"/>
+                            <Button Content="Download" Style="{StaticResource ToolButton}" Click="Download_Click"/>
+                            <Rectangle Width="1" Fill="#3a3a4a" Margin="10,0"/>
+                            <Button Content="Verify" Style="{StaticResource ToolButton}" Click="Verify_Click"/>
+                        </StackPanel>
+                        
+                        <!-- Center - Map type -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <ComboBox x:Name="MapTypeCombo" Style="{StaticResource ComboStyle}" Width="120" SelectedIndex="0">
+                                <ComboBoxItem Content="Satellite"/>
+                                <ComboBoxItem Content="Terrain"/>
+                                <ComboBoxItem Content="Hybrid"/>
+                                <ComboBoxItem Content="Street"/>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <!-- Right tools -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button Content="+" Style="{StaticResource ToolButton}" Width="35" Click="ZoomIn_Click"/>
+                            <Button Content="-" Style="{StaticResource ToolButton}" Width="35" Click="ZoomOut_Click"/>
+                            <Button Content="Fit" Style="{StaticResource ToolButton}" Click="FitToMission_Click"/>
+                            <Rectangle Width="1" Fill="#3a3a4a" Margin="10,0"/>
+                            <CheckBox x:Name="ShowGridCheck" Content="Grid" Foreground="White" IsChecked="True" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="ShowTerrainCheck" Content="Terrain" Foreground="White" IsChecked="True" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Map Canvas -->
+                <Grid Grid.Row="1">
+                    <Canvas x:Name="MapCanvas" Background="#0d1117" ClipToBounds="True"/>
                     
-                    <Border x:Name="WaypointEditPanel" Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15" Visibility="Collapsed">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Latitude:" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox x:Name="WpLatInput" Grid.Row="0" Grid.Column="1" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
-                            
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Longitude:" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox x:Name="WpLonInput" Grid.Row="1" Grid.Column="1" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
-                            
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Altitude (m):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox x:Name="WpAltInput" Grid.Row="2" Grid.Column="1" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
-                            
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Speed (m/s):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox x:Name="WpSpeedInput" Grid.Row="3" Grid.Column="1" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
-                            
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Hold (sec):" Foreground="#AAAAAA" Margin="0,5"/>
-                            <TextBox x:Name="WpHoldInput" Grid.Row="4" Grid.Column="1" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
-                        </Grid>
-                    </Border>
-                    
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
-                    
-                    <!-- Mission Settings -->
-                    <TextBlock Text="Mission Settings" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                    
-                    <Border Background="#3E3E42" Padding="10" CornerRadius="5" Margin="0,0,0,15">
+                    <!-- Overlay info -->
+                    <Border Background="#80000000" Padding="10" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
                         <StackPanel>
-                            <TextBlock Text="Default Altitude (m)" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="DefaultAltInput" Text="50" Style="{StaticResource InputStyle}"/>
-                            
-                            <TextBlock Text="Default Speed (m/s)" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="DefaultSpeedInput" Text="5.0" Style="{StaticResource InputStyle}"/>
+                            <TextBlock x:Name="CursorPositionText" Text="Cursor: --" Foreground="#888899" FontFamily="Consolas" FontSize="10"/>
+                            <TextBlock x:Name="ZoomLevelText" Text="Zoom: 1.0x" Foreground="#888899" FontFamily="Consolas" FontSize="10"/>
                         </StackPanel>
                     </Border>
                     
-                    <Separator Background="#555555" Margin="0,5,0,15"/>
+                    <!-- Scale bar -->
+                    <Border Background="#80000000" Padding="8" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle x:Name="ScaleBar" Width="100" Height="3" Fill="#00d4ff"/>
+                            <TextBlock x:Name="ScaleText" Text="100m" Foreground="White" FontSize="10" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                
+                <!-- Altitude Profile -->
+                <Border Grid.Row="2" Background="#1a1a25" Height="120">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Background="#252530" Padding="10,5">
+                            <Grid>
+                                <TextBlock Text="ALTITUDE PROFILE" Foreground="#888899" FontSize="10" FontWeight="Bold"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBlock Text="Terrain Clearance: " Foreground="#666677" FontSize="10"/>
+                                    <TextBlock x:Name="TerrainClearanceText" Text="50m min" Foreground="#4CAF50" FontSize="10"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Canvas x:Name="AltitudeCanvas" Grid.Row="1" Background="#0a0a12" Margin="5"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Bottom Statistics Bar -->
+                <Border Grid.Row="3" Background="#1a1a25" Padding="15,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="DISTANCE" Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="TotalDistanceText" Text="0 m" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="EST. TIME" Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="EstTimeText" Text="0:00" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="WAYPOINTS" Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="WaypointCountText" Text="0" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="MAX ALT" Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="MaxAltText" Text="0 m" Foreground="#00d4ff" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="BATTERY EST." Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="BatteryEstText" Text="--%" Foreground="#4CAF50" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="5">
+                            <TextBlock Text="SAFETY" Foreground="#666677" FontSize="9"/>
+                            <TextBlock x:Name="SafetyStatusText" Text="OK" Foreground="#4CAF50" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- ==================== RIGHT PANEL - WAYPOINT DETAILS ==================== -->
+        <Border Grid.Column="2" Background="#12121a" Margin="3">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Selected Waypoint Header -->
+                    <Border Background="#1a1a25" Padding="15">
+                        <StackPanel>
+                            <TextBlock x:Name="SelectedWaypointTitle" Text="SELECT A WAYPOINT" FontSize="14" FontWeight="Bold" Foreground="#00d4ff"/>
+                            <TextBlock x:Name="SelectedWaypointSubtitle" Text="Click on map or list to select" Foreground="#666677" FontSize="11"/>
+                        </StackPanel>
+                    </Border>
                     
-                    <!-- Export -->
-                    <TextBlock Text="Export Mission" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                    <!-- Waypoint Edit Panel -->
+                    <Border x:Name="WaypointEditPanel" Background="#1a1a25" Margin="0,3,0,0" Padding="15" Visibility="Collapsed">
+                        <StackPanel>
+                            <!-- Position -->
+                            <TextBlock Text="POSITION" Style="{StaticResource LabelStyle}" FontWeight="Bold"/>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Latitude" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpLatInput" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Longitude" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpLonInput" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Altitude (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpAltInput" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Alt Type" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox x:Name="AltTypeCombo" Style="{StaticResource ComboStyle}" SelectedIndex="0">
+                                        <ComboBoxItem Content="Relative"/>
+                                        <ComboBoxItem Content="Absolute"/>
+                                        <ComboBoxItem Content="Terrain"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Navigation -->
+                            <TextBlock Text="NAVIGATION" Style="{StaticResource LabelStyle}" FontWeight="Bold" Margin="0,15,0,0"/>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Speed (m/s)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpSpeedInput" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Acceptance (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpAcceptInput" Text="2.0" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Actions -->
+                            <TextBlock Text="ACTIONS" Style="{StaticResource LabelStyle}" FontWeight="Bold" Margin="0,15,0,0"/>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Delay (sec)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpHoldInput" Style="{StaticResource InputStyle}" TextChanged="WaypointInput_Changed"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Yaw (deg)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="WpYawInput" Text="0" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Camera Actions -->
+                            <TextBlock Text="CAMERA" Style="{StaticResource LabelStyle}" FontWeight="Bold" Margin="0,15,0,0"/>
+                            <StackPanel Margin="0,5,0,0">
+                                <CheckBox x:Name="TriggerCameraCheck" Content="Trigger camera at waypoint" Foreground="White" Margin="0,3"/>
+                                <CheckBox x:Name="StartRecordingCheck" Content="Start/stop recording" Foreground="White" Margin="0,3"/>
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                        <TextBlock Text="Gimbal Pitch" Style="{StaticResource LabelStyle}"/>
+                                        <TextBox x:Name="GimbalPitchInput" Text="-90" Style="{StaticResource InputStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                        <TextBlock Text="Gimbal Yaw" Style="{StaticResource LabelStyle}"/>
+                                        <TextBox x:Name="GimbalYawInput" Text="0" Style="{StaticResource InputStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                     
-                    <Button Content="Save as .waypoints" Background="#0078D4" Foreground="White" Padding="10,8" Margin="0,0,0,5" Click="SaveWaypoints_Click"/>
-                    <Button Content="Save as QGC Plan (.plan)" Background="#3E3E42" Foreground="White" Padding="10,8" Margin="0,0,0,5" Click="SaveQGCPlan_Click"/>
+                    <!-- Mission Settings -->
+                    <Border Background="#1a1a25" Margin="0,3,0,0" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="MISSION SETTINGS" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                            
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Default Alt (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="DefaultAltInput" Text="50" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Default Speed (m/s)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="DefaultSpeedInput" Text="5.0" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="RTL Altitude (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="RtlAltInput" Text="60" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Finish Action" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox x:Name="FinishActionCombo" Style="{StaticResource ComboStyle}" SelectedIndex="0">
+                                        <ComboBoxItem Content="RTL"/>
+                                        <ComboBoxItem Content="Land"/>
+                                        <ComboBoxItem Content="Loiter"/>
+                                        <ComboBoxItem Content="None"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,10,0,0">
+                                    <CheckBox x:Name="TerrainFollowCheck" Content="Terrain following mode" Foreground="White" Margin="0,3"/>
+                                    <CheckBox x:Name="AvoidObstaclesCheck" Content="Obstacle avoidance enabled" Foreground="White" Margin="0,3" IsChecked="True"/>
+                                    <CheckBox x:Name="GeofenceCheck" Content="Geofence enabled" Foreground="White" Margin="0,3" IsChecked="True"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Safety Limits -->
+                    <Border Background="#1a1a25" Margin="0,3,0,0" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="SAFETY LIMITS" FontSize="12" FontWeight="Bold" Foreground="#FF9800"/>
+                            
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Max Altitude (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="MaxAltLimitInput" Text="120" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Max Distance (m)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="MaxDistLimitInput" Text="5000" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,5,0">
+                                    <TextBlock Text="Min Battery (%)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="MinBatteryInput" Text="25" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Failsafe Action" Style="{StaticResource LabelStyle}"/>
+                                    <ComboBox x:Name="FailsafeCombo" Style="{StaticResource ComboStyle}" SelectedIndex="0">
+                                        <ComboBoxItem Content="RTL"/>
+                                        <ComboBoxItem Content="Land"/>
+                                        <ComboBoxItem Content="Continue"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Export Options -->
+                    <Border Background="#1a1a25" Margin="0,3,0,0" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="EXPORT MISSION" FontSize="12" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            
+                            <Button Content="Save as .waypoints (ArduPilot)" Style="{StaticResource PrimaryButton}" Margin="0,0,0,5" Click="SaveWaypoints_Click"/>
+                            <Button Content="Save as .plan (QGroundControl)" Style="{StaticResource ToolButton}" Margin="0,0,0,5" Click="SaveQGCPlan_Click"/>
+                            <Button Content="Save as .kml (Google Earth)" Style="{StaticResource ToolButton}" Margin="0,0,0,5" Click="SaveKML_Click"/>
+                            <Button Content="Export to Litchi CSV" Style="{StaticResource ToolButton}" Click="SaveLitchi_Click"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Border>

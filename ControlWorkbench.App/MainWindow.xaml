@@ -7,165 +7,215 @@
         xmlns:views="clr-namespace:ControlWorkbench.App.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
-        Title="ControlWorkbench - Robotics and Drone Engineering Tool" 
+        Title="ControlWorkbench" 
         Height="900" Width="1600"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E1E"
+        Focusable="True">
     
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
     
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#2D2D30" Padding="10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ControlWorkbench" FontSize="22" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text=" - Robotics and Drone Engineering" FontSize="14" Foreground="#AAAAAA" VerticalAlignment="Bottom" Margin="8,0,0,3"/>
-                </StackPanel>
-                
-                <!-- Quick Connect -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <ComboBox x:Name="DeviceTypeSelector" Width="120" Margin="0,0,10,0" SelectedIndex="0">
-                        <ComboBoxItem Content="VEX V5 Brain"/>
-                        <ComboBoxItem Content="Drone (MAVLink)"/>
-                        <ComboBoxItem Content="Betaflight"/>
-                    </ComboBox>
-                    <ComboBox x:Name="PortSelector" Width="100" Margin="0,0,10,0">
-                        <ComboBoxItem Content="COM3"/>
-                        <ComboBoxItem Content="COM4"/>
-                        <ComboBoxItem Content="UDP:14550"/>
-                    </ComboBox>
-                    <Button Content="Connect" Padding="15,5" Background="#4CAF50" Foreground="White" BorderThickness="0"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-        
-        <!-- Main Content - Tab Control with Platform Categories -->
-        <TabControl Grid.Row="1" Margin="5">
+        <!-- Welcome/Mode Selection Screen -->
+        <Grid x:Name="WelcomeScreen" Visibility="Visible">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#1a1a2e" Offset="0"/>
+                    <GradientStop Color="#16213e" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
             
-            <!-- ==================== VEX ROBOTICS ==================== -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="VEX V5" FontWeight="Bold"/>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <!-- Logo/Title -->
+                <TextBlock Text="ControlWorkbench" FontSize="48" FontWeight="Bold" Foreground="White" 
+                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Robotics and Drone Engineering Tool" FontSize="18" Foreground="#888888" 
+                           HorizontalAlignment="Center" Margin="0,0,0,60"/>
+                
+                <!-- Mode Selection -->
+                <TextBlock Text="Select Your Platform" FontSize="16" Foreground="#AAAAAA" 
+                           HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- VEX V5 Option -->
+                    <Border x:Name="VexOption" Background="#2D2D30" Width="280" Height="320" Margin="20" 
+                            CornerRadius="10" Cursor="Hand" MouseLeftButtonDown="VexOption_Click"
+                            MouseEnter="Option_MouseEnter" MouseLeave="Option_MouseLeave">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <!-- VEX Icon -->
+                            <Border Background="#C62828" Width="80" Height="80" CornerRadius="40" Margin="0,0,0,20">
+                                <TextBlock Text="V5" FontSize="32" FontWeight="Bold" Foreground="White" 
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            
+                            <TextBlock Text="VEX V5 Robotics" FontSize="20" FontWeight="Bold" Foreground="White" 
+                                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Path planning, robot configuration," Foreground="#888888" FontSize="12" 
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="PROS code generation, telemetry" Foreground="#888888" FontSize="12" 
+                                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                            
+
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="• LemLib / EZ-Template support" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• Pure Pursuit path planner" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• High Stakes field layout" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• PID tuning tools" Foreground="#666666" FontSize="11"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Drone Option -->
+                    <Border x:Name="DroneOption" Background="#2D2D30" Width="280" Height="320" Margin="20" 
+                            CornerRadius="10" Cursor="Hand" MouseLeftButtonDown="DroneOption_Click"
+                            MouseEnter="Option_MouseEnter" MouseLeave="Option_MouseLeave">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <!-- Drone Icon -->
+                            <Border Background="#2196F3" Width="80" Height="80" CornerRadius="40" Margin="0,0,0,20">
+                                <TextBlock Text="UAV" FontSize="24" FontWeight="Bold" Foreground="White" 
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            
+                            <TextBlock Text="Drone / UAV" FontSize="20" FontWeight="Bold" Foreground="White" 
+                                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Mission planning, telemetry," Foreground="#888888" FontSize="12" 
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="PID tuning, flight simulation" Foreground="#888888" FontSize="12" 
+                                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                            
+
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="• ArduPilot / Betaflight / PX4" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• Mission planner with export" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• Real-time telemetry dashboard" Foreground="#666666" FontSize="11"/>
+                                <TextBlock Text="• Drone physics simulation" Foreground="#666666" FontSize="11"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                
+                <TextBlock Text="v1.0" FontSize="12" Foreground="#444444" 
+                           HorizontalAlignment="Center" Margin="0,40,0,0"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Main Application (hidden until mode selected) -->
+        <Grid x:Name="MainContent" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#2D2D30" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button x:Name="BackButton" Content="Back" Padding="10,5" Background="#3E3E42" 
+                                Foreground="White" BorderThickness="0" Cursor="Hand" Click="BackButton_Click"
+                                Margin="0,0,20,0"/>
+                        <TextBlock x:Name="CurrentModeTitle" Text="VEX V5" FontSize="20" FontWeight="Bold" 
+                                   Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
-                </TabItem.Header>
-                
-                <TabControl>
-                    <TabItem Header="Path Planner">
-                        <views:VexPathPlannerView/>
-                    </TabItem>
                     
-                    <TabItem Header="Robot Config">
-                        <views:VexRobotConfigView/>
-                    </TabItem>
-                    
-                    <TabItem Header="Telemetry">
-                        <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
-                    </TabItem>
-                    
-                    <TabItem Header="PID Tuning">
-                        <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
-                    </TabItem>
-                </TabControl>
-            </TabItem>
-            
-            <!-- ==================== DRONES ==================== -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Drones" FontWeight="Bold"/>
+                    <!-- Connection Panel -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <ComboBox x:Name="PortSelector" Width="120" Margin="0,0,10,0"/>
+                        <Button x:Name="ConnectButton" Content="Connect" Padding="15,5" Background="#4CAF50" 
+                                Foreground="White" BorderThickness="0" Cursor="Hand"/>
                     </StackPanel>
-                </TabItem.Header>
-                
-                <TabControl>
-                    <TabItem Header="Mission Planner">
-                        <views:DroneMissionPlannerView/>
-                    </TabItem>
-                    
-                    <TabItem Header="Drone Config">
-                        <views:DroneConfigView/>
-                    </TabItem>
-                    
-                    <TabItem Header="Telemetry">
-                        <views:DroneTelemetryView/>
-                    </TabItem>
-                    
-                    <TabItem Header="PID Tuning">
-                        <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
-                    </TabItem>
-                </TabControl>
-            </TabItem>
+                </Grid>
+            </Border>
             
-            <!-- ==================== COMMON TOOLS ==================== -->
-            <TabItem Header="Connection">
-                <views:ConnectionView DataContext="{Binding Connection}"/>
-            </TabItem>
+            <!-- VEX Content -->
+            <TabControl x:Name="VexTabControl" Grid.Row="1" Margin="5" Visibility="Collapsed">
+                <TabItem Header="Path Planner">
+                    <views:VexPathPlannerView/>
+                </TabItem>
+                <TabItem Header="Robot Config">
+                    <views:VexRobotConfigView/>
+                </TabItem>
+                <TabItem Header="Telemetry">
+                    <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
+                </TabItem>
+                <TabItem Header="PID Tuning">
+                    <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
+                </TabItem>
+                <TabItem Header="Math Workbench">
+                    <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
+                </TabItem>
+                <TabItem Header="Tools">
+                    <views:ToolsView DataContext="{Binding Tools}"/>
+                </TabItem>
+                <TabItem Header="Connection">
+                    <views:ConnectionView DataContext="{Binding Connection}"/>
+                </TabItem>
+                <TabItem Header="Logs">
+                    <views:LogsView DataContext="{Binding Logs}"/>
+                </TabItem>
+            </TabControl>
             
-            <TabItem Header="Math Workbench">
-                <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
-            </TabItem>
+            <!-- Drone Content -->
+            <TabControl x:Name="DroneTabControl" Grid.Row="1" Margin="5" Visibility="Collapsed">
+                <TabItem Header="Mission Planner">
+                    <views:DroneMissionPlannerView/>
+                </TabItem>
+                <TabItem Header="Drone Config">
+                    <views:DroneConfigView/>
+                </TabItem>
+                <TabItem Header="Telemetry">
+                    <views:DroneTelemetryView/>
+                </TabItem>
+                <TabItem Header="PID Tuning">
+                    <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
+                </TabItem>
+                <TabItem Header="Math Workbench">
+                    <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
+                </TabItem>
+                <TabItem Header="Tools">
+                    <views:ToolsView DataContext="{Binding Tools}"/>
+                </TabItem>
+                <TabItem Header="Connection">
+                    <views:ConnectionView DataContext="{Binding Connection}"/>
+                </TabItem>
+                <TabItem Header="Logs">
+                    <views:LogsView DataContext="{Binding Logs}"/>
+                </TabItem>
+            </TabControl>
             
-            <TabItem Header="Parameter Editor">
-                <views:ParameterEditorView DataContext="{Binding ParameterEditor}"/>
-            </TabItem>
-            
-            <TabItem Header="Logs">
-                <views:LogsView DataContext="{Binding Logs}"/>
-            </TabItem>
-        </TabControl>
-        
-        <!-- Status Bar -->
-        <StatusBar Grid.Row="2">
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Width="10" Height="10" Margin="0,0,5,0">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="Gray"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Connection.IsConnected}" Value="True">
-                                        <Setter Property="Fill" Value="LimeGreen"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
-                    <TextBlock Text="{Binding Connection.StatusMessage}"/>
-                </StackPanel>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Device: "/>
-                    <TextBlock Text="Not Connected" Foreground="#888888"/>
-                </StackPanel>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Rx: "/>
-                    <TextBlock Text="{Binding Connection.BytesPerSecond, StringFormat='{}{0:F0} B/s'}"/>
-                    <TextBlock Text=" | "/>
-                    <TextBlock Text="{Binding Connection.PacketsPerSecond, StringFormat='{}{0:F1} pkt/s'}"/>
-                </StackPanel>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="ControlWorkbench v1.0 - VEX + Drone Edition" Foreground="#888888"/>
-            </StatusBarItem>
-        </StatusBar>
+            <!-- Status Bar -->
+            <StatusBar Grid.Row="2" Background="#2D2D30">
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse x:Name="ConnectionIndicator" Width="10" Height="10" Fill="Gray" Margin="0,0,5,0"/>
+                        <TextBlock x:Name="ConnectionStatusText" Text="Not Connected" Foreground="#888888"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="ModeStatusText" Text="" Foreground="#888888"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <TextBlock Text="ControlWorkbench v1.0" Foreground="#555555"/>
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
     </Grid>
 </Window>

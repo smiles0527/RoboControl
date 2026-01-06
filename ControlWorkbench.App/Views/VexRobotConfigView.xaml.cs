@@ -10,6 +10,7 @@ namespace ControlWorkbench.App.Views;
 public partial class VexRobotConfigView : UserControl
 {
     private RobotConfig _config = new();
+    private bool _isLoaded;
 
     public VexRobotConfigView()
     {
@@ -19,23 +20,35 @@ public partial class VexRobotConfigView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (_isLoaded) return;
+        _isLoaded = true;
+        
         WireUpEvents();
         UpdateCodePreview();
     }
 
     private void WireUpEvents()
     {
-        TeamNumber.TextChanged += (s, ev) => { _config.TeamNumber = TeamNumber.Text; UpdateCodePreview(); };
-        RobotName.TextChanged += (s, ev) => { _config.RobotName = RobotName.Text; UpdateCodePreview(); };
-        LibraryChoice.SelectionChanged += (s, ev) => UpdateCodePreview();
-        DriveType.SelectionChanged += (s, ev) => UpdateCodePreview();
-        CartridgeType.SelectionChanged += (s, ev) => UpdateCodePreview();
-        GenerateButton.Click += OnGenerateClick;
-        PreviewFileSelect.SelectionChanged += (s, ev) => UpdateCodePreview();
+        if (TeamNumber != null)
+            TeamNumber.TextChanged += (s, ev) => { _config.TeamNumber = TeamNumber.Text; UpdateCodePreview(); };
+        if (RobotName != null)
+            RobotName.TextChanged += (s, ev) => { _config.RobotName = RobotName.Text; UpdateCodePreview(); };
+        if (LibraryChoice != null)
+            LibraryChoice.SelectionChanged += (s, ev) => UpdateCodePreview();
+        if (DriveType != null)
+            DriveType.SelectionChanged += (s, ev) => UpdateCodePreview();
+        if (CartridgeType != null)
+            CartridgeType.SelectionChanged += (s, ev) => UpdateCodePreview();
+        if (GenerateButton != null)
+            GenerateButton.Click += OnGenerateClick;
+        if (PreviewFileSelect != null)
+            PreviewFileSelect.SelectionChanged += (s, ev) => UpdateCodePreview();
     }
 
     private void UpdateCodePreview()
     {
+        if (!_isLoaded || CodePreviewBox == null || PreviewFileSelect == null) return;
+        
         ReadConfigFromUI();
         string selectedFile = (PreviewFileSelect.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "main.cpp";
         
@@ -51,9 +64,9 @@ public partial class VexRobotConfigView : UserControl
 
     private void ReadConfigFromUI()
     {
-        _config.TeamNumber = TeamNumber.Text;
-        _config.RobotName = RobotName.Text;
-        _config.Library = LibraryChoice.SelectedIndex switch
+        _config.TeamNumber = TeamNumber?.Text ?? "1234A";
+        _config.RobotName = RobotName?.Text ?? "Competition Bot";
+        _config.Library = (LibraryChoice?.SelectedIndex ?? 0) switch
         {
             0 => "LemLib",
             1 => "EZ-Template",
@@ -62,7 +75,7 @@ public partial class VexRobotConfigView : UserControl
             _ => "LemLib"
         };
         
-        _config.DriveType = DriveType.SelectedIndex switch
+        _config.DriveType = (DriveType?.SelectedIndex ?? 0) switch
         {
             0 => "Tank6",
             1 => "Tank4",
@@ -72,7 +85,7 @@ public partial class VexRobotConfigView : UserControl
             _ => "Tank6"
         };
 
-        _config.Cartridge = CartridgeType.SelectedIndex switch
+        _config.Cartridge = (CartridgeType?.SelectedIndex ?? 2) switch
         {
             0 => "red",
             1 => "green",
@@ -80,7 +93,7 @@ public partial class VexRobotConfigView : UserControl
             _ => "blue"
         };
 
-        _config.CartridgeRpm = CartridgeType.SelectedIndex switch
+        _config.CartridgeRpm = (CartridgeType?.SelectedIndex ?? 2) switch
         {
             0 => 100,
             1 => 200,

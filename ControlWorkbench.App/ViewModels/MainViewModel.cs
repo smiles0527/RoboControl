@@ -14,6 +14,7 @@ public class MainViewModel : ViewModelBase
         ParameterEditor = new ParameterEditorViewModel(msg => Connection.SendMessageAsync(msg));
         MathWorkbench = new MathWorkbenchViewModel();
         ControlDesign = new ControlDesignViewModel();
+        Tools = new ToolsViewModel();
         Logs = new LogsViewModel();
 
         // Wire up message routing
@@ -25,6 +26,7 @@ public class MainViewModel : ViewModelBase
     public ParameterEditorViewModel ParameterEditor { get; }
     public MathWorkbenchViewModel MathWorkbench { get; }
     public ControlDesignViewModel ControlDesign { get; }
+    public ToolsViewModel Tools { get; }
     public LogsViewModel Logs { get; }
 
     private void OnMessageReceived(object? sender, IMessage message)
