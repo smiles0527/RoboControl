@@ -145,28 +145,37 @@
             
             <!-- VEX Content -->
             <TabControl x:Name="VexTabControl" Grid.Row="1" Margin="5" Visibility="Collapsed">
-                <TabItem Header="Path Planner">
+                <TabItem Header="🗺️ Path Planner">
                     <views:VexPathPlannerView/>
                 </TabItem>
-                <TabItem Header="Robot Config">
+                <TabItem Header="🤖 Live View">
+                    <views:LiveRobotView/>
+                </TabItem>
+                <TabItem Header="🎛️ PID Tuner">
+                    <views:PidTunerView/>
+                </TabItem>
+                <TabItem Header="🔧 Motor Health">
+                    <views:MotorHealthView/>
+                </TabItem>
+                <TabItem Header="⚙️ Robot Config">
                     <views:VexRobotConfigView/>
                 </TabItem>
-                <TabItem Header="Telemetry">
+                <TabItem Header="📊 Telemetry">
                     <views:TelemetryDashboardView DataContext="{Binding TelemetryDashboard}"/>
                 </TabItem>
-                <TabItem Header="PID Tuning">
+                <TabItem Header="📈 Control Design">
                     <views:ControlDesignView DataContext="{Binding ControlDesign}"/>
                 </TabItem>
-                <TabItem Header="Math Workbench">
+                <TabItem Header="🧮 Math">
                     <views:MathWorkbenchView DataContext="{Binding MathWorkbench}"/>
                 </TabItem>
-                <TabItem Header="Tools">
+                <TabItem Header="🛠️ Tools">
                     <views:ToolsView DataContext="{Binding Tools}"/>
                 </TabItem>
-                <TabItem Header="Connection">
+                <TabItem Header="🔌 Connection">
                     <views:ConnectionView DataContext="{Binding Connection}"/>
                 </TabItem>
-                <TabItem Header="Logs">
+                <TabItem Header="📜 Logs">
                     <views:LogsView DataContext="{Binding Logs}"/>
                 </TabItem>
             </TabControl>

@@ -1,0 +1,384 @@
+﻿<UserControl x:Class="ControlWorkbench.App.Views.PidTunerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200"
+             Background="#1E1E1E">
+    
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="Foreground" Value="#AAAAAA"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox" x:Key="GainInput">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="Slider" x:Key="GainSlider">
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Button" x:Key="ActionButton">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Panel: Controllers and Gains -->
+        <Border Grid.Column="0" Background="#252526" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10">
+                    <TextBlock Text="PID Tuner" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                    
+                    <!-- Controller Selection -->
+                    <TextBlock Text="SELECT CONTROLLER" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ListBox x:Name="ControllerList" Background="#2D2D30" Foreground="White" Height="120" 
+                             SelectionChanged="ControllerList_SelectionChanged">
+                        <ListBoxItem Content="lateral" IsSelected="True"/>
+                        <ListBoxItem Content="angular"/>
+                        <ListBoxItem Content="drive_ff"/>
+                        <ListBoxItem Content="lift"/>
+                        <ListBoxItem Content="intake"/>
+                    </ListBox>
+                    
+                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    
+                    <!-- Gain Inputs -->
+                    <TextBlock Text="GAINS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                    
+                    <!-- kP -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="kP" FontSize="16" FontWeight="Bold" Foreground="#4CAF50" VerticalAlignment="Center"/>
+                            <Slider x:Name="KpSlider" Grid.Column="1" Minimum="0" Maximum="50" Value="10" 
+                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                            <TextBox x:Name="KpText" Grid.Column="2" Text="10.00" Style="{StaticResource GainInput}"
+                                     TextChanged="GainText_Changed"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Proportional - Stronger response to error" 
+                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- kI -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="kI" FontSize="16" FontWeight="Bold" Foreground="#2196F3" VerticalAlignment="Center"/>
+                            <Slider x:Name="KiSlider" Grid.Column="1" Minimum="0" Maximum="5" Value="0" 
+                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                            <TextBox x:Name="KiText" Grid.Column="2" Text="0.00" Style="{StaticResource GainInput}"
+                                     TextChanged="GainText_Changed"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Integral - Eliminates steady-state error" 
+                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- kD -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="kD" FontSize="16" FontWeight="Bold" Foreground="#FF9800" VerticalAlignment="Center"/>
+                            <Slider x:Name="KdSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="30" 
+                                    Style="{StaticResource GainSlider}" ValueChanged="Gain_ValueChanged"/>
+                            <TextBox x:Name="KdText" Grid.Column="2" Text="30.00" Style="{StaticResource GainInput}"
+                                     TextChanged="GainText_Changed"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Derivative - Dampens oscillation" 
+                                       Foreground="#666666" FontSize="10" Margin="0,5,0,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Separator Background="#555555" Margin="0,10,0,10"/>
+                    
+                    <!-- Actions -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="SendGainsBtn" Content="?? Send to Robot" Style="{StaticResource ActionButton}" 
+                                Background="#4CAF50" Click="SendGains_Click"/>
+                        <Button x:Name="FetchGainsBtn" Content="?? Fetch" Style="{StaticResource ActionButton}"
+                                Click="FetchGains_Click"/>
+                    </StackPanel>
+                    
+                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    
+                    <!-- Presets -->
+                    <TextBlock Text="PRESETS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <WrapPanel>
+                        <Button Content="Conservative" Style="{StaticResource ActionButton}" Width="90" Click="PresetConservative_Click"/>
+                        <Button Content="Balanced" Style="{StaticResource ActionButton}" Width="90" Click="PresetBalanced_Click"/>
+                        <Button Content="Aggressive" Style="{StaticResource ActionButton}" Width="90" Click="PresetAggressive_Click"/>
+                    </WrapPanel>
+                    
+                    <Separator Background="#555555" Margin="0,15,0,15"/>
+                    
+                    <!-- Save/Load -->
+                    <TextBlock Text="PROFILES" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="ProfileCombo" Margin="0,0,0,5">
+                        <ComboBoxItem Content="Default"/>
+                        <ComboBoxItem Content="Competition"/>
+                        <ComboBoxItem Content="Skills"/>
+                    </ComboBox>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Save Profile" Style="{StaticResource ActionButton}" Click="SaveProfile_Click"/>
+                        <Button Content="Load Profile" Style="{StaticResource ActionButton}" Click="LoadProfile_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Center: Graphs -->
+        <Border Grid.Column="1" Background="#252526" Margin="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Toolbar -->
+                <Border Grid.Row="0" Background="#2D2D30" Padding="10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="StartTestBtn" Content="? Start Test" Style="{StaticResource ActionButton}" 
+                                Background="#4CAF50" Click="StartTest_Click"/>
+                        <Button x:Name="StopTestBtn" Content="? Stop" Style="{StaticResource ActionButton}"
+                                Click="StopTest_Click" IsEnabled="False"/>
+                        <Separator Width="1" Background="#555555" Margin="10,0"/>
+                        <Button Content="Clear Graph" Style="{StaticResource ActionButton}" Click="ClearGraph_Click"/>
+                        <Button Content="Export CSV" Style="{StaticResource ActionButton}" Click="ExportCsv_Click"/>
+                        <Separator Width="1" Background="#555555" Margin="10,0"/>
+                        <TextBlock Text="Test Mode:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="TestModeCombo" Width="120" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Step Response" IsSelected="True"/>
+                            <ComboBoxItem Content="Ramp"/>
+                            <ComboBoxItem Content="Sine Wave"/>
+                            <ComboBoxItem Content="Square Wave"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Response Graph -->
+                <Border Grid.Row="1" Background="#1E1E1E" Margin="10">
+                    <Grid>
+                        <TextBlock Text="Response" FontWeight="Bold" Foreground="White" Margin="10" VerticalAlignment="Top"/>
+                        
+                        <!-- Graph canvas -->
+                        <Canvas x:Name="ResponseCanvas" Margin="50,30,20,30" ClipToBounds="True"/>
+                        
+                        <!-- Y axis labels -->
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="45" Margin="5,30,0,30">
+                            <TextBlock Text="100" Foreground="#666666" FontSize="10"/>
+                            <TextBlock Text="50" Foreground="#666666" FontSize="10" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="0" Foreground="#666666" FontSize="10" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        
+                        <!-- Legend -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+                            <Rectangle Width="15" Height="3" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock Text="Setpoint" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
+                            <Rectangle Width="15" Height="3" Fill="#2196F3" Margin="0,0,5,0"/>
+                            <TextBlock Text="Actual" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
+                            <Rectangle Width="15" Height="3" Fill="#FF6B6B" Margin="0,0,5,0"/>
+                            <TextBlock Text="Error" Foreground="#888888" FontSize="10"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- PID Terms Graph -->
+                <Border Grid.Row="2" Background="#1E1E1E" Margin="10">
+                    <Grid>
+                        <TextBlock Text="PID Terms" FontWeight="Bold" Foreground="White" Margin="10" VerticalAlignment="Top"/>
+                        
+                        <Canvas x:Name="TermsCanvas" Margin="50,30,20,30" ClipToBounds="True"/>
+                        
+                        <!-- Legend -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+                            <Rectangle Width="15" Height="3" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock Text="P" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
+                            <Rectangle Width="15" Height="3" Fill="#2196F3" Margin="0,0,5,0"/>
+                            <TextBlock Text="I" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
+                            <Rectangle Width="15" Height="3" Fill="#FF9800" Margin="0,0,5,0"/>
+                            <TextBlock Text="D" Foreground="#888888" FontSize="10" Margin="0,0,15,0"/>
+                            <Rectangle Width="15" Height="3" Fill="White" Margin="0,0,5,0"/>
+                            <TextBlock Text="Output" Foreground="#888888" FontSize="10"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Right Panel: Metrics and Analysis -->
+        <Border Grid.Column="2" Background="#252526" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Response Metrics" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                    
+                    <!-- Performance Metrics -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="PERFORMANCE" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Text="Rise Time" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Column="1" x:Name="RiseTimeText" Text="0.32s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
+                                
+                                <TextBlock Grid.Row="1" Text="Settle Time" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SettleTimeText" Text="0.85s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
+                                
+                                <TextBlock Grid.Row="2" Text="Overshoot" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="OvershootText" Text="12.3%" Foreground="#FF9800" FontFamily="Consolas" FontWeight="Bold"/>
+                                
+                                <TextBlock Grid.Row="3" Text="Steady-State Error" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="SteadyStateText" Text="0.5%" Foreground="#4CAF50" FontFamily="Consolas" FontWeight="Bold"/>
+                                
+                                <TextBlock Grid.Row="4" Text="Peak Time" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" x:Name="PeakTimeText" Text="0.45s" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Rating -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="TUNING QUALITY" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock x:Name="QualityScore" Text="B+" FontSize="48" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </StackPanel>
+                            <TextBlock x:Name="QualityDescription" Text="Good response, slight overshoot" 
+                                       Foreground="#888888" FontSize="11" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Suggestions -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="SUGGESTIONS" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            
+                            <StackPanel x:Name="SuggestionsList">
+                                <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <TextBlock Text="?? Reduce overshoot" Foreground="#FF9800" FontWeight="Bold"/>
+                                        <TextBlock Text="Try increasing kD by 20% or reducing kP by 10%" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <TextBlock Text="? Good rise time" Foreground="#4CAF50" FontWeight="Bold"/>
+                                        <TextBlock Text="Response is fast enough for competition" Foreground="#888888" FontSize="11" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Auto-Tune -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="AUTO-TUNE" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Automatically find optimal gains using Ziegler-Nichols or relay feedback method." 
+                                       Foreground="#888888" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <ComboBox x:Name="AutoTuneMethod" Margin="0,0,0,10">
+                                <ComboBoxItem Content="Ziegler-Nichols" IsSelected="True"/>
+                                <ComboBoxItem Content="Cohen-Coon"/>
+                                <ComboBoxItem Content="Relay Feedback"/>
+                            </ComboBox>
+                            <Button Content="?? Start Auto-Tune" Style="{StaticResource ActionButton}" 
+                                    Background="#2196F3" HorizontalAlignment="Stretch" Click="AutoTune_Click"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Current Values (Live from Robot) -->
+                    <Border Background="#2D2D30" CornerRadius="5" Padding="10">
+                        <StackPanel>
+                            <TextBlock Text="LIVE VALUES" Foreground="#666666" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Text="Setpoint" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Column="1" x:Name="LiveSetpointText" Text="24.0" Foreground="#4CAF50" FontFamily="Consolas"/>
+                                
+                                <TextBlock Grid.Row="1" Text="Measurement" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LiveMeasurementText" Text="23.5" Foreground="#2196F3" FontFamily="Consolas"/>
+                                
+                                <TextBlock Grid.Row="2" Text="Error" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LiveErrorText" Text="0.5" Foreground="#FF6B6B" FontFamily="Consolas"/>
+                                
+                                <TextBlock Grid.Row="3" Text="Output" Foreground="#AAAAAA"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LiveOutputText" Text="42" Foreground="White" FontFamily="Consolas" FontWeight="Bold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

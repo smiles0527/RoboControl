@@ -214,6 +214,17 @@ void send_motor(uint8_t port, double position, double velocity,
 void send_motor(const pros::Motor& motor);
 
 /**
+ * Send motor telemetry for all motors in a motor group.
+ */
+void send_motor_group(const pros::MotorGroup& group);
+
+/**
+ * Send all drive motor telemetry at once.
+ * Convenience function for typical 4-motor or 6-motor drivetrains.
+ */
+void send_drivetrain(const pros::MotorGroup& left, const pros::MotorGroup& right);
+
+/**
  * Send PID controller state for tuning visualization.
  */
 void send_pid_state(uint8_t controller_id, 
@@ -884,6 +895,28 @@ void send_motor(uint8_t port, double position, double velocity, double current, 
 void send_motor(const pros::Motor& motor) {
     send_motor(motor.get_port(), motor.get_position(), motor.get_actual_velocity(), motor.get_current_draw(),
                motor.get_voltage(), motor.get_temperature(), motor.get_power(), motor.get_torque());
+}
+
+void send_motor_group(const pros::MotorGroup& group) {
+    auto ports = group.get_port_all();
+    auto positions = group.get_position_all();
+    auto velocities = group.get_actual_velocity_all();
+    auto currents = group.get_current_draw_all();
+    auto voltages = group.get_voltage_all();
+    auto temps = group.get_temperature_all();
+    auto powers = group.get_power_all();
+    auto torques = group.get_torque_all();
+    
+    for (size_t i = 0; i < ports.size(); i++) {
+        send_motor(static_cast<uint8_t>(std::abs(ports[i])),
+                   positions[i], velocities[i], currents[i],
+                   voltages[i], temps[i], powers[i], torques[i]);
+    }
+}
+
+void send_drivetrain(const pros::MotorGroup& left, const pros::MotorGroup& right) {
+    send_motor_group(left);
+    send_motor_group(right);
 }
 
 void send_pid_state(uint8_t controller_id, double setpoint, double measurement, double error, double integral, double derivative, double output, double kp, double ki, double kd) {

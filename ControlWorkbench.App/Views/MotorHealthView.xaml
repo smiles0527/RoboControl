@@ -1,0 +1,474 @@
+﻿<UserControl x:Class="ControlWorkbench.App.Views.MotorHealthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200"
+             Background="#1E1E1E">
+    
+    <UserControl.Resources>
+        <Style TargetType="Border" x:Key="MotorCard">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2D2D30" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Motor Health Dashboard" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <Border x:Name="OverallStatusBadge" Background="#4CAF50" CornerRadius="10" Padding="10,3" Margin="20,0,0,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="OverallStatusText" Text="All Systems Normal" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                    </Border>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="Update Rate:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="UpdateRateCombo" Width="80" VerticalAlignment="Center">
+                        <ComboBoxItem Content="10 Hz" IsSelected="True"/>
+                        <ComboBoxItem Content="20 Hz"/>
+                        <ComboBoxItem Content="50 Hz"/>
+                    </ComboBox>
+                    <Button Content="Export Report" Padding="15,5" Background="#3E3E42" Foreground="White" 
+                            BorderThickness="0" Cursor="Hand" Margin="20,0,0,0" Click="ExportReport_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Motor Cards Grid -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Drive Motors Row -->
+                <!-- Left Front -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Left Front" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 1" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Temperature Gauge -->
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="LFTempText" Text="42�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <!-- RPM -->
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#2196F3" BorderThickness="4">
+                                    <TextBlock x:Name="LFRpmText" Text="580" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#2196F3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Current Bar -->
+                        <TextBlock Text="Current Draw" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="LFCurrentBar" Height="8" Value="45" Maximum="100" Background="#3E3E42" Foreground="#FF9800"/>
+                            <TextBlock x:Name="LFCurrentText" Text="1.2A" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <!-- Power Bar -->
+                        <TextBlock Text="Power Output" Foreground="#888888" FontSize="10" Margin="0,10,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="LFPowerBar" Height="8" Value="65" Maximum="127" Background="#3E3E42" Foreground="#9C27B0"/>
+                            <TextBlock x:Name="LFPowerText" Text="65" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <!-- Status -->
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Ellipse x:Name="LFStatusDot" Width="8" Height="8" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="LFStatusText" Text="Healthy" Foreground="#4CAF50" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Left Back -->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Left Back" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 2" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="LBTempText" Text="44�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#2196F3" BorderThickness="4">
+                                    <TextBlock x:Name="LBRpmText" Text="575" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#2196F3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Current Draw" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="LBCurrentBar" Height="8" Value="48" Maximum="100" Background="#3E3E42" Foreground="#FF9800"/>
+                            <TextBlock x:Name="LBCurrentText" Text="1.3A" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <TextBlock Text="Power Output" Foreground="#888888" FontSize="10" Margin="0,10,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="LBPowerBar" Height="8" Value="65" Maximum="127" Background="#3E3E42" Foreground="#9C27B0"/>
+                            <TextBlock x:Name="LBPowerText" Text="65" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Ellipse x:Name="LBStatusDot" Width="8" Height="8" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="LBStatusText" Text="Healthy" Foreground="#4CAF50" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Right Front -->
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Right Front" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 11" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#FF9800" BorderThickness="4">
+                                    <TextBlock x:Name="RFTempText" Text="52�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#FF9800" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#2196F3" BorderThickness="4">
+                                    <TextBlock x:Name="RFRpmText" Text="578" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#2196F3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Current Draw" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="RFCurrentBar" Height="8" Value="55" Maximum="100" Background="#3E3E42" Foreground="#FF9800"/>
+                            <TextBlock x:Name="RFCurrentText" Text="1.5A" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <TextBlock Text="Power Output" Foreground="#888888" FontSize="10" Margin="0,10,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="RFPowerBar" Height="8" Value="65" Maximum="127" Background="#3E3E42" Foreground="#9C27B0"/>
+                            <TextBlock x:Name="RFPowerText" Text="65" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Ellipse x:Name="RFStatusDot" Width="8" Height="8" Fill="#FF9800" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="RFStatusText" Text="Warm" Foreground="#FF9800" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Right Back -->
+                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Right Back" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 12" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="RBTempText" Text="43�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#2196F3" BorderThickness="4">
+                                    <TextBlock x:Name="RBRpmText" Text="582" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#2196F3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Current Draw" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="RBCurrentBar" Height="8" Value="44" Maximum="100" Background="#3E3E42" Foreground="#FF9800"/>
+                            <TextBlock x:Name="RBCurrentText" Text="1.2A" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <TextBlock Text="Power Output" Foreground="#888888" FontSize="10" Margin="0,10,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="RBPowerBar" Height="8" Value="65" Maximum="127" Background="#3E3E42" Foreground="#9C27B0"/>
+                            <TextBlock x:Name="RBPowerText" Text="65" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Ellipse x:Name="RBStatusDot" Width="8" Height="8" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="RBStatusText" Text="Healthy" Foreground="#4CAF50" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Subsystem Motors Row -->
+                <!-- Intake -->
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Intake" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 5" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="IntakeTempText" Text="38�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="IntakeRpmText" Text="600" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Current Draw" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="IntakeCurrentBar" Height="8" Value="35" Maximum="100" Background="#3E3E42" Foreground="#FF9800"/>
+                            <TextBlock x:Name="IntakeCurrentText" Text="0.9A" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                            <Ellipse Width="8" Height="8" Fill="#4CAF50" Margin="0,0,5,0"/>
+                            <TextBlock Text="Running" Foreground="#4CAF50" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Lift -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MotorCard}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Lift" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Port 6" HorizontalAlignment="Right" Foreground="#666666" FontSize="10"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#4CAF50" BorderThickness="4">
+                                    <TextBlock x:Name="LiftTempText" Text="35�" FontSize="20" FontWeight="Bold" 
+                                               Foreground="#4CAF50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="TEMP" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#666666" BorderThickness="4">
+                                    <TextBlock x:Name="LiftRpmText" Text="0" FontSize="18" FontWeight="Bold" 
+                                               Foreground="#666666" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="RPM" Foreground="#666666" FontSize="9" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Position" Foreground="#888888" FontSize="10" Margin="0,15,0,3"/>
+                        <Grid>
+                            <ProgressBar x:Name="LiftPosBar" Height="8" Value="45" Maximum="100" Background="#3E3E42" Foreground="#9C27B0"/>
+                            <TextBlock x:Name="LiftPosText" Text="45�" HorizontalAlignment="Right" Foreground="#888888" FontSize="10" Margin="0,-15,0,0"/>
+                        </Grid>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                            <Ellipse Width="8" Height="8" Fill="#888888" Margin="0,0,5,0"/>
+                            <TextBlock Text="Idle" Foreground="#888888" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Summary Panel -->
+                <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MotorCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Temperature Chart -->
+                        <StackPanel Margin="0,0,10,0">
+                            <TextBlock Text="Temperature History" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            <Border Background="#1E1E1E" Height="120" CornerRadius="5">
+                                <Canvas x:Name="TempHistoryCanvas" ClipToBounds="True" Margin="5"/>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                <Rectangle Width="10" Height="3" Fill="#4CAF50" Margin="0,0,3,0"/>
+                                <TextBlock Text="LF" Foreground="#666666" FontSize="9" Margin="0,0,10,0"/>
+                                <Rectangle Width="10" Height="3" Fill="#2196F3" Margin="0,0,3,0"/>
+                                <TextBlock Text="RF" Foreground="#666666" FontSize="9" Margin="0,0,10,0"/>
+                                <Rectangle Width="10" Height="3" Fill="#FF9800" Margin="0,0,3,0"/>
+                                <TextBlock Text="LB" Foreground="#666666" FontSize="9" Margin="0,0,10,0"/>
+                                <Rectangle Width="10" Height="3" Fill="#9C27B0" Margin="0,0,3,0"/>
+                                <TextBlock Text="RB" Foreground="#666666" FontSize="9"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- Alerts -->
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Alerts" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            <ScrollViewer Height="135" VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="AlertsList">
+                                    <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="??" Margin="0,0,8,0"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Right Front running warm" Foreground="#FF9800" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="52�C - Consider cooling time" Foreground="#888888" FontSize="10"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="#3E3E42" CornerRadius="3" Padding="8" Margin="0,0,0,5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="?" Foreground="#4CAF50" Margin="0,0,8,0"/>
+                                            <StackPanel>
+                                                <TextBlock Text="All motors within limits" Foreground="#4CAF50" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="No action required" Foreground="#888888" FontSize="10"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Statistics Row -->
+                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource MotorCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Total Power Draw" Foreground="#888888" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TotalPowerText" Text="8.5W" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="Avg Temperature" Foreground="#888888" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="AvgTempText" Text="44�C" FontSize="24" FontWeight="Bold" Foreground="#4CAF50" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <TextBlock Text="Max Temperature" Foreground="#888888" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="MaxTempText" Text="52�C" FontSize="24" FontWeight="Bold" Foreground="#FF9800" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                            <TextBlock Text="Battery" Foreground="#888888" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="BatteryText" Text="85%" FontSize="24" FontWeight="Bold" Foreground="#4CAF50" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                            <TextBlock Text="Runtime" Foreground="#888888" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="RuntimeText" Text="12:45" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+        
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2D2D30" Padding="10">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Temperature Thresholds: " Foreground="#666666"/>
+                    <TextBlock Text="Green &lt;45�C" Foreground="#4CAF50" Margin="10,0"/>
+                    <TextBlock Text="Yellow 45-55�C" Foreground="#FF9800" Margin="10,0"/>
+                    <TextBlock Text="Red &gt;55�C" Foreground="#F44336" Margin="10,0"/>
+                </StackPanel>
+                
+                <TextBlock x:Name="LastUpdateText" Text="Last update: 0ms ago" Foreground="#666666" HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

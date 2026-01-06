@@ -483,6 +483,7 @@ void opcontrol() {
     cwb::log_info("Driver control started");
 
     uint32_t last_telemetry = 0;
+    uint32_t last_motor_health = 0;
     int prev_left = 0;
     int prev_right = 0;
     
@@ -521,10 +522,12 @@ void opcontrol() {
         // ========================================
         // Send telemetry at ~50Hz
         // ========================================
-        if (pros::millis() - last_telemetry >= 20) {
-            last_telemetry = pros::millis();
+        uint32_t now = pros::millis();
+        
+        if (now - last_telemetry >= 20) {
+            last_telemetry = now;
             
-            // Odometry
+            // Odometry - for Live Robot View
             cwb::send_odometry(odom.x, odom.y, odom.theta,
                               odom.vel_x, odom.vel_y, odom.angular_vel);
             
@@ -535,13 +538,6 @@ void opcontrol() {
                 imu.get_accel().x, imu.get_accel().y, imu.get_accel().z
             );
             
-            // Motor telemetry
-            cwb::send_motor(left_front);
-            cwb::send_motor(right_front);
-            
-            // Battery status
-            cwb::send_battery();
-            
             // Competition status
             cwb::send_competition_status(
                 pros::competition::is_autonomous(),
@@ -549,10 +545,26 @@ void opcontrol() {
                 pros::competition::is_connected()
             );
             
-            // Custom debug values (for graphing)
+            // Custom debug values (for graphing in Live View)
             cwb::send_debug_value("left_power", target_left);
             cwb::send_debug_value("right_power", target_right);
             cwb::send_debug_value("heading_deg", odom.theta * 180 / M_PI);
+        }
+        
+        // ========================================
+        // Motor health telemetry at 10Hz
+        // ========================================
+        if (now - last_motor_health >= 100) {
+            last_motor_health = now;
+            
+            // Send all 4 drive motors - appears in Motor Health dashboard
+            cwb::send_motor(left_front);
+            cwb::send_motor(left_back);
+            cwb::send_motor(right_front);
+            cwb::send_motor(right_back);
+            
+            // Battery status
+            cwb::send_battery();
         }
         
         // ========================================
@@ -563,9 +575,15 @@ void opcontrol() {
         pros::lcd::print(2, "MaxSpd: %.0f  Accel: %.0f", max_speed.get(), accel_limit.get());
         pros::lcd::print(3, "CWB: %s", cwb::is_connected() ? "Connected" : "---");
         
+        // Show motor temperatures on brain LCD
+        pros::lcd::print(4, "Temp: LF=%.0fC RF=%.0fC", 
+            left_front.get_temperature(), right_front.get_temperature());
+        pros::lcd::print(5, "      LB=%.0fC RB=%.0fC", 
+            left_back.get_temperature(), right_back.get_temperature());
+        
         if (cwb::is_connected()) {
             auto stats = cwb::get_stats();
-            pros::lcd::print(4, "TX: %lu  RX: %lu", stats.messages_sent, stats.messages_received);
+            pros::lcd::print(6, "TX: %lu  RX: %lu", stats.messages_sent, stats.messages_received);
         }
         
         pros::delay(10);
