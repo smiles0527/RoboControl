@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ScottPlot.WPF" Version="5.0.39" />
+    <PackageReference Include="ScottPlot.WPF" Version="5.1.57" />
   </ItemGroup>
 
   <ItemGroup>
