@@ -1,6 +1,6 @@
 <div align="center">
 
-# ??? ControlWorkbench
+# ControlWorkbench
 
 **Professional Control Systems Engineering Platform**
 
@@ -17,7 +17,7 @@
 
 ---
 
-## ?? Overview
+## Overview
 
 ControlWorkbench is a comprehensive desktop application for robotics and control systems engineering. It provides a modern, cyberpunk-themed interface for:
 
@@ -28,9 +28,9 @@ Built with WPF on .NET 8, featuring real-time visualization with ScottPlot.
 
 ---
 
-## ? Features
+## Features
 
-### ?? VEX V5 Robotics
+### VEX V5 Robotics
 
 | Feature | Description |
 |---------|-------------|
@@ -44,7 +44,7 @@ Built with WPF on .NET 8, featuring real-time visualization with ScottPlot.
 | **Robot Simulation** | Advanced physics-based robot simulation |
 | **Skills Optimizer** | Autonomous skills route optimization |
 
-### ?? Drone/UAV Platform
+### Drone/UAV Platform
 
 | Feature | Description |
 |---------|-------------|
@@ -59,7 +59,7 @@ Built with WPF on .NET 8, featuring real-time visualization with ScottPlot.
 | **Digital Twin** | Real-time digital twin synchronization |
 | **SLAM/VIO** | Visual-inertial odometry support |
 
-### ?? Control Systems & Math
+### Control Systems and Math
 
 | Feature | Description |
 |---------|-------------|
@@ -76,7 +76,7 @@ Built with WPF on .NET 8, featuring real-time visualization with ScottPlot.
 | **Frequency Analysis** | Bode plots, stability margins |
 | **Sensor Calibration** | IMU, magnetometer, multi-sensor fusion |
 
-### ?? Tools & Utilities
+### Tools and Utilities
 
 | Feature | Description |
 |---------|-------------|
@@ -88,43 +88,43 @@ Built with WPF on .NET 8, featuring real-time visualization with ScottPlot.
 
 ---
 
-## ??? Architecture
+## Architecture
 
 ```
 ControlWorkbench/
-??? ControlWorkbench.App        # WPF Desktop Application
-?   ??? Views/                  # XAML UI components
-?   ??? ViewModels/             # MVVM view models
-?   ??? App.xaml                # Theme & styles
-??? ControlWorkbench.Core       # Core abstractions & types
-?   ??? Units/                  # Physical units (Angle, etc.)
-?   ??? Sensors/                # Sensor type definitions
-?   ??? Collections/            # Ring buffers, message queues
-??? ControlWorkbench.Math       # Control theory implementations
-?   ??? Control/                # PID, MPC, LQR, adaptive
-?   ??? Filters/                # Kalman, complementary
-?   ??? Trajectory/             # Motion planning
-?   ??? Kinematics/             # Robot kinematics
-??? ControlWorkbench.VEX        # VEX V5 specific
-?   ??? PathPlanning/           # Pure Pursuit, path generation
-?   ??? Simulation/             # Physics engine
-?   ??? CodeGen/                # PROS code generator
-?   ??? Communication/          # V5 serial protocol
-?   ??? PROS/                   # Header-only C++ library
-??? ControlWorkbench.Drone      # Drone/UAV specific
-?   ??? Mission/                # Mission planning
-?   ??? Simulation/             # Multirotor physics
-?   ??? Fleet/                  # Fleet management
-?   ??? Hardware/               # MAVLink connections
-?   ??? SLAM/                   # Visual-inertial odometry
-?   ??? Safety/                 # Geofencing, monitoring
-??? ControlWorkbench.Protocol   # Communication protocols
-??? ControlWorkbench.Transport  # Serial, network transports
+|-- ControlWorkbench.App        # WPF Desktop Application
+|   |-- Views/                  # XAML UI components
+|   |-- ViewModels/             # MVVM view models
+|   +-- App.xaml                # Theme and styles
+|-- ControlWorkbench.Core       # Core abstractions and types
+|   |-- Units/                  # Physical units (Angle, etc.)
+|   |-- Sensors/                # Sensor type definitions
+|   +-- Collections/            # Ring buffers, message queues
+|-- ControlWorkbench.Math       # Control theory implementations
+|   |-- Control/                # PID, MPC, LQR, adaptive
+|   |-- Filters/                # Kalman, complementary
+|   |-- Trajectory/             # Motion planning
+|   +-- Kinematics/             # Robot kinematics
+|-- ControlWorkbench.VEX        # VEX V5 specific
+|   |-- PathPlanning/           # Pure Pursuit, path generation
+|   |-- Simulation/             # Physics engine
+|   |-- CodeGen/                # PROS code generator
+|   |-- Communication/          # V5 serial protocol
+|   +-- PROS/                   # Header-only C++ library
+|-- ControlWorkbench.Drone      # Drone/UAV specific
+|   |-- Mission/                # Mission planning
+|   |-- Simulation/             # Multirotor physics
+|   |-- Fleet/                  # Fleet management
+|   |-- Hardware/               # MAVLink connections
+|   |-- SLAM/                   # Visual-inertial odometry
+|   +-- Safety/                 # Geofencing, monitoring
+|-- ControlWorkbench.Protocol   # Communication protocols
++-- ControlWorkbench.Transport  # Serial, network transports
 ```
 
 ---
 
-## ?? Installation
+## Installation
 
 ### Requirements
 
@@ -150,7 +150,7 @@ Or open `ControlWorkbench.sln` in Visual Studio 2022.
 
 ---
 
-## ?? Usage
+## Usage
 
 ### Getting Started
 
@@ -174,7 +174,7 @@ Or open `ControlWorkbench.sln` in Visual Studio 2022.
 
 ---
 
-## ?? VEX PROS Library
+## VEX PROS Library
 
 ControlWorkbench includes a complete header-only C++ library for PROS:
 
@@ -187,7 +187,7 @@ chassis.move_to_point(24, 24);
 chassis.follow_path(path);
 ```
 
-See [`ControlWorkbench.VEX/PROS/README.md`](ControlWorkbench.VEX/PROS/README.md) for full documentation.
+See [ControlWorkbench.VEX/PROS/README.md](ControlWorkbench.VEX/PROS/README.md) for full documentation.
 
 **Features:**
 - Pure Pursuit path following
@@ -200,7 +200,7 @@ See [`ControlWorkbench.VEX/PROS/README.md`](ControlWorkbench.VEX/PROS/README.md)
 
 ---
 
-## ?? Advanced Control Theory
+## Advanced Control Theory
 
 ControlWorkbench implements graduate-level control algorithms:
 
@@ -228,7 +228,7 @@ var u = -K * x;
 
 ---
 
-## ??? Development
+## Development
 
 ### Building from Source
 
@@ -254,7 +254,7 @@ dotnet run --project ControlWorkbench.App
 
 ---
 
-## ?? Telemetry Protocol
+## Telemetry Protocol
 
 ControlWorkbench uses a binary protocol for high-speed telemetry:
 
@@ -270,7 +270,7 @@ Supports 100+ Hz update rates over serial.
 
 ---
 
-## ?? Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -282,13 +282,13 @@ Contributions are welcome! Please:
 
 ---
 
-## ?? License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## ?? Acknowledgments
+## Acknowledgments
 
 - **VEX Robotics** - V5 platform and competition ecosystem
 - **PROS** - Open-source development environment for VEX
@@ -300,7 +300,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built for Competition ??**
+**Built for Competition**
 
 *From VRC to commercial drones - one platform for all your control needs.*
 
