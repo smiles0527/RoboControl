@@ -140,19 +140,25 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Height="24" CornerRadius="4" Background="{StaticResource BgLightBrush}">
-                                    <Border x:Name="BatteryFill" Height="24" CornerRadius="4" HorizontalAlignment="Left" Width="200">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="{StaticResource AccentGreen}" Offset="0"/>
-                                                <GradientStop Color="{StaticResource AccentCyan}" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                        <Border.Effect>
-                                            <DropShadowEffect Color="{StaticResource AccentGreen}" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
-                                        </Border.Effect>
-                                    </Border>
-                                </Border>
+                                <ProgressBar x:Name="BatteryBar" Height="24" Minimum="0" Maximum="100" Value="100">
+                                    <ProgressBar.Template>
+                                        <ControlTemplate TargetType="ProgressBar">
+                                            <Border Height="24" CornerRadius="4" Background="{StaticResource BgLightBrush}">
+                                                <Border x:Name="PART_Indicator" Height="24" CornerRadius="4" HorizontalAlignment="Left">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                            <GradientStop Color="{StaticResource AccentGreen}" Offset="0"/>
+                                                            <GradientStop Color="{StaticResource AccentCyan}" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="{StaticResource AccentGreen}" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ProgressBar.Template>
+                                </ProgressBar>
                                 <TextBlock Grid.Column="1" x:Name="BatteryText" Text="100%" Foreground="{StaticResource TextPrimaryBrush}" 
                                            FontWeight="Bold" FontSize="16" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
@@ -385,19 +391,25 @@
                                 <TextBlock Text="Progress" Style="{StaticResource StatLabel}" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" x:Name="PathProgressText" Text="45%" Style="{StaticResource StatValue}"/>
                             </Grid>
-                            <Border Height="8" CornerRadius="4" Background="{StaticResource BgLightBrush}" Margin="0,8,0,0">
-                                <Border x:Name="PathProgressFill" Height="8" CornerRadius="4" HorizontalAlignment="Left" Width="100">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="{StaticResource AccentCyan}" Offset="0"/>
-                                            <GradientStop Color="{StaticResource AccentPurple}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="{StaticResource AccentCyan}" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
-                                    </Border.Effect>
-                                </Border>
-                            </Border>
+                            <ProgressBar x:Name="PathProgressBar" Height="8" Minimum="0" Maximum="100" Value="45" Margin="0,8,0,0">
+                                <ProgressBar.Template>
+                                    <ControlTemplate TargetType="ProgressBar">
+                                        <Border Height="8" CornerRadius="4" Background="{StaticResource BgLightBrush}">
+                                            <Border x:Name="PART_Indicator" Height="8" CornerRadius="4" HorizontalAlignment="Left">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="{StaticResource AccentCyan}" Offset="0"/>
+                                                        <GradientStop Color="{StaticResource AccentPurple}" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="{StaticResource AccentCyan}" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                                                </Border.Effect>
+                                            </Border>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ProgressBar.Template>
+                            </ProgressBar>
                             <Grid Margin="0,12,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
