@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# AI Assistant directories
+.claude/
+.cursor/
+.aider/
+.github/copilot/
+.copilot/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -361,3 +368,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
