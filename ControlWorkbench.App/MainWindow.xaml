@@ -9,6 +9,7 @@
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
         Title="ControlWorkbench" 
         Height="900" Width="1600"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BgDarkBrush}"
         Focusable="True">

@@ -99,13 +99,15 @@ public partial class DroneTelemetryView : UserControl
         }
         
         // Calculate cell voltages from total voltage (assume 4S)
+        // Use stable values without additional noise
         if (telemetry.BatteryVoltage > 0)
         {
             double cellAvg = telemetry.BatteryVoltage / 4;
-            for (int i = 0; i < 4; i++)
-            {
-                _cellVoltages[i] = cellAvg + (Random.Shared.NextDouble() - 0.5) * 0.02;
-            }
+            // Slight static offset per cell to simulate real-world variance
+            _cellVoltages[0] = cellAvg + 0.01;
+            _cellVoltages[1] = cellAvg - 0.005;
+            _cellVoltages[2] = cellAvg + 0.005;
+            _cellVoltages[3] = cellAvg - 0.01;
         }
     }
     

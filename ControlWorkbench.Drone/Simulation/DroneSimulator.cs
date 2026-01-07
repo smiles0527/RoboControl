@@ -24,6 +24,11 @@ public class DroneSimulator
     private readonly Random _random = new();
     private double _time = 0;
     
+    // Smoothed telemetry values for filtering noise
+    private DroneTelemetry _smoothedTelemetry = new();
+    private bool _firstTelemetry = true;
+    private const double SmoothingFactor = 0.15; // Lower = smoother, higher = more responsive
+    
     public event Action<DroneState>? StateUpdated;
     public event Action<string>? LogMessage;
     
@@ -264,44 +269,44 @@ public class DroneSimulator
     /// </summary>
     public DroneTelemetry GetNoisyTelemetry()
     {
-        var telem = new DroneTelemetry
+        var rawTelem = new DroneTelemetry
         {
             Timestamp = State.Timestamp,
             
-            // Attitude with gyro noise
-            Roll = State.Roll * 180 / System.Math.PI + GaussianNoise(0.1),
-            Pitch = State.Pitch * 180 / System.Math.PI + GaussianNoise(0.1),
-            Yaw = State.Yaw * 180 / System.Math.PI + GaussianNoise(0.2),
+            // Attitude with gyro noise (reduced noise levels)
+            Roll = State.Roll * 180 / System.Math.PI + GaussianNoise(0.05),
+            Pitch = State.Pitch * 180 / System.Math.PI + GaussianNoise(0.05),
+            Yaw = State.Yaw * 180 / System.Math.PI + GaussianNoise(0.1),
             
-            RollRate = State.RollRate * 180 / System.Math.PI + GaussianNoise(0.5),
-            PitchRate = State.PitchRate * 180 / System.Math.PI + GaussianNoise(0.5),
-            YawRate = State.YawRate * 180 / System.Math.PI + GaussianNoise(0.5),
+            RollRate = State.RollRate * 180 / System.Math.PI + GaussianNoise(0.2),
+            PitchRate = State.PitchRate * 180 / System.Math.PI + GaussianNoise(0.2),
+            YawRate = State.YawRate * 180 / System.Math.PI + GaussianNoise(0.2),
             
             // GPS with typical noise
-            Latitude = State.Latitude + GaussianNoise(0.000001),
-            Longitude = State.Longitude + GaussianNoise(0.000001),
-            AltitudeMSL = State.Altitude + GaussianNoise(0.5),
-            AltitudeRelative = State.Altitude + GaussianNoise(0.3),
+            Latitude = State.Latitude + GaussianNoise(0.0000005),
+            Longitude = State.Longitude + GaussianNoise(0.0000005),
+            AltitudeMSL = State.Altitude + GaussianNoise(0.2),
+            AltitudeRelative = State.Altitude + GaussianNoise(0.1),
             
             // Velocity with GPS noise
-            VelocityNorth = State.VelocityNorth + GaussianNoise(0.1),
-            VelocityEast = State.VelocityEast + GaussianNoise(0.1),
-            VelocityDown = State.VelocityDown + GaussianNoise(0.1),
-            GroundSpeed = State.GroundSpeed + GaussianNoise(0.1),
-            ClimbRate = State.ClimbRate + GaussianNoise(0.1),
+            VelocityNorth = State.VelocityNorth + GaussianNoise(0.05),
+            VelocityEast = State.VelocityEast + GaussianNoise(0.05),
+            VelocityDown = State.VelocityDown + GaussianNoise(0.05),
+            GroundSpeed = State.GroundSpeed + GaussianNoise(0.05),
+            ClimbRate = State.ClimbRate + GaussianNoise(0.05),
             
-            Heading = State.Heading + GaussianNoise(1),
+            Heading = State.Heading + GaussianNoise(0.5),
             
-            // Battery
-            BatteryVoltage = State.BatteryVoltage + GaussianNoise(0.01),
-            BatteryCurrent = State.BatteryCurrent + GaussianNoise(0.1),
+            // Battery (very low noise - ADC readings are stable)
+            BatteryVoltage = State.BatteryVoltage + GaussianNoise(0.005),
+            BatteryCurrent = State.BatteryCurrent + GaussianNoise(0.05),
             BatteryRemaining = State.BatteryRemaining,
             BatteryConsumed = State.BatteryConsumed,
             
             // Simulated sensors
-            GpsSatellites = 12 + (int)GaussianNoise(2),
+            GpsSatellites = 12 + (int)GaussianNoise(1),
             GpsFix = GpsFixType.Fix3D,
-            GpsHdop = 1.0 + System.Math.Abs(GaussianNoise(0.2)),
+            GpsHdop = 1.0 + System.Math.Abs(GaussianNoise(0.1)),
             
             Armed = State.Armed,
             Mode = State.Mode,
@@ -309,9 +314,68 @@ public class DroneSimulator
             MotorOutputs = State.MotorOutputs.ToArray()
         };
         
-        return telem;
+        // Apply low-pass filter to smooth values
+        if (_firstTelemetry)
+        {
+            _smoothedTelemetry = rawTelem;
+            _firstTelemetry = false;
+        }
+        else
+        {
+            _smoothedTelemetry = SmoothTelemetry(_smoothedTelemetry, rawTelem, SmoothingFactor);
+        }
+        
+        return _smoothedTelemetry;
     }
     
+    /// <summary>
+    /// Apply exponential moving average filter to smooth telemetry.
+    /// </summary>
+    private static DroneTelemetry SmoothTelemetry(DroneTelemetry previous, DroneTelemetry current, double alpha)
+    {
+        return new DroneTelemetry
+        {
+            Timestamp = current.Timestamp,
+            Roll = Lerp(previous.Roll, current.Roll, alpha),
+            Pitch = Lerp(previous.Pitch, current.Pitch, alpha),
+            Yaw = LerpAngle(previous.Yaw, current.Yaw, alpha),
+            RollRate = Lerp(previous.RollRate, current.RollRate, alpha),
+            PitchRate = Lerp(previous.PitchRate, current.PitchRate, alpha),
+            YawRate = Lerp(previous.YawRate, current.YawRate, alpha),
+            Latitude = Lerp(previous.Latitude, current.Latitude, alpha),
+            Longitude = Lerp(previous.Longitude, current.Longitude, alpha),
+            AltitudeMSL = Lerp(previous.AltitudeMSL, current.AltitudeMSL, alpha),
+            AltitudeRelative = Lerp(previous.AltitudeRelative, current.AltitudeRelative, alpha),
+            VelocityNorth = Lerp(previous.VelocityNorth, current.VelocityNorth, alpha),
+            VelocityEast = Lerp(previous.VelocityEast, current.VelocityEast, alpha),
+            VelocityDown = Lerp(previous.VelocityDown, current.VelocityDown, alpha),
+            GroundSpeed = Lerp(previous.GroundSpeed, current.GroundSpeed, alpha),
+            ClimbRate = Lerp(previous.ClimbRate, current.ClimbRate, alpha),
+            Heading = LerpAngle(previous.Heading, current.Heading, alpha),
+            BatteryVoltage = Lerp(previous.BatteryVoltage, current.BatteryVoltage, alpha),
+            BatteryCurrent = Lerp(previous.BatteryCurrent, current.BatteryCurrent, alpha),
+            BatteryRemaining = current.BatteryRemaining,
+            BatteryConsumed = current.BatteryConsumed,
+            GpsSatellites = current.GpsSatellites,
+            GpsFix = current.GpsFix,
+            GpsHdop = Lerp(previous.GpsHdop, current.GpsHdop, alpha),
+            GpsVdop = Lerp(previous.GpsVdop, current.GpsVdop, alpha),
+            Armed = current.Armed,
+            Mode = current.Mode,
+            MotorOutputs = current.MotorOutputs
+        };
+    }
+    
+    private static double Lerp(double a, double b, double t) => a + (b - a) * t;
+    
+    private static double LerpAngle(double a, double b, double t)
+    {
+        double diff = b - a;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+        return a + diff * t;
+    }
+
     private double GaussianNoise(double stdDev)
     {
         double u1 = 1.0 - _random.NextDouble();

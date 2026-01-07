@@ -278,11 +278,8 @@ public class DroneConnectionService : IDisposable
                         targetThrottle = 0.5 + altError * 0.1; // Simple P controller
                         targetThrottle = System.Math.Clamp(targetThrottle, 0.1, 0.9);
                         
-                        // Add some gentle random movements
-                        double roll = (Random.Shared.NextDouble() - 0.5) * 0.02;
-                        double pitch = (Random.Shared.NextDouble() - 0.5) * 0.02;
-                        
-                        _simulator.SetAttitudeCommand(roll, pitch, 0, targetThrottle);
+                        // Stable hover - no random perturbations
+                        _simulator.SetAttitudeCommand(0, 0, 0, targetThrottle);
                     }
                     else
                     {
