@@ -147,6 +147,9 @@ public partial class MotorHealthView : UserControl
     
     private void UpdateMotorCards()
     {
+        // Check if all controls are loaded before updating
+        if (LFTempText == null || LBTempText == null || RFTempText == null || RBTempText == null) return;
+        
         // Left Front
         UpdateMotorCard("LF", LFTempText, LFRpmText, LFCurrentBar, LFCurrentText, 
                         LFPowerBar, LFPowerText, LFStatusDot, LFStatusText);
@@ -164,21 +167,24 @@ public partial class MotorHealthView : UserControl
                         RBPowerBar, RBPowerText, RBStatusDot, RBStatusText);
         
         // Intake
-        IntakeTempText.Text = $"{_motors["Intake"].Temperature:F0}°";
-        IntakeRpmText.Text = $"{_motors["Intake"].Rpm:F0}";
-        IntakeCurrentBar.Value = _motors["Intake"].Current * 30;
-        IntakeCurrentText.Text = $"{_motors["Intake"].Current:F1}A";
+        if (IntakeTempText != null) IntakeTempText.Text = $"{_motors["Intake"].Temperature:F0}°";
+        if (IntakeRpmText != null) IntakeRpmText.Text = $"{_motors["Intake"].Rpm:F0}";
+        if (IntakeCurrentBar != null) IntakeCurrentBar.Value = _motors["Intake"].Current * 30;
+        if (IntakeCurrentText != null) IntakeCurrentText.Text = $"{_motors["Intake"].Current:F1}A";
         
         // Lift
-        LiftTempText.Text = $"{_motors["Lift"].Temperature:F0}°";
-        LiftRpmText.Text = $"{_motors["Lift"].Rpm:F0}";
+        if (LiftTempText != null) LiftTempText.Text = $"{_motors["Lift"].Temperature:F0}°";
+        if (LiftRpmText != null) LiftRpmText.Text = $"{_motors["Lift"].Rpm:F0}";
     }
     
-    private void UpdateMotorCard(string motorName, TextBlock tempText, TextBlock rpmText,
-                                  ProgressBar currentBar, TextBlock currentText,
-                                  ProgressBar powerBar, TextBlock powerText,
-                                  Ellipse statusDot, TextBlock statusText)
+    private void UpdateMotorCard(string motorName, TextBlock? tempText, TextBlock? rpmText,
+                                  ProgressBar? currentBar, TextBlock? currentText,
+                                  ProgressBar? powerBar, TextBlock? powerText,
+                                  Ellipse? statusDot, TextBlock? statusText)
     {
+        if (tempText == null || rpmText == null || currentBar == null || currentText == null ||
+            powerBar == null || powerText == null || statusDot == null || statusText == null) return;
+            
         var motor = _motors[motorName];
         
         tempText.Text = $"{motor.Temperature:F0}°";
@@ -236,6 +242,9 @@ public partial class MotorHealthView : UserControl
     
     private void UpdateStatistics()
     {
+        if (TotalPowerText == null || AvgTempText == null || MaxTempText == null || 
+            OverallStatusBadge == null || OverallStatusText == null) return;
+            
         var driveMotors = new[] { _motors["LF"], _motors["LB"], _motors["RF"], _motors["RB"] };
         
         double totalPower = _motors.Values.Sum(m => m.Current * 12.0); // Approximate watts
@@ -274,6 +283,8 @@ public partial class MotorHealthView : UserControl
     
     private void UpdateAlerts()
     {
+        if (AlertsList == null) return;
+        
         _alerts.Clear();
         
         foreach (var motor in _motors.Values)
@@ -374,6 +385,8 @@ public partial class MotorHealthView : UserControl
     
     private void DrawTempHistory()
     {
+        if (TempHistoryCanvas == null) return;
+        
         TempHistoryCanvas.Children.Clear();
         
         double width = TempHistoryCanvas.ActualWidth;

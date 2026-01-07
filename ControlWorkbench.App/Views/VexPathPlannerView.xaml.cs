@@ -1117,16 +1117,18 @@ public partial class VexPathPlannerView : UserControl
     // Statistics
     private void UpdateStatistics()
     {
+        if (!_isLoaded) return;
+        
         double totalDist = CalculateTotalDistance();
         double estTime = CalculateEstimatedTime();
 
-        TotalDistanceText.Text = $"{totalDist:F1} in";
-        TotalTimeText.Text = $"{estTime:F1}s";
-        WaypointStatsText.Text = _waypoints.Count.ToString();
-        WaypointCountText.Text = _waypoints.Count.ToString();
-        MaxCurvatureText.Text = $"{CalculateMaxCurvature():F3} /in";
-        DistanceText.Text = $"0.0 / {totalDist:F1} in";
-        TimelineText.Text = $"0.0s / {estTime:F1}s";
+        if (TotalDistanceText != null) TotalDistanceText.Text = $"{totalDist:F1} in";
+        if (TotalTimeText != null) TotalTimeText.Text = $"{estTime:F1}s";
+        if (WaypointStatsText != null) WaypointStatsText.Text = _waypoints.Count.ToString();
+        if (WaypointCountText != null) WaypointCountText.Text = _waypoints.Count.ToString();
+        if (MaxCurvatureText != null) MaxCurvatureText.Text = $"{CalculateMaxCurvature():F3} /in";
+        if (DistanceText != null) DistanceText.Text = $"0.0 / {totalDist:F1} in";
+        if (TimelineText != null) TimelineText.Text = $"0.0s / {estTime:F1}s";
     }
 
     private double CalculateTotalDistance()
@@ -1144,7 +1146,7 @@ public partial class VexPathPlannerView : UserControl
     private double CalculateEstimatedTime()
     {
         double dist = CalculateTotalDistance();
-        double avgVel = MaxVelSlider.Value * 0.7;
+        double avgVel = MaxVelSlider?.Value ?? 60 * 0.7;
         return avgVel > 0 ? dist / avgVel : 0;
     }
 
@@ -1179,6 +1181,8 @@ public partial class VexPathPlannerView : UserControl
     // Code generation
     private void UpdateCodePreview()
     {
+        if (!_isLoaded || CodePreview == null || MaxVelSlider == null || LookaheadSlider == null) return;
+        
         var sb = new StringBuilder();
         sb.AppendLine("// ControlWorkbench Path");
         sb.AppendLine("// For use with CWB PROS Library");

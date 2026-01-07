@@ -78,21 +78,31 @@ public partial class DroneMissionPlannerView : UserControl
         
         // Initialize home position
         _missionPlanner.HomePosition = new GeoPoint(_centerLat, _centerLon, 0);
-        HomePositionText.Text = $"{_centerLat:F6}, {_centerLon:F6}";
+        if (HomePositionText != null) HomePositionText.Text = $"{_centerLat:F6}, {_centerLon:F6}";
         
-        // Wire up map events
-        MapCanvas.MouseLeftButtonDown += MapCanvas_MouseLeftButtonDown;
-        MapCanvas.MouseLeftButtonUp += MapCanvas_MouseLeftButtonUp;
-        MapCanvas.MouseMove += MapCanvas_MouseMove;
-        MapCanvas.MouseWheel += MapCanvas_MouseWheel;
-        MapCanvas.MouseRightButtonDown += MapCanvas_MouseRightButtonDown;
-        MapCanvas.SizeChanged += (s, ev) => { _terrainDirty = true; RedrawMap(); RedrawAltitudeProfile(); };
+        // Wire up map events - only if MapCanvas is available
+        if (MapCanvas != null)
+        {
+            MapCanvas.MouseLeftButtonDown += MapCanvas_MouseLeftButtonDown;
+            MapCanvas.MouseLeftButtonUp += MapCanvas_MouseLeftButtonUp;
+            MapCanvas.MouseMove += MapCanvas_MouseMove;
+            MapCanvas.MouseWheel += MapCanvas_MouseWheel;
+            MapCanvas.MouseRightButtonDown += MapCanvas_MouseRightButtonDown;
+            MapCanvas.SizeChanged += (s, ev) => { _terrainDirty = true; RedrawMap(); RedrawAltitudeProfile(); };
+        }
         
-        // Checkbox events
-        ShowGridCheck.Checked += (s, ev) => RedrawMap();
-        ShowGridCheck.Unchecked += (s, ev) => RedrawMap();
-        ShowTerrainCheck.Checked += (s, ev) => { _terrainDirty = true; RedrawMap(); };
-        ShowTerrainCheck.Unchecked += (s, ev) => RedrawMap();
+        // Checkbox events - null check each
+        if (ShowGridCheck != null)
+        {
+            ShowGridCheck.Checked += (s, ev) => RedrawMap();
+            ShowGridCheck.Unchecked += (s, ev) => RedrawMap();
+        }
+        
+        if (ShowTerrainCheck != null)
+        {
+            ShowTerrainCheck.Checked += (s, ev) => { _terrainDirty = true; RedrawMap(); };
+            ShowTerrainCheck.Unchecked += (s, ev) => RedrawMap();
+        }
         
         RedrawMap();
         RedrawAltitudeProfile();

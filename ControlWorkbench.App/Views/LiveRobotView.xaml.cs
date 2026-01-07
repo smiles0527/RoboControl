@@ -71,6 +71,8 @@ public partial class LiveRobotView : UserControl
     
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (FieldCanvas == null) return;
+        
         DrawField();
         CreateRobotVisuals();
         AddSampleData();
@@ -79,6 +81,8 @@ public partial class LiveRobotView : UserControl
     
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        if (FieldCanvas == null) return;
+        
         DrawField();
         UpdateRobotPosition();
     }
@@ -111,6 +115,8 @@ public partial class LiveRobotView : UserControl
     
     private void DrawField()
     {
+        if (FieldCanvas == null) return;
+        
         FieldCanvas.Children.Clear();
         RecalculateTransform();
         
@@ -418,7 +424,7 @@ public partial class LiveRobotView : UserControl
         UpdateRobotPosition();
         
         // Update connection status
-        if (_isConnected)
+        if (_isConnected && ConnectionDot != null && ConnectionText != null && LastUpdateText != null)
         {
             var elapsed = DateTime.Now - _lastUpdate;
             if (elapsed.TotalSeconds < 1)

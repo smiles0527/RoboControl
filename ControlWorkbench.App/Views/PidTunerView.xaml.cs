@@ -77,6 +77,9 @@ public partial class PidTunerView : UserControl
     
     private void UpdateGainDisplay()
     {
+        if (KpSlider == null || KiSlider == null || KdSlider == null ||
+            KpText == null || KiText == null || KdText == null) return;
+            
         _isUpdating = true;
         
         KpSlider.Value = _kP;
@@ -92,7 +95,8 @@ public partial class PidTunerView : UserControl
     
     private void Gain_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (_isUpdating) return;
+        if (_isUpdating || KpSlider == null || KiSlider == null || KdSlider == null ||
+            KpText == null || KiText == null || KdText == null) return;
         
         _kP = KpSlider.Value;
         _kI = KiSlider.Value;
@@ -107,7 +111,8 @@ public partial class PidTunerView : UserControl
     
     private void GainText_Changed(object sender, TextChangedEventArgs e)
     {
-        if (_isUpdating) return;
+        if (_isUpdating || KpSlider == null || KiSlider == null || KdSlider == null ||
+            KpText == null || KiText == null || KdText == null) return;
         
         if (double.TryParse(KpText.Text, out double kp))
         {
@@ -136,6 +141,8 @@ public partial class PidTunerView : UserControl
     
     private void ControllerList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (ControllerList == null) return;
+        
         // Load gains for selected controller
         var selected = ControllerList.SelectedItem as ListBoxItem;
         if (selected == null) return;
@@ -292,6 +299,8 @@ public partial class PidTunerView : UserControl
     
     private void DrawGraphs()
     {
+        if (ResponseCanvas == null || TermsCanvas == null) return;
+        
         DrawResponseGraph();
         DrawTermsGraph();
     }
