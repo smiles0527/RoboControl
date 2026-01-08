@@ -5,6 +5,9 @@ on:
     types: [created]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -19,10 +22,10 @@ jobs:
         dotnet-version: '8.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ControlWorkbench.App/ControlWorkbench.App.csproj
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ControlWorkbench.App/ControlWorkbench.App.csproj --configuration Release --no-restore
       
     - name: Publish
       run: dotnet publish ControlWorkbench.App/ControlWorkbench.App.csproj -c Release -r win-x64 --self-contained true -o ./publish
@@ -36,8 +39,6 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./publish/ControlWorkbench.exe
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Upload Build Artifact
       if: github.event_name == 'workflow_dispatch'
