@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport API - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item active">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">API Reference</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Transport</span>
+                </div>
+
+                <h1 class="page-title">Transport Layer API</h1>
+                <p class="page-desc">
+                    Communication abstraction for serial, network, and other transport mechanisms.
+                </p>
+
+                <h2 class="section-title">ITransport Interface</h2>
+                <p class="text-block">
+                    Base interface for all transport implementations.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>public interface ITransport : IDisposable
+{
+    ConnectionState State { get; }
+    TransportStatistics Statistics { get; }
+    
+    Task ConnectAsync(CancellationToken ct = default);
+    Task DisconnectAsync();
+    Task SendAsync(IMessage message, CancellationToken ct = default);
+    
+    event EventHandler<MessageReceivedEventArgs> MessageReceived;
+    event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged;
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">Serial Transport</h2>
+                <p class="text-block">
+                    Communicate with robots over COM ports at high baudrates.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var config = new SerialTransportConfig
+{
+    PortName = "COM3",
+    BaudRate = 115200,
+    DataBits = 8,
+    StopBits = StopBits.One
+};
+
+using var transport = new SerialTransport(config);
+await transport.ConnectAsync();
+
+transport.MessageReceived += (sender, args) =>
+{
+    Console.WriteLine($"Received: {args.Message}");
+};
+
+await transport.SendAsync(message);</code></pre>
+                </div>
+
+                <h2 class="section-title">UDP Transport</h2>
+                <p class="text-block">
+                    Network-based communication for wireless robots.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var config = new UdpTransportConfig
+{
+    RemoteAddress = "192.168.1.100",
+    RemotePort = 5000,
+    LocalPort = 5001
+};
+
+using var transport = new UdpTransport(config);
+await transport.ConnectAsync();</code></pre>
+                </div>
+
+                <h2 class="section-title">Mock Transport</h2>
+                <p class="text-block">
+                    Simulated transport for testing without hardware.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var transport = new MockTransport();
+await transport.ConnectAsync();
+
+// Simulate receiving messages
+transport.InjectMessage(simulatedMessage);</code></pre>
+                </div>
+
+                <h2 class="section-title">Message Protocol</h2>
+                <p class="text-block">
+                    Binary protocol for high-speed telemetry (100+ Hz).
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Message structure
+var message = new SystemStatusMessage
+{
+    Timestamp = DateTime.UtcNow,
+    Uptime = TimeSpan.FromSeconds(elapsed),
+    Armed = true,
+    BatteryVoltage = 13.2
+};
+
+var encoded = MessageEncoder.Encode(message);
+await transport.SendAsync(encoded);
+
+// Receive and decode
+var decoder = new MessageDecoder();
+decoder.OnMessageDecoded += (msg) =>
+{
+    if (msg is SystemStatusMessage status)
+    {
+        Console.WriteLine($"Battery: {status.BatteryVoltage}V");
+    }
+};</code></pre>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

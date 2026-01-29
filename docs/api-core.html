@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Module API - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item active">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">API Reference</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Core Module</span>
+                </div>
+
+                <h1 class="page-title">Core Module API</h1>
+                <p class="page-desc">
+                    Foundation library with core abstractions, units, and data structures.
+                </p>
+
+                <h2 class="section-title">Units and Measurements</h2>
+                <p class="text-block">
+                    Type-safe physical quantity representations to prevent unit confusion.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Angle</h3>
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Create angles with explicit units
+var degrees = Angle.FromDegrees(90);
+var radians = Angle.FromRadians(Math.PI / 2);
+
+// Access in desired units
+double rad = degrees.Radians;      // π/2
+double deg = radians.Degrees;      // 90
+
+// Normalize to [-π, π]
+var normalized = degrees.Normalize();</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Distance and Vector Types</h3>
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var distance = Distance.FromInches(24);
+var metersEquiv = distance.Meters;
+
+var position = new Vector2(12.5, 34.2);
+var magnitude = position.Magnitude;
+var normalized = position.Normalized;</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Unit System Features</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Automatic Unit Conversion & Verification</h3>
+                <p class="text-block">
+                    Compile-time safe unit types prevent calculation errors from unit mismatches.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Type-safe dimensional analysis
+var wheelDiameter = Distance.FromInches(3.25);
+var circumference = wheelDiameter.Circumference;  // Returns Distance
+var encoderRes = 360.0;  // ticks per revolution
+
+// Velocity calculation (Distance / Time)
+var wheelRotationsPerSecond = 5.0;
+var velocity = wheelDiameter.Circumference * wheelRotationsPerSecond;
+
+// Calculate gear ratio conversions
+var motorRPM = 600.0;
+var gearRatio = 3.36;
+var outputRPM = motorRPM / gearRatio;
+
+// Angular velocity
+var angularVel = Angle.FromDegrees(outputRPM * 6.0);  // deg/s</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">3D Vector Operations</h3>
+                <p class="text-block">
+                    Advanced vector math for pose estimation and coordinate transformations.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// 3D position and orientation
+var position = new Vector3(10, 20, 5);  // x, y, z meters
+var heading = Angle.FromDegrees(45);
+
+// Pose (position + heading)
+var robotPose = new Pose3D(position, heading);
+
+// Transformations
+var homogenousMatrix = robotPose.ToMatrix4x4();
+var transformedPoint = homogenousMatrix * new Vector3(1, 0, 0);
+
+// Distance calculations
+var target = new Vector3(50, 30, 10);
+var distance = Vector3.Distance(position, target);
+var direction = (target - position).Normalized;
+
+// Interpolation (for smooth motion between poses)
+var interpPose = Pose3D.Lerp(robotPose, targetPose, t: 0.5);</code></pre>
+                </div></h2>
+                <p class="text-block">
+                    Thread-safe data structures optimized for real-time systems.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">RingBuffer</h3>
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Thread-safe circular buffer for time-series data
+var buffer = new RingBuffer<double>(capacity: 1000);
+
+// Add elements (auto-overwrites oldest when full)
+for (int i = 0; i < 1000; i++)
+    buffer.Add(sensor.ReadValue());
+
+// Access as array
+double[] data = buffer.ToArray();
+Console.WriteLine($"Buffer contains {buffer.Count} elements");</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Collections</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">RingBuffer for Real-Time Data Processing</h3>
+                <p class="text-block">
+                    Thread-safe circular buffer optimized for sensor data with statistical analysis.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Real-time sensor data buffering with statistics
+var sensorBuffer = new RingBuffer<double>(capacity: 1000)
+{
+    ComputeStatistics = true,
+    StatisticsUpdateFrequency = 100  // every 100 samples
+};
+
+// Background data collection
+var dataTask = Task.Run(async () =>
+{
+    while (isRunning)
+    {
+        double reading = sensor.ReadValue();
+        sensorBuffer.Add(reading);
+        
+        // Get statistics on-demand
+        var stats = sensorBuffer.GetStatistics();
+        if (stats.StandardDeviation > threshold)
+        {
+            logger.LogWarning($"High sensor noise: σ={stats.StandardDeviation:F3}");
+        }
+        
+        await Task.Delay(10);  // 100 Hz sampling
+    }
+});
+
+// Main thread can access buffered data
+double[] recentData = sensorBuffer.GetLast(500);
+double mean = sensorBuffer.Mean;
+double median = sensorBuffer.Median;
+double max = sensorBuffer.Max;</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Specialized Collections</h3>
+                <p class="text-block">
+                    Optimized data structures for robotics-specific use cases.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Priority queue for path planning
+var openSet = new PriorityQueue&lt;Node, double&gt;();
+
+// Deque for bidirectional algorithms
+var deque = new Deque&lt;Waypoint&gt;();
+
+// Spatial hash for fast neighbor queries (for collision detection)
+var spatialHash = new SpatialHashGrid&lt;Robot&gt;(gridSize: 10.0);
+foreach (var robot in robots)
+{
+    spatialHash.Insert(robot, robot.Position);
+}
+
+// Find all robots within radius
+var neighbors = spatialHash.Query(position, radius: 5.0);</code></pre>
+                </div></h2>
+                <p class="text-block">
+                    Structured logging for debugging and diagnostics.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var logger = LoggerFactory.Create("MyModule");
+logger.Info("Starting robot initialization");
+logger.Debug("Parameter: {0}", parameterValue);
+logger.Warn("Battery voltage low: {0}V", voltage);
+logger.Error("Connection failed: {0}", errorMessage);</code></pre>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

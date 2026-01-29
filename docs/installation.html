@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item active">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Getting Started</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Installation</span>
+                </div>
+
+                <h1 class="page-title">Installation & Setup</h1>
+                <p class="page-desc">
+                    Get RoboControl up and running on your system. Prerequisites, installation options, and first-run configuration.
+                </p>
+
+                <h2 class="section-title">Installation</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Minimum Requirements</h3>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;"><strong>OS:</strong> Windows 10/11, macOS, or Linux</li>
+                    <li style="margin-bottom: 8px;"><strong>.NET Runtime:</strong> 8.0 or higher</li>
+                    <li style="margin-bottom: 8px;"><strong>RAM:</strong> 4 GB minimum (8 GB recommended)</li>
+                    <li style="margin-bottom: 8px;"><strong>Storage:</strong> 500 MB for installation</li>
+                </ul>
+
+                <h2 class="section-title">First-Time User Workflows</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">VEX Team Getting Started (20 min)</h3>
+                <p class="text-block">
+                    <strong>Step 1: Install RoboControl</strong> → Download and run installer
+                </p>
+                <p class="text-block">
+                    <strong>Step 2: Connect Your Robot</strong> → Plug V5 Brain via USB. App auto-detects.
+                </p>
+                <p class="text-block">
+                    <strong>Step 3: Calibrate (5 min)</strong> → Measure drivetrain dimensions (wheelbase, wheel diameter). Verify odometry.
+                </p>
+                <p class="text-block">
+                    <strong>Step 4: Design Path</strong> → Visual Path Designer. Draw waypoints. Set intake/shooter actions.
+                </p>
+                <p class="text-block">
+                    <strong>Step 5: Test</strong> → Click "Simulate" → watch physics simulation. Adjust trajectory.
+                </p>
+                <p class="text-block">
+                    <strong>Step 6: Deploy</strong> → "Generate Code" → Copy PROS C++ → Paste in project → Flash to robot.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Drone Fleet Manager Setup (30 min)</h3>
+                <p class="text-block">
+                    <strong>Step 1: Add Vehicles</strong> → Fleet Manager → "Add Vehicle" → Select aircraft type (DJI, ArduPilot, etc.)
+                </p>
+                <p class="text-block">
+                    <strong>Step 2: Plan Mission</strong> → "New Survey Mission" → Draw area on map → Input ground resolution → Auto-generates grid
+                </p>
+                <p class="text-block">
+                    <strong>Step 3: Set Safety</strong> → Draw no-fly zones → Set max altitude → Enable return-to-home on signal loss
+                </p>
+                <p class="text-block">
+                    <strong>Step 4: Upload & Arm</strong> → "Upload Mission" → Confirms on aircraft → Pre-flight checklist → Ready to fly
+                </p>
+
+                <h2 class="section-title">Installation Methods</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">From Source (Recommended)</h3>
+                <p class="text-block">
+                    Clone the repository and build from source for the latest development version.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code># Clone repository
+git clone https://github.com/smiles0527/RoboControl.git
+cd RoboControl
+
+# Restore packages
+dotnet restore
+
+# Build solution
+dotnet build --configuration Release
+
+# Run tests
+dotnet test
+
+# Launch application
+dotnet run --project ControlWorkbench.App --configuration Release</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">From Visual Studio 2022</h3>
+                <ol style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Open <code style="background: var(--muted); padding: 2px 6px; border-radius: 4px;">ControlWorkbench.sln</code> in Visual Studio 2022</li>
+                    <li style="margin-bottom: 8px;">Build > Build Solution (Ctrl+Shift+B)</li>
+                    <li style="margin-bottom: 8px;">Debug > Start Debugging (F5)</li>
+                </ol>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Build Specific Modules</h3>
+                <p class="text-block">
+                    Build only the modules you need:
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code># Build only VEX module
+dotnet build ControlWorkbench.VEX
+
+# Build only Drone module
+dotnet build ControlWorkbench.Drone
+
+# Build only Math module
+dotnet build ControlWorkbench.Math
+
+# Build and run tests
+dotnet test ControlWorkbench.Tests</code></pre>
+                </div>
+
+                <h2 class="section-title">First Run Setup</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Step 1: Launch Application</h3>
+                <div class="code-block">
+                    <pre><code>dotnet run --project ControlWorkbench.App</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Step 2: Select Mode</h3>
+                <p class="text-block">
+                    A welcome screen will appear. Choose VEX V5 Robotics or Drone/UAV based on your needs.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Step 3: Configure Hardware</h3>
+                <p class="text-block">
+                    <strong>For VEX:</strong> The application will auto-detect your V5 Brain via USB. If detection fails, manually select the COM port.
+                </p>
+                <p class="text-block">
+                    <strong>For Drone:</strong> Select your flight controller's serial port or TCP connection.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Step 4: Verify Connection</h3>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Watch console for connection status messages</li>
+                    <li style="margin-bottom: 8px;">Check telemetry panel for incoming data</li>
+                    <li style="margin-bottom: 8px;">Verify safety limits are active</li>
+                </ul>
+
+                <h2 class="section-title">Troubleshooting Installation</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Serial Connection Fails</h3>
+                <p class="text-block">
+                    <strong>Check available COM ports:</strong>
+                </p>
+                <div class="code-block">
+                    <pre><code># PowerShell
+Get-SerialPort
+
+# Or Command Prompt
+mode</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Missing .NET 8.0</h3>
+                <div class="code-block">
+                    <pre><code># Check .NET version
+dotnet --version
+
+# Download .NET 8.0
+# https://dotnet.microsoft.com/download/dotnet/8.0</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">NuGet Package Issues</h3>
+                <div class="code-block">
+                    <pre><code># Clear NuGet cache
+dotnet nuget locals all --clear
+
+# Restore packages without cache
+dotnet restore --no-cache</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Build Errors</h3>
+                <p class="text-block">
+                    Try a clean build:
+                </p>
+                <div class="code-block">
+                    <pre><code># Remove build artifacts
+dotnet clean
+
+# Build from scratch
+dotnet build --no-incremental</code></pre>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-title">ℹ Tip</div>
+                    <div class="alert-text">
+                        If you encounter persistent issues, check the <a href="troubleshooting.html" style="color: var(--accent); text-decoration: underline;">Troubleshooting Guide</a> or open an issue on GitHub.
+                    </div>
+                </div>
+
+                <h2 class="section-title">Next Steps</h2>
+                <p class="text-block">
+                    After successful installation:
+                </p>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+                    <a href="configuration.html" class="btn btn-primary">Configure Your System</a>
+                    <a href="vex.html" class="btn btn-secondary">VEX V5 Features</a>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

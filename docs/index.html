@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboControl - Open-Source Robotics Framework</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item active">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Docs</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Getting Started</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Introduction</span>
+                </div>
+
+                <h1 class="page-title">Introduction to RoboControl</h1>
+                <p class="page-desc">
+                    RoboControl is an open-source framework designed to simplify interaction with industrial and educational robotic hardware through a unified, high-level API. Build advanced robotics applications in minutes, not months.
+                </p>
+
+                <h2 class="section-title">Who Uses RoboControl?</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">VEX V5 Robotics Teams (High School & College)</h3>
+                <p class="text-block">
+                    <strong>The Challenge:</strong> Competition teams have weeks to develop complex autonomous routines while balancing mechanical design, programming, and strategy. Teams spend weeks tuning PID controllers, struggling with odometry drift, and manually path planning.
+                </p>
+                <p class="text-block">
+                    <strong>RoboControl's Solution:</strong> Drag-and-drop path planning, automatic code generation, and pre-tuned controllers let teams focus on game strategy instead of motion control implementation. Visual mission design in minutes instead of days. The VexMatch tools integrate with your existing PROS workflows.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Drone & UAV Operators</h3>
+                <p class="text-block">
+                    <strong>The Challenge:</strong> Managing autonomous drone fleets for surveying, mapping, or delivery requires coordinating multiple vehicles, optimizing flight plans, ensuring safety compliance, and handling real-time telemetry from airborne systems.
+                </p>
+                <p class="text-block">
+                    <strong>RoboControl's Solution:</strong> Central fleet management dashboard monitors all vehicles in real-time. Auto-generates survey grids optimized for your camera settings. Handles airspace deconfliction automatically so drones don't collide. Geo-fencing and fail-safe management ensure regulatory compliance for Part 107 operations.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Research & Development Engineers</h3>
+                <p class="text-block">
+                    <strong>The Challenge:</strong> Custom robotics development requires implementing controllers, sensor fusion, and algorithms from scratch—often duplicating work across projects. Integration with different hardware platforms takes weeks.
+                </p>
+                <p class="text-block">
+                    <strong>RoboControl's Solution:</strong> Production-ready implementations of EKF, MPC, LQR, and collision avoidance algorithms. Sensor fusion pipelines handle encoder + IMU + GPS data. Write once, deploy across multiple robot platforms. Open-source so you can modify and contribute improvements.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙</div>
+                        <div class="feature-title">Universal Driver</div>
+                        <div class="feature-text">
+                            Write code once and deploy across VEX, KUKA, ABB, UR, and Fanuc robots without changing your core logic.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">∑</div>
+                        <div class="feature-title">Comprehensive API</div>
+                        <div class="feature-text">
+                            Use C# to define complex motion paths, I/O triggers, and sensor integrations with well-designed interfaces.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">◆</div>
+                        <div class="feature-title">Real-time Telemetry</div>
+                        <div class="feature-text">
+                            Monitor joint positions, torque, and power consumption with sub-millisecond latency and live visualization.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">◇</div>
+                        <div class="feature-title">Simulation Mode</div>
+                        <div class="feature-text">
+                            Test your code in a physics-accurate virtual environment before deploying to physical hardware.
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Quick Start</h2>
+                <p class="text-block">
+                    To get started with RoboControl, you'll need .NET 8.0+ installed on your machine. Clone the repository and build from source.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code># Clone repository
+git clone https://github.com/smiles0527/RoboControl.git
+cd RoboControl
+
+# Build solution
+dotnet build --configuration Release
+
+# Run tests
+dotnet test
+
+# Launch application
+dotnet run --project ControlWorkbench.App</code></pre>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-title">⚠ Safety Warning</div>
+                    <div class="alert-text">
+                        Always ensure the emergency stop button is within reach when testing on physical hardware. Simulation mode is recommended for initial testing.
+                    </div>
+                </div>
+
+                <h2 class="section-title">Platform Capabilities</h2>
+                
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">VEX V5 Robotics</h3>
+                <p class="text-block">
+                    Competition robotics with advanced capabilities:
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Tracking wheel odometry (2-wheel and 3-wheel configurations)</li>
+                    <li style="margin-bottom: 8px;">Pure Pursuit path following with dynamic lookahead control</li>
+                    <li style="margin-bottom: 8px;">PROS C++ code generation for autonomous programs</li>
+                    <li style="margin-bottom: 8px;">Physics-based robot simulator for validation</li>
+                    <li style="margin-bottom: 8px;">PID tuner for real-time controller optimization</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Drone and UAV Systems</h3>
+                <p class="text-block">
+                    Enterprise drone operations and mission planning:
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Fleet management for 2-100+ vehicles</li>
+                    <li style="margin-bottom: 8px;">Mission planning with waypoint optimization</li>
+                    <li style="margin-bottom: 8px;">Multirotor physics simulator</li>
+                    <li style="margin-bottom: 8px;">Visual-inertial SLAM integration</li>
+                    <li style="margin-bottom: 8px;">Geofencing and autonomous safety systems</li>
+                </ul>
+
+                <h2 class="section-title">Architecture Overview</h2>
+                <p class="text-block">
+                    RoboControl is organized into modular, layered projects:
+                </p>
+
+                <div class="code-block">
+                    <pre><code>ControlWorkbench.App        # WPF Desktop Application
+├── ControlWorkbench.Core      # Core abstractions, units, collections
+├── ControlWorkbench.Math      # Control theory (PID, MPC, LQR, EKF)
+├── ControlWorkbench.VEX       # VEX V5 robotics integration
+├── ControlWorkbench.Drone     # Drone/UAV platform
+├── ControlWorkbench.Protocol  # Binary telemetry protocol
+├── ControlWorkbench.Transport # Serial/UDP communication
+└── ControlWorkbench.Tests     # Unit tests</code></pre>
+                </div>
+
+                <h2 class="section-title">Next Steps</h2>
+                <p class="text-block">
+                    Ready to dive in? Choose your path:
+                </p>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+                    <a href="installation.html" class="btn btn-primary">Install RoboControl</a>
+                    <a href="vex.html" class="btn btn-secondary">VEX V5 Features</a>
+                    <a href="drone.html" class="btn btn-secondary">Drone Features</a>
+                    <a href="api-core.html" class="btn btn-secondary">API Reference</a>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

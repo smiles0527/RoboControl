@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEX V5 Robotics - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item active">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Core Concepts</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">VEX V5 Robotics</span>
+                </div>
+
+                <h1 class="page-title">VEX V5 Robotics Integration</h1>
+                <p class="page-desc">
+                    Build competition-ready autonomous programs with advanced path planning, odometry, and code generation for VEX V5 robots.
+                </p>
+
+                <h2 class="section-title">For Competition Teams</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">The Problem Teams Face</h3>
+                <p class="text-block">
+                    You have 6 weeks until competition. Your mechanical design is done, but you still need to:
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Calibrate encoder constants and drivetrain dimensions (frustrating trial-and-error)</li>
+                    <li style="margin-bottom: 8px;">Tune PID controllers for drive, arm, and intake (takes days of testing)</li>
+                    <li style="margin-bottom: 8px;">Design autonomous routines that actually score points (figuring out optimal paths manually)</li>
+                    <li style="margin-bottom: 8px;">Test everything without destroying your robot (risky hardware testing)</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">How RoboControl Solves It</h3>
+                <p class="text-block">
+                    <strong>Visual Path Designer:</strong> Draw your autonomous routines directly in the RoboControl app. No code needed. Point and click to set waypoints, define intake/scorer actions, and visualize the robot's path in real-time.
+                </p>
+                <p class="text-block">
+                    <strong>Auto Code Generation:</strong> Click "Generate Code" and get PROS C++ code automatically generated from your visual path. Paste it into your project and it works. Cut development time from days to hours.
+                </p>
+                <p class="text-block">
+                    <strong>Simulation Before Hardware:</strong> Test your entire autonomous routine in the physics simulator. See if paths are feasible, if intake timing is correct, if you'll knock over cones. Find bugs in simulation, not at competition.
+                </p>
+
+                <h2 class="section-title">Key Features</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚬</div>
+                        <div class="feature-title">Tracking Wheel Odometry</div>
+                        <div class="feature-text">
+                            2-wheel and 3-wheel odometry with automatic orientation estimation using parallel tracking wheels.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">•</div>
+                        <div class="feature-title">Pure Pursuit Controller</div>
+                        <div class="feature-text">
+                            Smooth path following using lookahead distance based steering for accurate autonomous movement.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">◾</div>
+                        <div class="feature-title">Code Generation</div>
+                        <div class="feature-text">
+                            Automatically generate PROS C++ code for autonomous skills from visual path designs.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">▪</div>
+                        <div class="feature-title">Physics Simulator</div>
+                        <div class="feature-text">
+                            Test and validate autonomous programs in a realistic virtual environment before deploying.
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Getting Started with VEX</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">1. Connect Your V5 Brain</h3>
+                <p class="text-block">
+                    Connect your VEX V5 Brain via USB cable. RoboControl will automatically detect the connection.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Auto-detection
+var connection = new VexConnection();
+await connection.AutoConnectAsync();
+
+// Or specify port manually
+await connection.TryConnectAsync("COM3");</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">2. Configure Odometry</h3>
+                <p class="text-block">
+                    Set up your tracking wheels and drivetrain dimensions for accurate position tracking.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var config = new OdometryConfig
+{
+    TrackWidth = 12.0,              // Distance between drive wheels (inches)
+    WheelDiameter = 3.25,            // Wheel diameter (inches)
+    EncoderResolution = 360,         // Counts per revolution
+    TrackingConfiguration = TrackingConfig.ThreeWheel
+};
+
+var odometry = new VexOdometry(config);
+
+// Update with encoder readings
+odometry.Update(leftEnc, rightEnc, backEnc);
+
+// Access position and heading
+Console.WriteLine($"X: {odometry.X}, Y: {odometry.Y}");
+Console.WriteLine($"Heading: {odometry.ThetaDegrees}°");</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">3. Path Planning</h3>
+                <p class="text-block">
+                    Create paths visually in the RoboControl app or programmatically.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Create waypoints
+var waypoints = new List&lt;Vector2&gt;
+{
+    new Vector2(12, 12),      // Start position
+    new Vector2(36, 24),      // Intermediate waypoint
+    new Vector2(60, 12),      // Final waypoint
+};
+
+// Configure path follower
+var controller = new PurePursuitController(
+    lookaheadDistance: 15.0,
+    trackWidth: 12.0
+);
+controller.SetPath(waypoints, reversed: false);
+
+// Main autonomous loop
+while (matchRunning)
+{
+    odometry.Update(leftEnc, rightEnc, backEnc);
+    
+    var (leftPower, rightPower) = controller.Compute(
+        odometry.X, 
+        odometry.Y, 
+        odometry.Theta, 
+        maxVelocity: 100
+    );
+    
+    driveLeft.Power = leftPower;
+    driveRight.Power = rightPower;
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">4. PID Tuning</h3>
+                <p class="text-block">
+                    The interactive PID tuner helps optimize your controller gains in real-time.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var pid = new PidController(
+    kp: 2.0,
+    ki: 0.5,
+    kd: 0.1
+)
+{
+    OutputMin = -127,
+    OutputMax = 127,
+    DerivativeFilterTf = 0.01  // Low-pass filter for derivative
+};
+
+// In your control loop
+double error = setpoint - measurement;
+double output = pid.Compute(setpoint, measurement, dt: 0.01);
+
+// Apply output to motor
+motor.Power = (int)output;</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">5. Code Generation</h3>
+                <p class="text-block">
+                    Export your paths and configurations as PROS C++ code for deployment to the V5 Brain.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var generator = new ProsCodeGenerator();
+
+// Generate main.cpp
+string mainCode = generator.GenerateMainCpp(
+    config: robotConfig,
+    path: selectedPath,
+    teamName: "Team 1234A",
+    robotName: "Intake Bot"
+);
+
+// Generate config header
+string configHeader = generator.GenerateConfigHeader(robotConfig);
+
+// Save files
+File.WriteAllText("src/main.cpp", mainCode);
+File.WriteAllText("include/robot_config.hpp", configHeader);</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Odometry Configuration</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Tracking Wheel Placement</h3>
+                <p class="text-block">
+                    RoboControl supports multiple odometry configurations optimized for different robot chassis designs:
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 12px;"><strong>2-Wheel Odometry:</strong> Left and right drive encoder-based tracking with gyroscope support for heading estimation. Best for differential drive robots with accurate encoders.</li>
+                    <li style="margin-bottom: 12px;"><strong>3-Wheel Odometry:</strong> Two parallel wheels (left/right) plus one perpendicular wheel. Provides heading without external gyroscope, highest accuracy for X8 drivetrains.</li>
+                    <li style="margin-bottom: 12px;"><strong>Hybrid Odometry:</strong> Combines encoder-based tracking with IMU fusion for drift compensation. Automatically corrects for dead reckoning error accumulation.</li>
+                </ul>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Advanced odometry with IMU fusion
+var config = new OdometryConfig
+{
+    TrackWidth = 12.0,
+    WheelDiameter = 3.25,
+    EncoderResolution = 360,
+    TrackingConfiguration = TrackingConfig.ThreeWheel,
+    
+    // IMU fusion parameters
+    EnableGyroFusion = true,
+    GyroTimeConstant = 0.5,  // How much to trust gyro vs encoders
+    DriftCompensationRate = 0.001
+};
+
+var odometry = new VexOdometry(config);
+
+// Periodic drift correction
+odometry.CorrectForGyroHeading(imuHeading);
+odometry.ApplyHeadingOffset(correctionFactor);</code></pre>
+                </div>
+
+                <h2 class="section-title">Path Following Algorithms</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Pure Pursuit Advanced Features</h3>
+                <p class="text-block">
+                    The Pure Pursuit algorithm provides adaptive lookahead and velocity control:
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var controller = new PurePursuitController(
+    baseLoookaheadDistance: 15.0,
+    trackWidth: 12.0
+)
+{
+    // Adaptive lookahead based on velocity
+    AdaptiveLoookahead = true,
+    MinLookahead = 8.0,
+    MaxLookahead = 24.0,
+    
+    // Velocity profile
+    MaxLinearVelocity = 60.0,  // in/s
+    MaxAngularVelocity = 180.0, // deg/s
+    
+    // Path following tolerance
+    CrossTrackErrorTolerance = 1.5,  // inches
+    HeadingTolerance = 5.0            // degrees
+};
+
+// Enable smooth velocity ramping
+controller.EnableAccelerationLimiting(
+    linearAccel: 120.0,  // in/s²
+    angularAccel: 360.0   // deg/s²
+);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Trajectory Following with Velocity Profiles</h3>
+                <p class="text-block">
+                    Generate smooth S-curve trajectories for optimal autonomous performance.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Quintic (5th order) trajectory with velocity constraints
+var trajectory = new TrajectoryGenerator()
+    .SetStartState(position: 0, velocity: 0, acceleration: 0)
+    .SetEndState(position: 100, velocity: 0, acceleration: 0)
+    .SetDuration(5.0)
+    .SetMaxVelocity(50.0)
+    .SetMaxAcceleration(30.0)
+    .SetMaxJerk(60.0)  // Rate of change of acceleration
+    .Generate();
+
+// Follow trajectory in autonomous
+for (double t = 0; t <= trajectory.Duration; t += 0.01)
+{
+    double targetPos = trajectory.GetPosition(t);
+    double targetVel = trajectory.GetVelocity(t);
+    
+    // PID feedback control to track trajectory
+    double error = targetPos - currentPos;
+    double power = pidController.Calculate(error);
+    
+    drivetrain.SetPower(power);
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">Autonomous Skills Development</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Skills Optimizer</h3>
+                <p class="text-block">
+                    Automatically optimize autonomous routines for maximum point scoring in competition.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var skillsOptimizer = new VexSkillsOptimizer();
+
+skillsOptimizer.RegisterSkill("Mogo Rush", async (robot) =>
+{
+    await robot.DriveToAsync(60, 0);
+    await robot.ClampAsync();
+    await robot.DriveToAsync(0, 0);  // Return
+});
+
+skillsOptimizer.RegisterSkill("Corner Load", async (robot) =>
+{
+    await robot.DriveToAsync(30, 60);
+    await robot.IntakePiecesAsync(3);
+    await robot.DriveToAsync(60, 120);
+});
+
+// Optimization finds best skill sequence
+var sequence = await skillsOptimizer.OptimizeAsync(
+    availableTime: 45.0,  // seconds
+    optimization: OptimizationMode.MaximizeScore
+);
+
+Console.WriteLine($"Estimated Score: {sequence.EstimatedScore}");
+Console.WriteLine($"Execution Time: {sequence.TotalTime}s");</code></pre>
+                </div>
+
+                <h2 class="section-title">Code Generation for PROS</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Auto-Generate PROS C++ Code</h3>
+                <p class="text-block">
+                    Design paths visually in the RoboControl editor and generate optimized PROS-compatible C++ code automatically.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Auto-generated from visual path designer
+void autonomous() {
+    // Autonomous routine generated at: 2026-01-28 14:32:00
+
+    // Drive forward and intake
+    chassis.moveToPoint(60, 0, 50, true);  // x, y, speed, async
+    intake.spin(fwd, 100, pct);
+
+    // Turn to alliance stake
+    chassis.turnToHeading(90, 50);
+    
+    // Score alliance stake
+    arm.moveTo(ALLIANCE_STAKE_HEIGHT);
+    arm.waitUntilSettled();
+
+    // Return to start
+    chassis.moveToPoint(0, 0, 50, false);
+    
+    intake.stop();
+    arm.moveTo(HOME_POSITION);
+}
+
+// Raw waypoint data (for custom fine-tuning)
+// Waypoints: {{0,0}, {30,15}, {60,0}, {90,30}}
+// Total Time: 12.4s
+// Path Signature: 0xA3F2D8E9</code></pre>
+                </div>
+
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">PID Gain Auto-Tuning</h3>
+                <p class="text-block">
+                    Automatically tune PID controllers using Ziegler-Nichols method or manual gain selection.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Automatic PID tuning
+var tuner = new PidTuner(motorController);
+
+// Method 1: Ziegler-Nichols
+var gains = await tuner.TuneZieglerNicholsAsync(
+    setpoint: 50.0,
+    settlingTime: 2.0
+);
+
+motorController.SetGains(gains);
+
+// Method 2: Manual tuning with live feedback
+var pidConfig = new PidConfig
+{
+    Kp = 0.45,
+    Ki = 0.12,
+    Kd = 0.08,
+    
+    // Anti-windup for integral
+    MaxIntegralAccumulation = 100.0,
+    
+    // Derivative filter to reduce noise
+    DerivativeFilterConstant = 0.1
+};
+
+motorController.Configure(pidConfig);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Sensor Monitoring & Diagnostics</h3>
+                <p class="text-block">
+                    Real-time sensor health monitoring with anomaly detection and logging.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Motor health monitoring
+var motorDiagnostics = new MotorDiagnostics(motor);
+
+// Detect stalls, overheat, or electrical issues
+motorDiagnostics.OnAnomalyDetected += (anomaly) =>
+{
+    Console.WriteLine($"Alert: {anomaly.Type}");
+    Console.WriteLine($"  Current: {anomaly.CurrentDraw}A");
+    Console.WriteLine($"  Temperature: {anomaly.Temperature}°C");
+    
+    // Auto-disable if dangerous
+    if (anomaly.Severity == SeverityLevel.Critical)
+    {
+        motor.Stop();
+        logger.LogError("Motor disabled due to critical anomaly");
+    }
+};
+
+// Track performance over time
+var stats = motorDiagnostics.GetStatistics();
+Console.WriteLine($"Encoder Drift: {stats.EncoderDrift}");
+Console.WriteLine($"Temperature Peak: {stats.MaxTemperature}°C");
+Console.WriteLine($"Stall Count: {stats.StallCount}");</code></pre>
+                </div></h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Robot Simulation</h3>
+                <p class="text-block">
+                    Test autonomous programs without physical hardware using physics-based simulation.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var simulator = new RobotSimulator(
+    leftMotorCount: 3,
+    rightMotorCount: 3
+);
+
+simulator.Reset(x: 12, y: 12, heading: 0);
+
+// Simulation loop
+for (int i = 0; i < 1000; i++)
+{
+    simulator.SetMotorPower(leftPower: 80, rightPower: 80);
+    simulator.Step();  // Advance physics
+    
+    var state = simulator.State;
+    Console.WriteLine($"Sim X: {state.X}, Y: {state.Y}");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Skills Optimizer</h3>
+                <p class="text-block">
+                    Automatically optimize autonomous skill sequences for maximum points.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var skillsOptimizer = new SkillsOptimizer();
+skillsOptimizer.AddSkill(skillName: "goal_rush", points: 5, timeSeconds: 8);
+skillsOptimizer.AddSkill(skillName: "ring_stack", points: 3, timeSeconds: 12);
+skillsOptimizer.AddSkill(skillName: "wall_stack", points: 4, timeSeconds: 10);
+
+var optimalSequence = skillsOptimizer.OptimizeForMaxPoints(totalTime: 60);
+foreach (var skill in optimalSequence)
+{
+    Console.WriteLine($"{skill.Name}: {skill.Points} pts");
+}</code></pre>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-title">⚠ Safety Reminder</div>
+                    <div class="alert-text">
+                        Always keep the emergency stop button within reach when testing autonomous programs on physical robots. Use simulation mode first to verify your logic.
+                    </div>
+                </div>
+
+                <h2 class="section-title">Common Tasks</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;\">Monitor Motor Health</h3>
+                <p class="text-block">
+                    Track motor temperature, power consumption, and efficiency during matches.
+                </p>
+
+                <div class="code-block">
+                    <pre><code>foreach (var motor in robot.Motors)
+{
+    double tempC = motor.Temperature;
+    double powerW = motor.Voltage * motor.Current;
+    double efficiency = (motor.AngularVelocity * motor.Torque) / powerW;
+    
+    if (tempC > 50) // Warning threshold
+        Console.WriteLine("Motor overheat risk!");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Sensor Integration</h3>
+                <p class="text-block">
+                    Integrate vision systems, distance sensors, and other peripherals.
+                </p>
+
+                <div class="code-block">
+                    <pre><code>// Vision-based target tracking
+var visionSensor = robot.Vision1;
+var targets = visionSensor.GetObjects(signature: 1);
+
+if (targets.Count > 0)
+{
+    var largestTarget = targets.OrderByDescending(t => t.Width).First();
+    double horizontalError = largestTarget.CenterX - 158;  // Center of 316x212 image
+    
+    // Feed to PID controller for tracking
+    double steeringOutput = visionPid.Compute(0, horizontalError, dt);
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">Next Steps</h2>
+                <p class="text-block">
+                    Learn more about motion planning and control theory:
+                </p>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+                    <a href="motion-planning.html" class="btn btn-primary">Motion Planning</a>
+                    <a href="api-math.html" class="btn btn-secondary">Math API</a>
+                    <a href="math-theory.html" class="btn btn-secondary">Control Theory</a>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

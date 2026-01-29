@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Theory - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item active">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Advanced</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Control Theory</span>
+                </div>
+
+                <h1 class="page-title">Control Theory Fundamentals</h1>
+                <p class="page-desc">
+                    Mathematical foundations and derivations behind RoboControl algorithms.
+                </p>
+
+                <h2 class="section-title">PID Control Theory</h2>
+                <p class="text-block">
+                    The proportional-integral-derivative controller is fundamental to robotics.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Continuous Time Formulation</h3>
+                <p class="text-block" style="font-size: 16px; line-height: 1.8;">
+                    $$u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de}{dt}$$
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Discrete Implementation</h3>
+                <p class="text-block">
+                    Trapezoidal integration for accurate discrete approximation.
+                </p>
+
+                <h2 class="section-title">State Space Representation</h2>
+                <p class="text-block">
+                    Modern control approach using matrix notation.
+                </p>
+
+                <p class="text-block" style="font-size: 16px; line-height: 2;">
+                    $$\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u}$$
+                    $$\mathbf{y} = \mathbf{C}\mathbf{x} + \mathbf{D}\mathbf{u}$$
+                </p>
+
+                <p class="text-block">
+                    Where <span style="font-style: italic;">x</span> is the state vector, <span style="font-style: italic;">u</span> is the input vector, <span style="font-style: italic;">y</span> is the output vector, and <span style="font-style: italic;">A, B, C, D</span> are system matrices.
+                </p>
+
+                <h2 class="section-title">Stability Analysis</h2>
+                <p class="text-block">
+                    Ensure your control system converges to desired states.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Lyapunov Stability</h3>
+                <p class="text-block" style="font-size: 16px; line-height: 1.8;">
+                    System is asymptotically stable if $V(\mathbf{x}) > 0$ and $\frac{dV}{dt} < 0$.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Pole Placement</h3>
+                <p class="text-block">
+                    Design feedback gains to place closed-loop poles in desired locations.
+                </p>
+
+                <h2 class="section-title">Frequency Domain Analysis</h2>
+                <p class="text-block">
+                    Bode plots and frequency response for robustness evaluation.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Stability Margins</h3>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Gain Margin: > 3 dB (typical)</li>
+                    <li style="margin-bottom: 8px;">Phase Margin: > 45° (typical)</li>
+                    <li style="margin-bottom: 8px;">Bandwidth: > 2x fastest state frequency</li>
+                </ul>
+
+                <h2 class="section-title">Kalman Filtering</h2>
+                <p class="text-block">
+                    Optimal sensor fusion for state estimation.
+                </p>
+
+                <p class="text-block" style="font-size: 15px; line-height: 2; margin: 20px 0;">
+                    <strong>Predict:</strong><br>
+                    $$\hat{\mathbf{x}}_{k|k-1} = \mathbf{A}\hat{\mathbf{x}}_{k-1|k-1} + \mathbf{B}\mathbf{u}_{k-1}$$
+                    $$\mathbf{P}_{k|k-1} = \mathbf{A}\mathbf{P}_{k-1|k-1}\mathbf{A}^T + \mathbf{Q}$$
+                </p>
+
+                <p class="text-block" style="font-size: 15px; line-height: 2; margin: 20px 0;">
+                    <strong>Update:</strong><br>
+                    $$\mathbf{K}_k = \mathbf{P}_{k|k-1}\mathbf{C}^T (\mathbf{C}\mathbf{P}_{k|k-1}\mathbf{C}^T + \mathbf{R})^{-1}$$
+                    $$\hat{\mathbf{x}}_{k|k} = \hat{\mathbf{x}}_{k|k-1} + \mathbf{K}_k(\mathbf{z}_k - \mathbf{C}\hat{\mathbf{x}}_{k|k-1})$$
+                    $$\mathbf{P}_{k|k} = (\mathbf{I} - \mathbf{K}_k\mathbf{C})\mathbf{P}_{k|k-1}$$
+                </p>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

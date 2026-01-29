@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Module API - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item active">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">API Reference</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Math Module</span>
+                </div>
+
+                <h1 class="page-title">Math Module API</h1>
+                <p class="page-desc">
+                    Control theory algorithms and mathematical utilities for robotics applications.
+                </p>
+
+                <h2 class="section-title">Advanced Controller Implementation</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Anti-Windup PID with Derivative Filtering</h3>
+                <p class="text-block">
+                    Production-ready PID with integrator windup prevention and noise filtering.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var pid = new PidController(kp: 2.0, ki: 0.5, kd: 0.1)
+{
+    OutputMin = -127,
+    OutputMax = 127,
+    
+    // Anti-windup protection
+    AntiWindupMode = AntiWindupMode.BackCalculation,
+    IntegralWindupThreshold = 100,
+    
+    // Derivative filter (1st-order lowpass)
+    DerivativeFilterTf = 0.01,
+    
+    // Setpoint weighting for smoother transitions
+    SetpointWeight = 1.0,
+    DerivativeWeighting = 0.0  // don't react to setpoint jumps
+};
+
+while (true)
+{
+    double output = pid.Compute(setpoint: 100, measurement: 75, dt: 0.01);
+    motor.Power = (int)output;
+    
+    if (pid.IsWindupActive)
+        logger.LogWarning("Integrator saturated");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Model Predictive Control (MPC)</h3>
+                <p class="text-block">
+                    Constrained optimal control over receding horizon with preview of future references.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// MPC configuration with constraints
+var mpc = new ModelPredictiveController(A, B, Q, R, horizonLength: 20)
+{
+    // Constraints on states and inputs
+    StateMin = new[] { -100, -100, -5, -5 },   // x, y, vx, vy
+    StateMax = new[] { 100, 100, 5, 5 },
+    
+    InputMin = new[] { -2, -2 },               // ax, ay
+    InputMax = new[] { 2, 2 },
+    
+    // Rate limits on inputs (prevent jerky commands)
+    InputRateMin = new[] { -0.5, -0.5 },
+    InputRateMax = new[] { 0.5, 0.5 },
+    
+    // Solver tolerance
+    SolverTolerance = 1e-4,
+    MaxIterations = 100
+};
+
+// Solve optimization problem
+var control = mpc.ComputeControl(currentState, referenceTrajectory);
+System.Diagnostics.Debug.WriteLine($"Solve time: {mpc.LastSolveTime}ms");</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">LQR (Linear Quadratic Regulator)</h3>
+                <p class="text-block">
+                    Optimal linear feedback control minimizing quadratic cost with no constraints.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Solve continuous-time LQR problem: min ∫(x'Qx + u'Ru)dt
+var result = LqrDesign.SolveContinuous(A, B, Q, R);
+
+if (result.Success)
+{
+    var K = result.K;          // Optimal feedback gain
+    var P = result.P;          // Solution to Riccati equation
+    var eigenvalues = result.EigenvaluesCL;  // Closed-loop poles
+    
+    // Apply control law: u = -K * (x - x_ref)
+    var error = currentState - referenceState;
+    var u = -K * error;
+    
+    // Check stability
+    Console.WriteLine($"Max eigenvalue: {eigenvalues.Max().Real:F3}");
+    if (eigenvalues.All(e => e.Real < 0))
+        Console.WriteLine("System is stable");
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">State Estimation & Filtering</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Extended Kalman Filter (EKF)</h3>
+                <p class="text-block">
+                    Nonlinear state estimation with multi-sensor fusion for robust odometry.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// EKF for robot localization with encoder + IMU fusion
+var ekf = new ExtendedKalmanFilter(new Unicycle2DModel())
+{
+    // Initial state [x, y, theta]
+    InitialState = new[] { 0.0, 0.0, 0.0 },
+    
+    // Process noise (model uncertainty)
+    ProcessNoise = new[] { 0.01, 0.01, 0.001 },
+    
+    // Measurement noise (sensor uncertainty)
+    MeasurementNoise = new[] { 0.1, 0.1, 0.05 }
+};
+
+// Main estimation loop
+while (true)
+{
+    // Prediction from motion model
+    ekf.Predict(
+        input: new { LinearVel = encoderVel, AngularVel = gyroRate },
+        dt: 0.01,
+        processNoise: noiseQ
+    );
+    
+    // Update with measurements
+    ekf.Update(
+        measurement: new { EncoderDist = distance, GyroHeading = heading },
+        measurementNoise: noiseR
+    );
+    
+    var state = ekf.State;
+    Console.WriteLine($"Position: ({state[0]:F2}, {state[1]:F2}), Heading: {state[2]:F1}°");
+    Console.WriteLine($"Covariance (position): {Math.Sqrt(ekf.Covariance[0, 0]):F4}");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Complementary Filter</h3>
+                <p class="text-block">
+                    Fast, low-latency fusion of accelerometer and gyroscope for attitude estimation.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Complementary filter for IMU fusion
+var filter = new ComplementaryFilter
+{
+    Alpha = 0.98,  // Weight for gyroscope (higher = trust gyro more)
+    Beta = 0.02    // Weight for accelerometer
+};
+
+// Fast update at IMU rate (200+ Hz)
+filter.Update(
+    gyroscopeData: new Vector3(gx, gy, gz),
+    accelerometerData: new Vector3(ax, ay, az),
+    magnetometerData: new Vector3(mx, my, mz),  // optional
+    dt: 0.005
+);
+
+var attitude = filter.GetAttitude();  // Euler angles or quaternion</code></pre>
+                </div>
+
+                <h2 class="section-title">Trajectory Generation</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Polynomial Trajectory Planning</h3>
+                <p class="text-block">
+                    Smooth trajectory planning with boundary conditions.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// 5th-order polynomial with zero acceleration at endpoints
+var trajectory = new QuinticTrajectory(
+    startPos: 0, endPos: 100,
+    startVel: 0, endVel: 0,
+    startAcc: 0, endAcc: 0,
+    duration: 5.0
+);
+
+for (double t = 0; t <= 5.0; t += 0.01)
+{
+    double pos = trajectory.GetPosition(t);
+    double vel = trajectory.GetVelocity(t);
+}</code></pre>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item active">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Advanced</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Troubleshooting</span>
+                </div>
+
+                <h1 class="page-title">Troubleshooting Guide</h1>
+                <p class="page-desc">
+                    Common issues and solutions for RoboControl development.
+                </p>
+
+                <h2 class="section-title">Installation Issues</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Build Error: Missing Dependencies</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Compilation fails with "missing reference" errors.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Clean solution: <code style="background: var(--code-bg); padding: 2px 6px; border-radius: 3px;">dotnet clean</code></li>
+                    <li style="margin-bottom: 8px;">Restore packages: <code style="background: var(--code-bg); padding: 2px 6px; border-radius: 3px;">dotnet restore</code></li>
+                    <li style="margin-bottom: 8px;">Delete bin/obj folders and rebuild</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Framework Version Mismatch</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> "Target framework not installed" during build.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong> Ensure .NET 8.0 is installed:
+                </p>
+                <div class="code-block">
+                    <pre><code>dotnet --version
+# Should output 8.0.x or higher
+
+# Install .NET 8.0
+# Windows: Download from https://dotnet.microsoft.com/download</code></pre>
+                </div>
+
+                <h2 class="section-title">Serial Communication</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Port Not Found / COM Port Issues</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> "Port COM3 not found" or robot not detected.
+                </p>
+                <p class="text-block">
+                    <strong>Solution Steps:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Check Device Manager for serial devices</li>
+                    <li style="margin-bottom: 8px;">Verify USB cable connection (try different ports/cables)</li>
+                    <li style="margin-bottom: 8px;">Update CH340/FTDI drivers if needed</li>
+                    <li style="margin-bottom: 8px;">Check Windows Device Manager for unknown devices</li>
+                    <li style="margin-bottom: 8px;">Restart robot and try again</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Baud Rate Mismatch</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Serial data appears corrupted (garbage characters).
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong> Verify baud rate configuration:
+                </p>
+                <div class="code-block">
+                    <pre><code>// Ensure this matches robot's baud rate
+var transport = new SerialTransport("COM3", 115200);
+
+// Common baud rates:
+// - 115200: Standard for V5, typical Arduinos
+// - 230400: Some high-speed connections
+// - 9600: Legacy robots</code></pre>
+                </div>
+
+                <h2 class="section-title">Navigation & Control</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Robot Drifts During Straight Movement</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Robot curves left/right despite moving straight.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Check wheel alignment (mechanical)</li>
+                    <li style="margin-bottom: 8px;">Verify motor polarities match (both forward = same direction)</li>
+                    <li style="margin-bottom: 8px;">Tune left/right motor gain ratio</li>
+                    <li style="margin-bottom: 8px;">Recalibrate gyroscope/IMU</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Oscillation or Instability in Control Loop</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Motor commands are jittery; robot vibrates.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong> PID tuning issues:
+                </p>
+                <div class="code-block">
+                    <pre><code>// Step 1: Set I and D to zero
+controller.Ki = 0;
+controller.Kd = 0;
+
+// Step 2: Increase Kp until light oscillation
+// Typical range: 0.1 - 2.0 (depends on system)
+
+// Step 3: Add D to dampen oscillation
+// Rule of thumb: Kd ≈ 0.3 * Kp
+
+// Step 4: Add I for zero steady-state error
+// Start with Ki ≈ 0.1 * Kp</code></pre>
+                </div>
+
+                <h2 class="section-title">Sensor Issues</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Odometry Reading Jitter</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Position estimates jump around unexpectedly.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Apply sensor smoothing filter</li>
+                    <li style="margin-bottom: 8px;">Check encoder mounting for loose connections</li>
+                    <li style="margin-bottom: 8px;">Increase observation frequency</li>
+                    <li style="margin-bottom: 8px;">Verify calibration constant accuracy</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">IMU Not Responding</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> "IMU communication timeout" or null sensor readings.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Check I2C/SPI connections (physical wiring)</li>
+                    <li style="margin-bottom: 8px;">Verify IMU address matches configuration</li>
+                    <li style="margin-bottom: 8px;">Increase communication timeout values</li>
+                    <li style="margin-bottom: 8px;">Power cycle the IMU hardware</li>
+                </ul>
+
+                <h2 class="section-title">Path Planning</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Path Not Following Correctly</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Robot overshoots or undershoots waypoints.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Verify waypoint tolerance is reasonable (1-5 cm typical)</li>
+                    <li style="margin-bottom: 8px;">Check lookahead distance matches robot dynamics</li>
+                    <li style="margin-bottom: 8px;">Tune velocity profile (acceleration limits)</li>
+                    <li style="margin-bottom: 8px;">Verify heading control is working</li>
+                </ul>
+
+                <h2 class="section-title">Performance & Memory</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">High CPU / Memory Usage</h3>
+                <p class="text-block">
+                    <strong>Problem:</strong> Robot slow, laggy telemetry updates.
+                </p>
+                <p class="text-block">
+                    <strong>Solution:</strong>
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Reduce telemetry broadcast frequency</li>
+                    <li style="margin-bottom: 8px;">Disable debug logging in production</li>
+                    <li style="margin-bottom: 8px;">Check for memory leaks in sensor drivers</li>
+                    <li style="margin-bottom: 8px;">Profile code: use dotnet counters</li>
+                </ul>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

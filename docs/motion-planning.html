@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Planning - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item active">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Core Concepts</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Motion Planning</span>
+                </div>
+
+                <h1 class="page-title">Motion Planning</h1>
+                <p class="page-desc">
+                    Advanced techniques for planning and executing smooth, optimal robot trajectories.
+                </p>
+
+                <h2 class="section-title">Path Planning Algorithms</h2>
+                <p class="text-block">
+                    RoboControl provides multiple path planning strategies for different applications.
+                </p>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Waypoint-Based Planning</h3>
+                <p class="text-block">
+                    Define a sequence of waypoints for the robot to follow sequentially.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var waypoints = new List<Vector2>
+{
+    new Vector2(12, 12),      // Start
+    new Vector2(36, 24),      // Intermediate
+    new Vector2(60, 12),      // End
+};
+
+var planner = new WaypointPlanner();
+var path = planner.GeneratePath(waypoints);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Trajectory Generation</h3>
+                <p class="text-block">
+                    Generate smooth trajectories with velocity and acceleration profiles.
+                </p>
+
+                <p class="text-block" style="font-size: 15px; line-height: 1.8;">
+                    $$p(t) = a_0 + a_1 t + a_2 t^2 + a_3 t^3 + a_4 t^4 + a_5 t^5$$
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var trajectory = new QuinticTrajectory(
+    startPosition: 0,
+    endPosition: 100,
+    startVelocity: 0,
+    endVelocity: 0,
+    startAcceleration: 0,
+    endAcceleration: 0,
+    duration: 5.0  // seconds
+);
+
+for (double t = 0; t <= 5.0; t += 0.01)
+{
+    double pos = trajectory.GetPosition(t);
+    double vel = trajectory.GetVelocity(t);
+    double acc = trajectory.GetAcceleration(t);
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">RRT (Rapidly-Exploring Random Tree)</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Probabilistic Path Planning</h3>
+                <p class="text-block">
+                    RRT algorithm for finding paths in high-dimensional configuration spaces with obstacle avoidance.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// RRT path planning with bidirectional search
+var planner = new RRTPlanner
+{
+    StartConfig = new Config(0, 0, 0),
+    GoalConfig = new Config(100, 100, 45),
+    
+    // Algorithm parameters
+    MaxIterations = 5000,
+    GoalBias = 0.1,  // 10% chance to go toward goal
+    StepSize = 5.0,
+    
+    // Search strategy
+    BidirectionalSearch = true,
+    GoalThreshold = 2.0,
+    
+    // Optimization
+    PathSmoothing = true,
+    SmoothedIterations = 100
+};
+
+// Add obstacles
+planner.AddObstacle(new CircleObstacle(50, 50, 15));
+planner.AddObstacle(new RectangleObstacle(30, 70, 20, 30));
+
+var path = planner.Plan();
+Console.WriteLine($"Path found with {path.Nodes.Count} nodes");
+Console.WriteLine($"Total path length: {path.TotalLength:F1} units");</code></pre>
+                </div>
+
+                <h2 class="section-title">Collision Avoidance Algorithms</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Velocity Obstacle (VO) Method</h3>
+                <p class="text-block">
+                    Real-time collision avoidance for dynamic environments with moving obstacles.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Velocity obstacle collision avoidance
+var avoidanceController = new VelocityObstacleController
+{
+    RobotRadius = 0.3,
+    DesiredVelocity = new Vector2(1.0, 0.0),  // 1 m/s forward
+    MaxVelocity = 1.5,
+    
+    // Time horizon for collision checking
+    TimeHorizon = 5.0,  // seconds
+    TimeHorizonObst = 2.0
+};
+
+// Register moving obstacles
+var obstacles = new[]
+{
+    new MovingObstacle { 
+        Position = new Vector2(5, 2), 
+        Velocity = new Vector2(-0.5, 0),
+        Radius = 0.4
+    },
+    new MovingObstacle { 
+        Position = new Vector2(-3, 4), 
+        Velocity = new Vector2(0, -0.3),
+        Radius = 0.35
+    }
+};
+
+avoidanceController.SetObstacles(obstacles);
+
+// Compute safe velocity
+var safeVelocity = avoidanceController.ComputeSafeVelocity();
+robot.SetVelocity(safeVelocity);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Reciprocal Collision Avoidance (RCA)</h3>
+                <p class="text-block">
+                    Multi-agent collision avoidance with symmetric velocity adjustment.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Reciprocal collision avoidance for multi-agent systems
+var multiAgentController = new ReciprocalCollisionAvoidanceController
+{
+    MaxAgents = 50,
+    TimeHorizon = 10.0,
+    TimeHorizonObst = 2.0,
+    
+    // Agent-specific parameters
+    NeighborDist = 25.0,  // meters
+    MaxNeighbors = 10,
+    
+    // Velocity constraints
+    MaxSpeed = 5.0,
+    PreferredSpeed = 3.0
+};
+
+// Register agents
+for (int i = 0; i &lt; robotCount; i++)
+{
+    multiAgentController.RegisterAgent(robots[i].Id, 
+        position: robots[i].Position,
+        velocity: robots[i].Velocity,
+        radius: 0.3
+    );
+}
+
+// Update in control loop
+foreach (var robot in robots)
+{
+    var newVelocity = multiAgentController.ComputeVelocity(robot.Id);
+    robot.SetVelocity(newVelocity);
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Trajectory Optimization</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Time-Optimal Trajectory Planning</h3>
+                <p class="text-block">
+                    Generate minimum-time trajectories subject to velocity and acceleration limits.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Time-optimal trajectory generation
+var optimizer = new TimeOptimalTrajectoryOptimizer
+{
+    StartPosition = 0,
+    EndPosition = 100,
+    StartVelocity = 0,
+    EndVelocity = 0,
+    
+    // Physical constraints
+    MaxVelocity = 50.0,
+    MaxAcceleration = 30.0,
+    MaxDeceleration = 35.0
+};
+
+// Generate bang-bang control profile (max accel then decel)
+var trajectory = optimizer.GenerateTrajectory();
+
+Console.WriteLine($"Minimum time to goal: {trajectory.Duration:F2}s");
+Console.WriteLine($"Max velocity achieved: {trajectory.MaxVelocity:F2}");
+Console.WriteLine($"Segments:");
+foreach (var segment in trajectory.Segments)
+{
+    Console.WriteLine($"  {segment.Type}: {segment.Duration:F3}s, a={segment.Acceleration:F1}");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Spline-Based Path Smoothing</h3>
+                <p class="text-block">
+                    Smooth out jagged waypoint paths using cubic or quintic splines with curvature optimization.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Cubic spline smoothing with curvature constraints
+var pathSmoother = new SplinePathSmoother
+{
+    InterpolationType = SplineType.CubicSpline,
+    NumControlPoints = 50,
+    
+    // Curvature constraints
+    MaxCurvature = 0.5,          // 1/radius
+    CurvatureSmoothness = 0.8,
+    
+    // Smoothing parameters
+    RegularizationWeight = 0.1,
+    BoundaryConditions = BoundaryCondition.Natural
+};
+
+var rawWaypoints = new List&lt;Vector2&gt;
+{
+    new(0, 0), new(30, 15), new(60, 10), new(90, 30), new(120, 20)
+};
+
+var smoothedPath = pathSmoother.Smooth(rawWaypoints);
+Console.WriteLine($"Original path length: {CalculatePathLength(rawWaypoints):F1}");
+Console.WriteLine($"Smoothed path length: {CalculatePathLength(smoothedPath):F1}");
+Console.WriteLine($"Max curvature: {smoothedPath.MaxCurvature:F3}");</code></pre>
+                </div></h2>
+                <p class="text-block">
+                    Implement dynamic obstacle avoidance for safe autonomous navigation.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var obstacles = new List<Obstacle>
+{
+    new CircularObstacle(centerX: 30, centerY: 30, radius: 8),
+    new RectangularObstacle(minX: 50, maxX: 55, minY: 10, maxY: 20)
+};
+
+var safePathPlanner = new ObstacleAvoidingPlanner(obstacles);
+var safePath = safePathPlanner.GeneratePath(waypoints);</code></pre>
+                </div>
+
+                <h2 class="section-title">Path Following Control</h2>
+                <p class="text-block">
+                    Execute planned paths with feedback control to maintain accuracy.
+                </p>
+
+                <p class="text-block" style="font-size: 15px; line-height: 1.8;">
+                    $$\delta = \arctan\left(\frac{2L e_{cte}}{v^2}\right)$$
+                </p>
+                <p class="text-block" style="font-size: 14px; margin: 12px 0;">
+                    where $L$ is wheelbase, $e_{cte}$ is cross-track error, and $v$ is velocity.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var controller = new PathFollowingController(path);
+
+while (!controller.IsPathComplete())
+{
+    controller.UpdateCurrentPose(robotX, robotY, robotTheta);
+    var (linearVel, angularVel) = controller.ComputeVelocities();
+    
+    robot.SetVelocities(linearVel, angularVel);
+}</code></pre>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

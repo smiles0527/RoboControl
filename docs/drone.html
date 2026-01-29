@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone/UAV - RoboControl Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">RC</div>
+                <span>RoboControl Documentation</span>
+            </div>
+
+            <div class="search-bar">
+                <span>Search documentation...</span>
+            </div>
+
+            <div class="header-actions">
+                <span class="version">v2.4.0</span>
+                <a href="https://github.com/smiles0527/RoboControl" class="github-btn">
+                    Star on GitHub
+                </a>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Getting Started</div>
+                    <a href="index.html" class="sidebar-item">
+                        Introduction
+                    </a>
+                    <a href="installation.html" class="sidebar-item">
+                        Installation
+                    </a>
+                    <a href="configuration.html" class="sidebar-item">
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Core Concepts</div>
+                    <a href="vex.html" class="sidebar-item">
+                        VEX V5 Robotics
+                    </a>
+                    <a href="drone.html" class="sidebar-item active">
+                        Drone/UAV
+                    </a>
+                    <a href="motion-planning.html" class="sidebar-item">
+                        Motion Planning
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">API Reference</div>
+                    <a href="api-core.html" class="sidebar-item">
+                        Core Module
+                    </a>
+                    <a href="api-math.html" class="sidebar-item">
+                        Math Module
+                    </a>
+                    <a href="api-transport.html" class="sidebar-item">
+                        Transport
+                    </a>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Advanced</div>
+                    <a href="math-theory.html" class="sidebar-item">
+                        Control Theory
+                    </a>
+                    <a href="troubleshooting.html" class="sidebar-item">
+                        Troubleshooting
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="breadcrumb">
+                    <span>Documentation</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="color: var(--muted-foreground)">Core Concepts</span>
+                    <span style="color: var(--muted-foreground)"> / </span>
+                    <span style="font-weight: 600">Drone/UAV</span>
+                </div>
+
+                <h1 class="page-title">Drone & UAV Operations</h1>
+                <p class="page-desc">
+                    Enterprise-grade platform for mission planning, fleet management, and autonomous aerial operations.
+                </p>
+
+                <h2 class="section-title">For Drone Operators & Fleet Managers</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Real-World Challenges</h3>
+                <p class="text-block">
+                    You're flying drones for agricultural surveys, infrastructure inspection, or logistics. Manual flight is expensive and slow. You need automation but:
+                </p>
+                <ul style="margin: 16px 0 24px 0; padding-left: 24px; color: var(--foreground);">
+                    <li style="margin-bottom: 8px;">Designing survey grids by hand is tedious and error-prone</li>
+                    <li style="margin-bottom: 8px;">Managing 5+ drones simultaneously requires coordination software</li>
+                    <li style="margin-bottom: 8px;">Regulatory compliance (Part 107, airspace) needs careful documentation</li>
+                    <li style="margin-bottom: 8px;">Weather changes require re-planning mid-flight</li>
+                </ul>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">RoboControl's Solution</h3>
+                <p class="text-block">
+                    <strong>One-Click Survey Generation:</strong> Draw your survey area on a map. Specify ground resolution. RoboControl auto-generates optimal flight grids with proper overlap. 30 seconds instead of 30 minutes.
+                </p>
+                <p class="text-block">
+                    <strong>Multi-Drone Coordination:</strong> Automatic collision prevention, battery-aware scheduling, and radio interference management. Watch all drones on one dashboard.
+                </p>
+                <p class="text-block">
+                    <strong>Geofencing & Compliance:</strong> Draw no-fly zones. Drones auto-enforce them. Complete audit trail for regulatory inspections.
+                </p>
+                <p class="text-block">
+                    <strong>Live Telemetry Dashboard:</strong> Position, altitude, battery, heading all visible. Automated alerts. Pause/resume from ground station.
+                </p>
+
+                <h2 class="section-title">Key Capabilities</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">▴</div>
+                        <div class="feature-title">Mission Planning</div>
+                        <div class="feature-text">
+                            Create complex waypoint missions with automatic path optimization and collision avoidance.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">▵</div>
+                        <div class="feature-title">Fleet Management</div>
+                        <div class="feature-text">
+                            Coordinate multiple vehicles (2-100+) with centralized scheduling and monitoring.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">▸</div>
+                        <div class="feature-title">Safety Systems</div>
+                        <div class="feature-text">
+                            Geofencing, fail-safes, regulatory compliance, and autonomous safety protocols.
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">▹</div>
+                        <div class="feature-title">MAVLink Support</div>
+                        <div class="feature-text">
+                            Compatible with ArduPilot, PX4, and other MAVLink-based flight controllers.
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Getting Started with Drones</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">1. Fleet Manager Setup</h3>
+                <p class="text-block">
+                    Initialize the fleet manager for coordinating multiple vehicles.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var fleetConfig = new FleetConfiguration
+{
+    MaxVehicles = 10,
+    DefaultHomeLatitude = 40.123,
+    DefaultHomeLongitude = -105.456,
+    DefaultHomeAltitude = 1655,  // meters
+    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")
+};
+
+var fleetManager = new FleetManager(fleetConfig);
+
+// Register vehicles
+var droneRegistration = new VehicleRegistration
+{
+    Id = "DRONE-001",
+    Type = VehicleType.Quadcopter,
+    Model = "DJI Matrice 300 RTK",
+    MavlinkSystemId = 1,
+    MaxFlightTime = 55  // minutes
+};
+
+await fleetManager.RegisterVehicleAsync(droneRegistration);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">2. Mission Planning</h3>
+                <p class="text-block">
+                    Design and schedule missions with waypoints and survey patterns.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var mission = new MissionPlan
+{
+    Name = "Agricultural Survey",
+    Description = "100-acre crop survey",
+    Waypoints = new[]
+    {
+        new Waypoint { Lat = 40.1230, Lon = -105.4560, AltM = 100 },
+        new Waypoint { Lat = 40.1245, Lon = -105.4560, AltM = 100 },
+        new Waypoint { Lat = 40.1245, Lon = -105.4575, AltM = 100 },
+        new Waypoint { Lat = 40.1230, Lon = -105.4575, AltM = 100 },
+    },
+    Speed = 10.0,  // m/s
+    CameraInterval = 2.0,  // seconds between photos
+    SurveyPattern = SurveyPatternType.GridPattern
+};
+
+await fleetManager.ScheduleMissionAsync(mission);</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">3. Real-time Monitoring</h3>
+                <p class="text-block">
+                    Track live vehicle states and telemetry during operations.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Get all live vehicle states
+var allStates = fleetManager.GetAllLiveStates();
+
+foreach (var state in allStates)
+{
+    Console.WriteLine($"Vehicle: {state.VehicleId}");
+    Console.WriteLine($"  Position: {state.Latitude:F6}, {state.Longitude:F6}");
+    Console.WriteLine($"  Altitude: {state.AltitudeM:F1} m");
+    Console.WriteLine($"  Battery: {state.BatteryPercent:F0}%");
+    Console.WriteLine($"  Status: {state.FlightMode}");
+}
+
+// Subscribe to state changes
+fleetManager.VehicleStateChanged += (vehicleId, newState) =>
+{
+    if (newState.BatteryPercent < 20)
+    {
+        Console.WriteLine($"⚠️ Low battery on {vehicleId}: {newState.BatteryPercent}%");
+    }
+};</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">4. Safety & Geofencing</h3>
+                <p class="text-block">
+                    Define geofences and safety boundaries for autonomous operations.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var geofence = new RectangularGeofence
+{
+    MinLatitude = 40.120,
+    MaxLatitude = 40.130,
+    MinLongitude = -105.460,
+    MaxLongitude = -105.450,
+    MaxAltitude = 150,  // meters
+    Name = "Operating Area"
+};
+
+fleetManager.SetGeofence(geofence);
+
+// Define fail-safe behavior
+var failsafe = new FailSafeConfiguration
+{
+    LowBatteryThreshold = 15,  // percent
+    LowBatteryAction = FailSafeAction.ReturnToHome,
+    LostSignalAction = FailSafeAction.Land,
+    GeofenceBreachAction = FailSafeAction.ReturnToHome
+};
+
+fleetManager.SetFailSafe(failsafe);</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Mission Planning</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Waypoint Optimization & Routing</h3>
+                <p class="text-block">
+                    Automatically optimize mission routes for fuel efficiency, time minimization, or terrain constraints.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Advanced mission planning with optimization
+var mission = new DroneMission
+{
+    Name = "Survey Grid Operations",
+    VehicleId = "Drone-01",
+    
+    Waypoints = new List&lt;Waypoint&gt;
+    {
+        new Waypoint { Lat = 40.123, Lon = -105.456, AltM = 100, Action = WaypointAction.Takeoff },
+        new Waypoint { Lat = 40.124, Lon = -105.456, AltM = 120, Speed = 15 },
+        new Waypoint { Lat = 40.124, Lon = -105.457, AltM = 120, Action = WaypointAction.CameraCapture },
+        new Waypoint { Lat = 40.123, Lon = -105.456, AltM = 0, Action = WaypointAction.Land }
+    },
+    
+    // Optimization parameters
+    OptimizationMode = MissionOptimization.MinimizeFlightTime,
+    WindCompensation = true,
+    TerrainFollowingEnabled = true,
+    
+    // Safety constraints
+    MaxAltitude = 150,
+    MinAltitude = 50,
+    GeofenceRadius = 500  // meters
+};
+
+// Automatically solve traveling salesman problem
+var optimized = await mission.OptimizeAsync();
+Console.WriteLine($"Est. Flight Time: {optimized.EstimatedFlightTime}s");</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Survey Grid Generation</h3>
+                <p class="text-block">
+                    Automatically generate efficient grid patterns for area surveys with camera overlap settings.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Auto-generate survey grid for mapping
+var gridMission = GridMissionGenerator.Create(
+    areaCorners: new[] 
+    { 
+        new GeoPoint(40.120, -105.450),
+        new GeoPoint(40.130, -105.460)
+    },
+    altitude: 100,
+    groundResolution: 0.05,      // meters per pixel
+    lateralOverlap: 0.60,        // 60% overlap
+    longitudinalOverlap: 0.75    // 75% overlap
+);
+
+var waypoints = gridMission.GenerateWaypoints();
+Console.WriteLine($"Generated {waypoints.Count} waypoints");
+Console.WriteLine($"Est. coverage: {gridMission.CoverageArea} sq km");</code></pre>
+                </div>
+
+                <h2 class="section-title">Fleet Coordination & Swarming</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Multi-Vehicle Coordination</h3>
+                <p class="text-block">
+                    Coordinate operations across multiple drones with centralized scheduling and conflict resolution.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Multi-drone coordination with airspace deconfliction
+var fleetScheduler = new FleetScheduler(fleetManager);
+
+var missions = new[] { mission1, mission2, mission3 };
+
+// Automatically handles:
+// - Airspace deconfliction (no collisions)
+// - Battery management (stagger landings)
+// - Communication scheduling (prevent interference)
+// - Resource allocation (shared charging stations)
+var schedule = await fleetScheduler.ScheduleAsync(missions);
+
+foreach (var vehicleSchedule in schedule.VehicleSchedules)
+{
+    Console.WriteLine($"{vehicleSchedule.VehicleId}:");
+    Console.WriteLine($"  Start: {vehicleSchedule.StartTime}");
+    Console.WriteLine($"  Battery Remaining: {vehicleSchedule.EstimatedBatteryRemaining}%");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Formation Control</h3>
+                <p class="text-block">
+                    Maintain relative formations between vehicles for coordinated operations.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Formation flying with automatic separation management
+var formation = new FormationController
+{
+    LeaderVehicleId = "Drone-01",
+    
+    FollowerPositions = new Dictionary&lt;string, Vector3&gt;
+    {
+        ["Drone-02"] = new Vector3(-10, 0, 0),   // left
+        ["Drone-03"] = new Vector3(10, 0, 0),    // right
+        ["Drone-04"] = new Vector3(0, -15, 0)    // behind
+    },
+    
+    FormationHoldDistance = 1.5,
+    InterVehicleAvoidanceEnabled = true
+};
+
+await formation.ExecuteMissionAsync(coordinatedMission);</code></pre>
+                </div>
+
+                <h2 class="section-title">Safety & Regulatory Compliance</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Advanced Geofencing & No-Fly Zones</h3>
+                <p class="text-block">
+                    Define complex 3D geofencing regions with automatic enforcement and violation reporting.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Multi-level geofencing system
+var geofenceManager = new GeofenceManager();
+
+// Hard exclusion zones
+geofenceManager.AddExclusionZone(new CylindricalGeofence
+{
+    CenterLat = 40.125,
+    CenterLon = -105.455,
+    RadiusMeters = 100,
+    MaxAltitude = 300,
+    ZoneName = "Restricted Airspace",
+    EnforcementLevel = EnforcementLevel.Critical
+});
+
+// Soft warning zones
+geofenceManager.AddWarningZone(new PolygonalGeofence
+{
+    Corners = new[] { /* ... */ },
+    MaxAltitude = 500,
+    ZoneName = "Approach Zone"
+});
+
+geofenceManager.OnViolationDetected += (vehicle, zone) =>
+{
+    if (zone.EnforcementLevel == EnforcementLevel.Critical)
+        vehicle.EmergencyRTH();
+};</code></pre>
+                </div>
+
+                <h2 class="section-title">Autonomous Payload Operations</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Camera & Sensor Integration</h3>
+                <p class="text-block">
+                    Autonomous control of cameras, gimbals, and sensors during missions.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>// Autonomous camera/gimbal control
+var payload = new PayloadController(vehicle);
+
+// Configure camera for survey
+payload.Camera.SetResolution(4000, 3000);
+payload.Camera.SetISO(100);
+payload.Camera.SetShutterSpeed(1.0 / 500);
+
+// Gimbal control for tracking
+payload.Gimbal.SetStabilization(GimbalAxis.Pitch, enabled: true);
+payload.Gimbal.SetStabilization(GimbalAxis.Roll, enabled: true);
+
+// Mission-triggered camera actions
+var mission = new DroneMission
+{
+    Waypoints = new[]
+    {
+        new Waypoint 
+        { 
+            Lat = 40.124, Lon = -105.456, AltM = 120,
+            Actions = new[] 
+            { 
+                new PayloadAction { Type = PayloadActionType.CameraCapture },
+                new PayloadAction { Type = PayloadActionType.GimbalPointTarget, TargetLat = 40.1, TargetLon = -105.4 }
+            }
+        }
+    }
+};
+
+await vehicle.ExecuteMissionAsync(mission);</code></pre>
+                </div>
+
+                <h2 class="section-title">Advanced Features</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Drone Simulator</h3>
+                <p class="text-block">
+                    Test flight paths and operations in realistic physics simulation.
+                </p>
+
+                <div class="code-block">
+                    <div class="copy-btn">Copy</div>
+                    <pre><code>var simulator = new DroneSimulator();
+
+simulator.Specs = new DroneSpecification
+{
+    MaxSpeed = 15.0,  // m/s
+    MaxAcceleration = 5.0,
+    BatteryCapacity = 5000,  // mAh
+    MaxAltitude = 500  // meters
+};
+
+// Simulate wind
+simulator.Wind = new WindModel(speed: 5.0, direction: 45.0);
+
+// Reset to home
+simulator.Reset(latitude: 40.123, longitude: -105.456, altitudeM: 0, headingDeg: 0);
+
+// Simulate mission
+for (int step = 0; step < 10000; step++)
+{
+    simulator.SetAttitudeCommand(rollDeg: 10, pitchDeg: 5, yawDeg: 0, throttle: 0.6);
+    simulator.Step(dt: 0.01);
+    
+    var telemetry = simulator.State;
+    if (telemetry.BatteryPercent < 10)
+    {
+        Console.WriteLine("Simulation: Battery critical, landing");
+        break;
+    }
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Visual-Inertial SLAM</h3>
+                <p class="text-block">
+                    Real-time localization using camera and IMU fusion.
+                </p>
+
+                <div class="code-block">
+                    <pre><code>var slam = new VisualInertialSLAM();
+
+// Process camera frames and IMU data
+while (flying)
+{
+    // Get camera frame from onboard computer
+    var frame = camera.CaptureFrame();
+    
+    // Get IMU measurements
+    var imuData = imu.GetMeasurements();
+    
+    // Update SLAM
+    slam.ProcessFrame(frame, imuData.Accelerometer, imuData.Gyroscope);
+    
+    // Get estimated pose
+    var pose = slam.GetCurrentPose();
+    Console.WriteLine($"Estimated position: {pose.X}, {pose.Y}, {pose.Z}");
+}</code></pre>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Fleet Analytics</h3>
+                <p class="text-block">
+                    Track fleet performance, maintenance needs, and operations metrics.
+                </p>
+
+                <div class="code-block">
+                    <pre><code>var analytics = fleetManager.GetFleetAnalytics();
+
+Console.WriteLine("Fleet Statistics:");
+Console.WriteLine($"  Total flights: {analytics.TotalFlights}");
+Console.WriteLine($"  Total flight hours: {analytics.TotalFlightHours:F1}");
+Console.WriteLine($"  Average mission time: {analytics.AverageMissionDuration.TotalMinutes:F1} min");
+Console.WriteLine($"  Success rate: {analytics.MissionSuccessRate:P}");
+
+// Maintenance tracking
+var maintenanceSchedule = fleetManager.GetMaintenanceSchedule();
+foreach (var vehicle in maintenanceSchedule.Values)
+{
+    if (vehicle.FlightHoursSinceMaintenance > vehicle.MaintenanceIntervalHours)
+    {
+        Console.WriteLine($"⚠️ {vehicle.VehicleId} needs maintenance!");
+    }
+}</code></pre>
+                </div>
+
+                <h2 class="section-title">Payload Integration</h2>
+
+                <h3 style="font-size: 18px; font-weight: 600; margin: 24px 0 12px 0;">Sensor Integration</h3>
+                <p class="text-block">
+                    Connect and manage various payloads (cameras, LiDAR, thermal sensors).
+                </p>
+
+                <div class="code-block">
+                    <pre><code>// RGB Camera for surveying
+var rgbPayload = new PayloadDefinition
+{
+    Type = PayloadType.Camera,
+    Model = "DJI Zenmuse H30T",
+    Resolution = "2000MP",
+    FOV = 84.0  // degrees
+};
+
+// Thermal camera for inspection
+var thermalPayload = new PayloadDefinition
+{
+    Type = PayloadType.ThermalCamera,
+    Model = "DJI Zenmuse H30T Thermal",
+    Resolution = "640x512",
+    TemperatureRange = new Range(-20, 550)  // Celsius
+};
+
+drone.AttachPayload(rgbPayload);
+drone.AttachPayload(thermalPayload);</code></pre>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-title">⚠ Regulatory Compliance</div>
+                    <div class="alert-text">
+                        Ensure all drone operations comply with local regulations. RoboControl includes compliance tracking, but you are responsible for following all applicable laws (FAA Part 107, EASA, etc.).
+                    </div>
+                </div>
+
+                <h2 class="section-title">Next Steps</h2>
+                <p class="text-block">
+                    Learn more about autonomous operations and control systems:
+                </p>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+                    <a href="motion-planning.html" class="btn btn-primary">Motion Planning</a>
+                    <a href="api-math.html" class="btn btn-secondary">Control Systems</a>
+                    <a href="math-theory.html" class="btn btn-secondary">Control Theory</a>
+                </div>
+
+                <div style="height: 100px"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

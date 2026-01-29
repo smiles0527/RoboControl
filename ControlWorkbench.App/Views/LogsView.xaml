@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1000">
+             d:DesignHeight="600" d:DesignWidth="1000"
+             Background="{StaticResource BgDarkBrush}">
     
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
@@ -22,9 +23,9 @@
                     <Button Content="Open Log File..." Command="{Binding OpenLogCommand}" 
                             HorizontalAlignment="Left"/>
                     <TextBlock Text="{Binding LogFilePath}" TextWrapping="Wrap" Margin="5" 
-                               FontSize="10" Foreground="Gray"/>
+                               FontSize="10" Foreground="{StaticResource TextMutedBrush}"/>
                     <Button Content="Generate Sample Data" Command="{Binding GenerateSampleDataCommand}" 
-                            HorizontalAlignment="Left" Background="LightBlue"/>
+                            HorizontalAlignment="Left" Style="{StaticResource PrimaryButton}"/>
                 </StackPanel>
             </GroupBox>
             
